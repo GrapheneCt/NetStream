@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<stringset>
+
+  <string src="NetStream" id="msg_title_menu_first" />
+  <string src="YouTube" id="msg_fpmenu_item_0" />
+  <string src="HTTP Server" id="msg_fpmenu_item_1" />
+
+  <string src="History" id="msg_youtube_history" />
+  <string src="Description" id="msg_youtube_description" />
+  <string src="Load more comments..." id="msg_youtube_comment_more" />
+  <string src="Comment Details" id="msg_youtube_comment_detail" />
+  <string src="Comment Replies" id="msg_youtube_comment_reply" />
+  <string src=" likes" id="msg_youtube_comment_like_count" />
+
+  <string src="Next Page" id="msg_next_page" />
+  <string src="Previous Page" id="msg_previous_page" />
+
+  <string src="Settings" id="msg_settings" />
+  <string src="HTTP Server" id="msg_settings_http" />
+  <string src="Search" id="msg_settings_search" />
+  <string src="Comments" id="msg_settings_comment" />
+  <string src="Quality" id="msg_settings_quality" />
+  <string src="Player" id="msg_settings_youtube_player" />
+  <string src="Build Information" id="msg_settings_verinfo" />
+  
+  <string src="Host Address" id="msg_http_host" />
+  <string src="Port" id="msg_http_port" />
+  <string src="User" id="msg_http_user" />
+  <string src="Password" id="msg_http_password" />
+
+  <string src="Preferred Video Quality" id="msg_youtube_quality" />
+  <string src="Preferred Livestream Quality" id="msg_youtube_hls_quality" />
+
+  <string src="Invidious Instance" id="msg_youtube_inv_instance" />
+  <string src="Sort" id="msg_youtube_search_sort" />
+  <string src="Date" id="msg_youtube_search_date" />
+  <string src="Sort" id="msg_youtube_comment_sort" />
+  
+  <string src="Relevance" id="msg_option_search_sort_0" />
+  <string src="Rating" id="msg_option_search_sort_1" />
+  <string src="Date" id="msg_option_search_sort_2" />
+  <string src="View Count" id="msg_option_search_sort_3" />
+  
+  <string src="Hour" id="msg_option_search_date_0" />
+  <string src="Today" id="msg_option_search_date_1" />
+  <string src="Week" id="msg_option_search_date_2" />
+  <string src="Month" id="msg_option_search_date_3" />
+  <string src="Year" id="msg_option_search_date_4" />
+  <string src="Any" id="msg_option_search_date_5" />
+  
+  <string src="Top" id="msg_option_comment_sort_0" />
+  <string src="New" id="msg_option_comment_sort_1" />
+  
+  <string src="360P" id="msg_option_youtube_quality_0" />
+  <string src="720P" id="msg_option_youtube_quality_1" />
+  
+  <string src="144P" id="msg_option_youtube_hls_quality_0" />
+  <string src="240P" id="msg_option_youtube_hls_quality_1" />
+  <string src="360P" id="msg_option_youtube_hls_quality_2" />
+  <string src="480P" id="msg_option_youtube_hls_quality_3" />
+  <string src="720P" id="msg_option_youtube_hls_quality_4" />
+
+  <string src="Start Minimized" id="msg_toggle_youtube_min" />
+
+  <string src="Clean History" id="msg_settings_youtube_clean_history" />
+  <string src="Clean Favourites" id="msg_settings_youtube_clean_fav" />
+  <string src="History has been cleaned." id="msg_settings_youtube_clean_history_done" />
+  <string src="Favourites has been cleaned." id="msg_settings_youtube_clean_fav_done" />
+  <string src="All history records will be deleted. Continue?" id="msg_settings_youtube_clean_history_confirm" />
+  <string src="All favourites will be deleted. Continue?" id="msg_settings_youtube_clean_fav_confirm" />
+  <string src="Download" id="msg_settings_youtube_download" />
+  <string src="Download has been added to queue." id="msg_settings_youtube_download_begin" />
+
+</stringset>

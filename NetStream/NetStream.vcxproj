@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|PSVita">
+      <Configuration>Debug</Configuration>
+      <Platform>PSVita</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|PSVita">
+      <Configuration>Release</Configuration>
+      <Platform>PSVita</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\beav_player.cpp" />
+    <ClCompile Include="source\debug.cpp" />
+    <ClCompile Include="source\dialog.cpp" />
+    <ClCompile Include="source\downloader.cpp" />
+    <ClCompile Include="source\http_server_browser.cpp" />
+    <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\menus\menu_first.cpp" />
+    <ClCompile Include="source\menus\menu_generic.cpp" />
+    <ClCompile Include="source\menus\menu_http.cpp" />
+    <ClCompile Include="source\menus\menu_player_simple.cpp" />
+    <ClCompile Include="source\menus\menu_settings.cpp" />
+    <ClCompile Include="source\menus\menu_youtube.cpp" />
+    <ClCompile Include="source\menus\menu_player_youtube.cpp" />
+    <ClCompile Include="source\paf_runtime.cpp" />
+    <ClCompile Include="source\utils.cpp" />
+    <ClCompile Include="source\yt_utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\beav_player.h" />
+    <ClInclude Include="include\common.h" />
+    <ClInclude Include="include\debug.h" />
+    <ClInclude Include="include\dialog.h" />
+    <ClInclude Include="include\downloader.h" />
+    <ClInclude Include="include\http_server_browser.h" />
+    <ClInclude Include="include\main.h" />
+    <ClInclude Include="include\menus\menu_first.h" />
+    <ClInclude Include="include\menus\menu_generic.h" />
+    <ClInclude Include="include\menus\menu_http.h" />
+    <ClInclude Include="include\menus\menu_player_simple.h" />
+    <ClInclude Include="include\menus\menu_settings.h" />
+    <ClInclude Include="include\menus\menu_youtube.h" />
+    <ClInclude Include="include\menus\menu_player_youtube.h" />
+    <ClInclude Include="include\utils.h" />
+    <ClInclude Include="include\yt_utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="RES_RCO\file\netstream_settings.xml" />
+    <Xml Include="RES_RCO\locale\netstream_locale_en.xml" />
+    <Xml Include="RES_RCO\netstream_plugin.xml" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CA4F859F-6FE6-413C-A24A-44CF552FCE91}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|PSVita'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|PSVita'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup Condition="'$(DebuggerFlavor)'=='PSVitaDebugger'" Label="OverrideDebuggerDefaults">
+    <!--LocalDebuggerCommand>$(TargetPath)</LocalDebuggerCommand-->
+    <!--LocalDebuggerReboot>false</LocalDebuggerReboot-->
+    <!--LocalDebuggerCommandArguments></LocalDebuggerCommandArguments-->
+    <!--LocalDebuggerTarget></LocalDebuggerTarget-->
+    <!--LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory-->
+    <!--LocalMappingFile></LocalMappingFile-->
+    <!--LocalRunCommandLine></LocalRunCommandLine-->
+  </PropertyGroup>
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|PSVita'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|PSVita'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|PSVita'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;SCE_PAF_TOOL_PRX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(SCE_PSP2_SDK_DIR)\target\include\vdsuite\user;$(SCE_PSP2_SDK_DIR)\target\include\vdsuite\common;$(ProjectDir)libs\include;$(ProjectDir)include;$(SCE_PSP2_SDK_DIR)\target\include\vdsuite\user\psp2_compat;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CppLanguageStd>Cpp11</CppLanguageStd>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>--no-standard-libraries </AdditionalOptions>
+      <AdditionalLibraryDirectories>$(SCE_PSP2_SDK_DIR)\target\lib\vdsuite;$(ProjectDir)libs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateSnMapFile>FullMapFile</GenerateSnMapFile>
+      <AdditionalDependencies>-lSceSysmem_stub;-lSceThreadMgr_stub;-lSceThreadmgrCoredumpTime_stub;-lSceModuleMgr_stub;-lSceProcessMgr_stub;-lSceTouch_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceAppUtil_stub;-lSceAudio_stub;-lSceCtrl_stub;-lSceDisplay_stub;-lScePower_stub;-lSceSysmodule_stub;-lSceGxm_stub;-lSceDbg_stub;-lScePafThread_stub;-lScePafStdc_stub;-lScePafToplevel_stub;-lScePafResource_stub;-lScePafWidget_stub;-lScePafMisc_stub;-lScePafCommon_stub;-lScePafGraphics_stub;-lSceLibKernel_stub;-lSceNet_stub;-lSceNetCtl_stub;-lSceHttp_stub;-lSceSsl_stub;-lSceAppSettings_stub;-lSceCommonGuiDialog_stub;-lSceIniFileProcessor_stub;-lSceBEAVCorePlayer_stub;-lSceDmacmgr_stub;-lSceFiber_stub;-lSceVshBridge_stub;-ltaihenUnsafe_stub;-lInvidious_stub;-lcurl_stub;-lsnc;-lCurlFile;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>"$(SCE_PSP2_SDK_DIR)/host_tools/build/bin/vdsuite-pubprx.exe" --boot-param "$(ProjectDir)ebootparam.bin" "$(LocalDebuggerCommand)" "$(OutDir)eboot.bin"</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>"$(SCE_PSP2_SDK_DIR)/host_tools/build/rco/bin/psp2pafhashgen.exe" -i "$(ProjectDir)RES_RCO\netstream_plugin.xml" -o "$(ProjectDir)include\netstream_plugin.h"
+"$(SCE_PSP2_SDK_DIR)/host_tools/build/rco/bin/psp2pafhashgen.exe" -i "$(ProjectDir)RES_RCO\file\netstream_settings.xml" -o "$(ProjectDir)include\netstream_settings.h"
+"$(SCE_PSP2_SDK_DIR)/host_tools/build/rco/bin/psp2pafhashgen.exe" -i "$(ProjectDir)RES_RCO\locale\netstream_locale_en.xml" -o "$(ProjectDir)include\netstream_locale.h"</Command>
+      <Message>VDSUITE: generate PAF hashlist</Message>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|PSVita'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;SCE_DBG_LOGGING_ENABLED=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <OptimizationLevel>Level3</OptimizationLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(SCE_PSP2_SDK_DIR)\target\include\vdsuite\user;$(SCE_PSP2_SDK_DIR)\target\include\vdsuite\common;$(ProjectDir)libs\include;$(ProjectDir)include;$(SCE_PSP2_SDK_DIR)\target\include\vdsuite\user\psp2_compat;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CppLanguageStd>Cpp11</CppLanguageStd>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SCE_PSP2_SDK_DIR)\target\lib\vdsuite;$(ProjectDir)libs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Link>
+      <InfoStripping>StripSymsAndDebug</InfoStripping>
+    </Link>
+    <Link>
+      <DataStripping>StripFuncsAndData</DataStripping>
+    </Link>
+    <Link>
+      <DuplicateStripping>true</DuplicateStripping>
+      <AdditionalOptions>--no-standard-libraries </AdditionalOptions>
+      <AdditionalDependencies>-lSceIpmi_stub;-lSceSysmem_stub;-lSceThreadMgr_stub;-lSceThreadmgrCoredumpTime_stub;-lSceModuleMgr_stub;-lSceProcessMgr_stub;-lSceTouch_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceAppUtil_stub;-lSceAudio_stub;-lSceCtrl_stub;-lSceDisplay_stub;-lScePower_stub;-lSceSysmodule_stub;-lSceGxm_stub;-lSceDbg_stub;-lScePafThread_stub;-lScePafStdc_stub;-lScePafToplevel_stub;-lScePafResource_stub;-lScePafWidget_stub;-lScePafMisc_stub;-lScePafCommon_stub;-lScePafGraphics_stub;-lSceLibKernel_stub;-lSceNet_stub;-lSceNetCtl_stub;-lSceAppSettings_stub;-lSceCommonGuiDialog_stub;-lSceIniFileProcessor_stub;-lSceBEAVCorePlayer_stub;-lSceDmacmgr_stub;-lSceFiber_stub;-lSceVshBridge_stub;-ltaihenUnsafe_stub;-lInvidious_stub;-lcurl_stub;-lsnc;-lCurlFile;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>call "$(ProjectDir)gen_rco.bat"
+"$(SCE_PSP2_SDK_DIR)/host_tools/build/bin/vdsuite-pubprx.exe" --strip --compress --boot-param "$(ProjectDir)ebootparam.bin" "$(LocalDebuggerCommand)" "$(OutDir)eboot.bin"
+"$(SCE_PSP2_SDK_DIR)/host_tools/build/bin/vdsuite-pubsfo.exe" "$(ProjectDir)param.sfx" "$(OutDir)param.sfo"
+"$(SCE_PSP2_SDK_DIR)/host_tools/build/bin/vdsuite-pubgen.exe" --file "$(OutDir)eboot.bin" eboot.bin  --file "$(OutDir)param.sfo" sce_sys/param.sfo --file "$(ProjectDir)CONTENTS/sce_sys/icon0.png" sce_sys/icon0.png --file "$(ProjectDir)CONTENTS/sce_sys/pic0.png" sce_sys/pic0.png --file "$(ProjectDir)CONTENTS/sce_sys/livearea" sce_sys/livearea --file "$(ProjectDir)CONTENTS/module" module  --file "$(ProjectDir)CONTENTS/netstream_plugin.rco" netstream_plugin.rco "$(OutDir)$(ProjectName).vpk"
+copy /Y "$(OutDir)eboot.bin" "$(ProjectDir)CONTENTS/eboot.bin"
+copy /Y "$(OutDir)param.sfo" "$(ProjectDir)CONTENTS/sce_sys/param.sfo"
+"$(SCE_ROOT_DIR)/PSP2/Tools/Publishing Tools/bin/ext/make_pkg.exe" --output $(OutDir) "$(ProjectDir)package.conf" $(ProjectDir)</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>VDSUITE: Building packages</Message>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>"$(SCE_PSP2_SDK_DIR)/host_tools/build/rco/bin/psp2pafhashgen.exe" -i "$(ProjectDir)RES_RCO\netstream_plugin.xml" -o "$(ProjectDir)include\netstream_plugin.h"
+"$(SCE_PSP2_SDK_DIR)/host_tools/build/rco/bin/psp2pafhashgen.exe" -i "$(ProjectDir)RES_RCO\file\netstream_settings.xml" -o "$(ProjectDir)include\netstream_settings.h"
+"$(SCE_PSP2_SDK_DIR)/host_tools/build/rco/bin/psp2pafhashgen.exe" -i "$(ProjectDir)RES_RCO\locale\netstream_locale_en.xml" -o "$(ProjectDir)include\netstream_locale.h"</Command>
+      <Message>VDSUITE: generate PAF hashlist</Message>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Condition="'$(ConfigurationType)' == 'Makefile' and Exists('$(VCTargetsPath)\Platforms\$(Platform)\SCE.Makefile.$(Platform).targets')" Project="$(VCTargetsPath)\Platforms\$(Platform)\SCE.Makefile.$(Platform).targets" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

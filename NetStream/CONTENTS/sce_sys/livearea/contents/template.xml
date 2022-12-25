@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<livearea style="a1" format-ver="01.03" content-rev="1">
+	
+	<livearea-background>
+		<image>labg.png</image>
+	</livearea-background>
+	
+	<gate>
+		<startup-image>gate.png</startup-image>
+	</gate>
+	
+	<frame id="frame3">
+		<liveitem>	<lang>ja</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>en</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>fr</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>es</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>de</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>it</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>nl</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>pt</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>ru</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>ko</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>ch</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>zh</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>fi</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>sv</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>da</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>no</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>pl</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>en-gb</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>pt-br</lang> <image valign="top">title-en.png</image> </liveitem>
+		<liveitem>	<lang>tr</lang> <image valign="top">title-en.png</image> </liveitem>
+
+		<liveitem default="on">	
+			<image valign="top">title-en.png</image> 
+		</liveitem>
+	</frame>
+</livearea>
+

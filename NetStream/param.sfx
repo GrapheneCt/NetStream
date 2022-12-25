@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<paramsfo>
+	<param key="APP_VER">01.00</param>
+	<param key="ATTRIBUTE">33408</param>
+	<param key="ATTRIBUTE_MINOR">16</param>
+	<param key="ATTRIBUTE2">0</param>
+	<param key="CATEGORY">gdc</param>
+	<param key="CONTENT_ID">HB0000-GRVA00024_00-NETSTREAM0000000</param>
+	<param key="GC_RO_SIZE">0</param>
+	<param key="GC_RW_SIZE">0</param>
+	<param key="PARENTAL_LEVEL">1</param>
+	<param key="PSP2_DISP_VER">03.600</param>
+	<param key="PSP2_SYSTEM_VER">56623104</param>
+	<param key="REGION_DENY">0</param>
+	<param key="SAVEDATA_MAX_SIZE">1048576</param>
+	<param key="STITLE">NetStream</param>
+	<param key="TITLE">NetStream</param>
+	<param key="TITLE_ID">GRVA00024</param>
+	<param key="VERSION">01.00</param>
+</paramsfo>

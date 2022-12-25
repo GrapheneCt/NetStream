@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1525
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetStream", "NetStream\NetStream.vcxproj", "{CA4F859F-6FE6-413C-A24A-44CF552FCE91}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A6BB4747-BD6A-4DFC-B213-236038A9E766} = {A6BB4747-BD6A-4DFC-B213-236038A9E766}
+		{584C4FE4-880C-4EF6-9E2A-22BBE98EBA2D} = {584C4FE4-880C-4EF6-9E2A-22BBE98EBA2D}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libScePafPreload", "NetStream-libScePafPreload\libScePafPreload.vcxproj", "{584C4FE4-880C-4EF6-9E2A-22BBE98EBA2D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetStream-DE", "NetStream-DE\NetStream-DE.vcxproj", "{A6BB4747-BD6A-4DFC-B213-236038A9E766}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|PSVita = Debug|PSVita
+		Release|PSVita = Release|PSVita
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CA4F859F-6FE6-413C-A24A-44CF552FCE91}.Debug|PSVita.ActiveCfg = Debug|PSVita
+		{CA4F859F-6FE6-413C-A24A-44CF552FCE91}.Debug|PSVita.Build.0 = Debug|PSVita
+		{CA4F859F-6FE6-413C-A24A-44CF552FCE91}.Release|PSVita.ActiveCfg = Release|PSVita
+		{CA4F859F-6FE6-413C-A24A-44CF552FCE91}.Release|PSVita.Build.0 = Release|PSVita
+		{584C4FE4-880C-4EF6-9E2A-22BBE98EBA2D}.Debug|PSVita.ActiveCfg = Debug|PSVita
+		{584C4FE4-880C-4EF6-9E2A-22BBE98EBA2D}.Debug|PSVita.Build.0 = Debug|PSVita
+		{584C4FE4-880C-4EF6-9E2A-22BBE98EBA2D}.Release|PSVita.ActiveCfg = Release|PSVita
+		{584C4FE4-880C-4EF6-9E2A-22BBE98EBA2D}.Release|PSVita.Build.0 = Release|PSVita
+		{A6BB4747-BD6A-4DFC-B213-236038A9E766}.Debug|PSVita.ActiveCfg = Debug|PSVita
+		{A6BB4747-BD6A-4DFC-B213-236038A9E766}.Debug|PSVita.Build.0 = Debug|PSVita
+		{A6BB4747-BD6A-4DFC-B213-236038A9E766}.Release|PSVita.ActiveCfg = Release|PSVita
+		{A6BB4747-BD6A-4DFC-B213-236038A9E766}.Release|PSVita.Build.0 = Release|PSVita
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C50D68BE-AABF-49D8-B1F9-47902DAEB14E}
+	EndGlobalSection
+EndGlobal

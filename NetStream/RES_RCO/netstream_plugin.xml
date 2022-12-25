@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resource version="0.1" type="normal" id="empva_plugin">
+  <pagetable>
+  
+    <!-- first page -->
+    <page id="page_first">
+      <plane texture="tex_common_bg" id="plane_base_bg_page_first">
+        <layout_hint size="960, 544" />
+      </plane>
+      <template_ref id="template_ref_top_title_bar_page_first" template="template_top_title_bar" />
+      <template_ref id="template_ref_list_view_page_first" template="template_list_view_generic" />
+    </page>
+  
+    <!-- http server page -->
+    <page id="page_http">
+      <plane texture="tex_common_bg" id="plane_base_bg_page_http">
+        <layout_hint size="960, 544" />
+      </plane>
+      <template_ref id="template_ref_top_title_bar_page_http" template="template_top_title_bar" />
+      <plane style="_common_style_plane_transparent" id="plane_browser_root_page_http">
+        <layout_hint size="960, 544" />
+      </plane>
+      <busyindicator style="style_busyindicator_big" texture="_common_texture_busy" id="busyindicator_loader_page_http" >
+        <layout_hint size="75, 75" />
+      </busyindicator>
+      <corner_button style="_common_style_corner_bottom_left" id="button_back_page_http" />
+      <corner_button style="_common_style_corner_bottom_right" id="button_settings_page_http" />
+    </page>
+
+    <!-- youtube browser page -->
+    <page id="page_youtube">
+      <plane texture="tex_common_bg" id="plane_base_bg_page_youtube">
+        <layout_hint size="960, 544" />
+      </plane>
+      <template_ref id="template_ref_top_title_bar_page_youtube" template="template_top_title_bar" />
+      <plane style="_common_style_plane_transparent" id="plane_browser_root_page_youtube">
+        <layout_hint size="960, 544" />
+      </plane>
+      <busyindicator style="style_busyindicator_big" texture="_common_texture_busy" id="busyindicator_loader_page_youtube" >
+        <layout_hint size="75, 75" />
+      </busyindicator>
+      <plane texture="_common_texture_option_menu_button_top" id="plane_bottommenu_page_youtube">
+        <layout_hint size="980, 51" alpha="1" anchor="0, 1" align="0, 1" />
+        <box style="_common_default_style_dialog_box" id="box_bottommenu_page_youtube">
+          <layout_box layout_type="2" bottom_margin="0" top_margin="0" />
+          <button style="style_button_yt_search" id="button_yt_btmenu_search">
+            <layout_hint alpha="1" size="135, 39" pos="0, -4.5" />
+            <focus_hint focus_shape="2" right_id="button_yt_btmenu_history" />
+          </button>
+          <plane texture="tex_vertical_separator" id="yt_plane_bottommenu_sep1">
+            <layout_hint size="1, 45" pos="0, -4.5" />
+          </plane>
+          <button style="style_button_yt_history" id="button_yt_btmenu_history">
+            <layout_hint alpha="1" size="135, 39" pos="0, -4.5" />
+            <focus_hint focus_shape="2" left_id="button_yt_btmenu_search" right_id="button_yt_btmenu_favourite" />
+          </button>
+          <plane texture="tex_vertical_separator" id="yt_plane_bottommenu_sep2">
+            <layout_hint size="1, 45" pos="0, -4.5" />
+          </plane>
+          <button style="style_button_yt_favourite" id="button_yt_btmenu_favourite">
+            <layout_hint alpha="1" size="135, 39" pos="0, -4.5" />
+            <focus_hint focus_shape="2" left_id="button_yt_btmenu_history" />
+          </button>
+        </box>
+      </plane>
+      <corner_button style="_common_style_corner_bottom_left" id="button_back_page_youtube" />
+      <corner_button style="_common_style_corner_bottom_right" id="button_settings_page_youtube" />
+    </page>
+
+    <!-- youtube player page -->
+    <page id="page_youtube_player">
+      <plane texture="tex_common_bg" id="plane_base_bg_page_youtube_player">
+        <layout_hint size="960, 544"/>
+      </plane>
+      <plane style="_common_style_plane_transparent" id="plane_root_page_youtube_player">
+        <layout_hint size="960, 544" />
+      </plane>
+      <text style="style_text_youtube_video_title" auto_scroll="1" id="text_video_title">
+        <layout_hint size="480, 0" anchor="1, 2" align="1, 2" adjust="0, 2" pos="13, -41" />
+      </text>
+      <plane texture="tex_black" id="plane_video_dummy">
+        <layout_hint anchor="1, 2" align="1, 2" size="480, 272" pos="13, -79" />
+      </plane>
+      <text style="style_text_youtube_video_stat" auto_scroll="1" id="text_video_stat_0">
+        <layout_hint size="480, 0" anchor="1, 2" align="1, 2" adjust="0, 2" pos="13, -421" />
+      </text>
+      <text style="style_text_youtube_video_stat" id="text_video_stat_1">
+        <layout_hint size="240, 0" anchor="1, 2" align="1, 2" adjust="0, 2" pos="13, -447" />
+      </text>
+       <text style="style_text_youtube_video_stat" id="text_video_stat_2">
+        <layout_hint size="240, 0" anchor="2, 2" align="2, 2" adjust="0, 2" pos="-338, -447" />
+      </text>
+      <image_button style="style_button_yt_fav" id="button_youtube_fav">
+        <layout_hint size="102, 50" anchor="1, 2" align="1, 2" pos="13, -362" />
+      </image_button>
+      <image_button style="style_button_yt_expand" id="button_youtube_expand">
+        <layout_hint size="102, 50" anchor="2, 2" align="2, 2" pos="-467, -362" />
+      </image_button>
+      <plane texture="_common_texture_transparent" id="plane_youtube_live_now">
+        <layout_hint anchor="1, 2" align="1, 2" size="70, 53" pos="138, -350" />
+      </plane>
+      <plane style="_common_style_plane_transparent" id="plane_youtube_companel_base">
+        <layout_hint anchor="1, 2" align="1, 2" size="426, 490" pos="514, -42" />
+        <plane texture="_common_texture_dialog_frame" id="plane_youtube_companel_frame">
+          <layout_hint adjust="1, 1" />
+        </plane>
+        <plane style="_common_style_plane_dialog" texture="_common_texture_dialog_fill_white" id="plane_youtube_companel_fill">
+          <layout_hint adjust="1, 1" />
+        </plane>
+        <button sound="_common_sound_button_enter" style="_common_style_copy_paste_menu_button_left" id="button_yt_companel_description" label="msg_youtube_description">
+          <layout_hint anchor="1, 2" align="1, 2" size="211, 43" pos="2, -2" />
+          <focus_hint focus_shape="3" />
+        </button>
+        <button sound="_common_sound_button_enter" style="_common_style_copy_paste_menu_button_right" id="button_yt_companel_comment" label="msg_settings_comment">
+          <layout_hint anchor="1, 2" align="1, 2" size="211, 43" pos="213, -2" />
+          <focus_hint focus_shape="3" />
+        </button>
+      </plane>
+      <corner_button style="_common_style_corner_bottom_left" id="button_back_page_youtube_player" />
+      <corner_button style="_common_style_corner_bottom_right" id="button_settings_page_youtube_player" />
+      <plane style="style_plane_youtube_loader" id="plane_youtube_loader">
+        <layout_hint size="960, 544"/>
+        <busyindicator style="style_busyindicator_big" texture="_common_texture_busy" id="busyindicator_youtube_loader" >
+          <layout_hint size="75, 75" />
+        </busyindicator>
+      </plane>
+    </page>
+    
+    <!-- simple player page -->
+    <page id="page_player_simple">
+      <plane texture="tex_black" id="plane_video_page_player_simple">
+        <layout_hint anchor="1, 2" align="1, 2">
+          <resolution id="landscape" size="960, 544" />
+          <resolution id="full_hd" size="1920, 1088" />
+        </layout_hint>
+        <plane style="style_plane_black" id="plane_dummy">
+          <layout_hint anchor="1, 2" align="1, 2">
+            <resolution id="landscape" size="1, 1" />
+            <resolution id="full_hd" size="1, 1" />
+          </layout_hint>
+        </plane>
+        <busyindicator style="style_busyindicator_big" texture="_common_texture_busy" id="busyindicator_video_page_player_simple" >
+          <layout_hint>
+            <resolution id="landscape" size="75, 75" />
+            <resolution id="full_hd" size="150, 150" />
+          </layout_hint>
+        </busyindicator>
+        <text style="style_text_video_control_panel_acc_left" id="text_video_page_player_simple_acc_left" >
+          <layout_hint adjust="2, 2" anchor="1, 0" align="1, 0" >
+            <resolution id="landscape" pos="60, 0" />
+            <resolution id="full_hd" pos="120, 0" />
+          </layout_hint>
+        </text>
+        <text style="style_text_video_control_panel_acc_right" id="text_video_page_player_simple_acc_right" >
+          <layout_hint adjust="2, 2" anchor="2, 0" align="2, 0" >
+            <resolution id="landscape" pos="-60, 0" />
+            <resolution id="full_hd" pos="-120, 0" />
+          </layout_hint>
+        </text>
+        <button style="_common_default_style_button_transparent" id="button_video_page_control_trigger">
+          <layout_hint>
+            <resolution id="landscape" size="960, 544" />
+            <resolution id="full_hd" size="1920, 1088" />
+          </layout_hint>
+          <focus_hint enable="0" />
+        </button>
+        <plane_button style="style_button_video_big_repeat" id="button_video_page_whole_repeat">
+          <layout_hint>
+            <resolution id="landscape" size="90, 90" />
+            <resolution id="full_hd" size="180, 180" />
+          </layout_hint>
+          <focus_hint enable="0" />
+        </plane_button>
+        <plane style="style_plane_video_page_control_bg" texture="_common_texture_option_menu_button_top" id="plane_video_control_panel_bg">
+          <layout_hint anchor="0, 1">
+            <resolution id="landscape" size="790, 56" pos="0, 28" />
+            <resolution id="full_hd" size="1700, 112" pos="0, 56" />
+          </layout_hint>
+          <progressbar_touch style="style_video_control_panel_progressbar" id="progressbar_touch_video_control_panel">
+            <layout_hint>
+              <resolution id="landscape" size="538, 10" pos="14, 0" />
+              <resolution id="full_hd" size="1400, 20" pos="0, 0" />
+            </layout_hint>
+            <text style="style_text_video_control_panel_progressbar_label_green" id="text_video_control_panel_progressbar_label_elapsed" >
+              <layout_hint adjust="2, 2" anchor="1, 0" align="2, 0" >
+                <resolution id="landscape" pos="-20, 12" />
+                <resolution id="full_hd" pos="-20, 20" />
+              </layout_hint>
+            </text>
+            <text style="style_text_video_control_panel_progressbar_label_white" id="text_video_control_panel_progressbar_label_total" >
+              <layout_hint adjust="2, 2" anchor="1, 0" align="2, 0" >
+                <resolution id="landscape" pos="-20, -12" />
+                <resolution id="full_hd" pos="-20, -20" />
+              </layout_hint>
+            </text>
+            <plane_button style="style_button_video_control_panel" id="button_video_control_panel_playpause">
+              <layout_hint anchor="2, 0" align="1, 0" >
+                <resolution id="landscape" pos="32, 0" size="48, 80" />
+                <resolution id="full_hd" pos="30, 0" size="90, 80" />
+              </layout_hint>
+              <focus_hint enable="0" />
+            </plane_button>
+          </progressbar_touch>
+        </plane>
+        <corner_button style="_common_style_corner_bottom_left" id="button_back_page_player_simple" />
+      </plane>
+    </page>
+  
+  </pagetable>
+  
+  <styletable>
+  
+    <!-- common stuff -->
+    <style_plane color="0, 0, 0, 1" id="style_plane_black" />
+    <style_busyindicator ball_color="0.78, 0.8, 0.85, 1" ball_size="16" id="style_busyindicator_big" />
+  
+    <!-- top title bar text -->
+    <style_text textobj="text_obj1" id="style_text_top_title_bar">
+      <textobj font_size="32" bold="1" align_y="1" align_x="1" ellipsis="1" id="text_obj1" />
+    </style_text>
+  
+    <!-- generic list view -->
+    <style_list_view color="0, 0, 0, 0" id="style_list_view_generic" sbar_v_margin="6, 80, 9" />
+  
+    <!-- generic list view item -->
+    <style_list_item color="1, 1, 1, 0" id="style_list_view_item_generic" />
+  
+    <!-- generic image button -->
+    <style_image_button layout_type_x="1" layout_type_y="0" color="1, 1, 1, 1" glow_obj="plane_obj1" label_obj="text_obj1" bg_obj="plane_obj2" image_obj="plane_obj3" image_margin="10" id="style_image_button_list_button">
+      <planeobj texture0="_common_texture_list_70px" id="plane_obj2" />
+      <textobj font_size="28" bold="1" max_line_count="2" enlarge_line_pitch="1" line_pitch="28" word_wrap="1" ellipsis="1" align_y="1" id="text_obj1" />
+      <planeobj scale_mode_y="3" scale_mode_x="3" size="102, 70" id="plane_obj3" />
+      <planeobj texture0="_common_texture_list_glow_70px" blend="2" id="plane_obj1" />
+    </style_image_button>
+  
+    <!-- videoplayer control panel styles -->
+    <style_plane color="1, 1, 1, 0.5" id="style_plane_video_page_control_bg" />
+    <style_text textobj="text_obj1" id="style_text_video_control_panel_progressbar_label_green">
+      <textobj font_color="0.75, 1, 0.3, 1" font_size="20" id="text_obj1" />
+    </style_text>
+    <style_text textobj="text_obj1" id="style_text_video_control_panel_progressbar_label_white">
+      <textobj font_size="20" id="text_obj1" />
+    </style_text>
+    <style_progressbar_touch base_obj="plane_obj1" slider_obj="plane_obj2" slider_glow_obj="plane_obj3" glow_obj="plane_obj4" bar_shadow_obj="plane_obj5" shadow_margin="0, 0" bar_fore_obj="plane_obj6" shadow_offset="0, -5" bar_back_obj="plane_obj7" signal_obj="plane_obj8" base_shadow_obj="plane_obj9" id="style_video_control_panel_progressbar">
+      <planeobj scale_mode_y="1" texture0="_common_texture_progressbar_base" id="plane_obj1" />
+      <planeobj color="0.659, 1, 0, 1" scale_mode_y="1" texture0="_common_texture_progressbar_bar" id="plane_obj6" />
+      <planeobj scale_mode_y="1" texture0="_common_texture_progressbar_bar_back" id="plane_obj7" />
+      <planeobj scale_mode_y="1" texture0="_common_texture_progressbar_signal" id="plane_obj8" />
+      <planeobj texture0="_common_texture_progressbar_glow" color="0.75, 1, 0, 1" scale_mode_x="1" scale_mode_y="1" blend="2" id="plane_obj4" scale_value="2.5" />
+      <planeobj color="1, 1, 1, 0.7" scale_mode_y="1" texture0="_common_texture_progressbar_shadow" id="plane_obj9" />
+      <planeobj color="0.612, 1, 0, 0.7" scale_mode_y="1" texture0="_common_texture_progressbar_shadow" id="plane_obj5" />
+      <planeobj texture0="_common_texture_progressbar_slider_glow" color="0.659, 1, 0, 1" scale_mode_x="1" scale_mode_y="1" id="plane_obj3" scale_value="0.5, 0.5" />
+      <planeobj scale_mode_y="1" scale_mode_x="1" texture0="_common_texture_progressbar_slider" id="plane_obj2" scale_value="0.5, 0.5" />
+    </style_progressbar_touch>
+    <style_plane_button image_obj="plane_obj1" glow_obj="plane_obj2" id="style_button_video_control_panel">
+      <planeobj scale_mode_y="1" scale_mode_x="1" texture0="tex_button_pause" id="plane_obj1" />
+      <planeobj texture0="_common_texture_icon_glow" id="plane_obj2" />
+    </style_plane_button>
+    <style_plane_button image_obj="plane_obj1" glow_obj="plane_obj2" sound="_common_sound_plane_button_enter" id="style_button_video_big_repeat">
+      <planeobj texture0="tex_button_big_repeat" id="plane_obj1" />
+      <planeobj texture0="_common_texture_icon_glow" id="plane_obj2" />
+    </style_plane_button>
+    <style_text textobj="text_obj1" id="style_text_video_control_panel_acc_left">
+      <textobj font_size="32" bold="1" align_y="0" align_x="0" ellipsis="1" id="text_obj1" />
+    </style_text>
+    <style_text textobj="text_obj1" id="style_text_video_control_panel_acc_right">
+      <textobj font_size="32" bold="1" align_y="0" align_x="0" ellipsis="1" id="text_obj1" />
+    </style_text>
+    
+    <!-- youtube browser styles -->
+    <style_list_view color="0, 0, 0, 0" id="style_list_view_youtube" sbar_v_margin="6, 29, 9" />
+    <style_button sound="_common_sound_button_enter" glow_obj="plane_obj1" bg_obj="plane_obj2" id="style_button_yt_search">
+      <planeobj texture0="tex_yt_icon_search" scale_mode_y="1" scale_mode_x="1" id="plane_obj2" />
+      <planeobj texture0="_common_texture_copy_paste_menu_button_middle_glow" blend="1" id="plane_obj1" />
+    </style_button>
+    <style_button sound="_common_sound_button_enter" glow_obj="plane_obj1" bg_obj="plane_obj2" id="style_button_yt_history">
+      <planeobj texture0="tex_yt_icon_history" scale_mode_y="1" scale_mode_x="1" id="plane_obj2" />
+      <planeobj texture0="_common_texture_copy_paste_menu_button_middle_glow" blend="1" id="plane_obj1" />
+    </style_button>
+    <style_button sound="_common_sound_button_enter" glow_obj="plane_obj1" bg_obj="plane_obj2" id="style_button_yt_favourite">
+      <planeobj texture0="tex_yt_icon_favourite" scale_mode_y="1" scale_mode_x="1" id="plane_obj2" />
+      <planeobj texture0="_common_texture_copy_paste_menu_button_middle_glow" blend="1" id="plane_obj1" />
+    </style_button>
+    <style_text_box sound="_common_sound_text_box" glowobj="plane_obj1" planeobj="plane_obj2" top_margin="6" right_margin="16" left_margin="16" textobj="text_obj1" id="style_text_box_top_youtube_search">
+      <textobj color="1, 1, 1, 1" word_wrap="0" font_size="28" ellipsis="1" id="text_obj1" />
+      <planeobj texture0="_common_texture_text_box" id="plane_obj2" />
+      <planeobj texture0="_common_texture_checkbox_textbox_glow" blend="2" id="plane_obj1" />
+    </style_text_box>
+    <style_image_button sound="_common_sound_image_button" image_obj="plane_obj1" image_back_obj="plane_obj2" glow_obj="plane_obj3" id="style_button_yt_top_search">
+      <planeobj scale_mode_y="1" scale_mode_x="1" scale_value="1, 1" texture0="tex_yt_icon_search" id="plane_obj1" />
+      <planeobj texture0="_common_texture_button" id="plane_obj2" />
+      <planeobj texture0="_common_texture_button_glow" blend="2" id="plane_obj3" />
+    </style_image_button>
+    <style_image_button layout_type_x="1" color="1, 1, 1, 1" glow_obj="plane_obj1" label_obj="text_obj1" bg_obj="plane_obj2" image_obj="plane_obj3" image_margin="10" id="style_image_button_list_button_youtube">
+      <planeobj texture0="_common_texture_list_70px" id="plane_obj2" />
+      <textobj font_size="28" bold="1" max_line_count="2" line_space="-28" word_wrap="1" ellipsis="1" id="text_obj1" />
+      <planeobj scale_mode_y="3" scale_mode_x="3" size="120, 90" id="plane_obj3" />
+      <planeobj texture0="_common_texture_list_glow_70px" blend="2" id="plane_obj1" />
+    </style_image_button>
+    <style_image_button layout_type_x="1" color="1, 1, 1, 1" glow_obj="plane_obj1" label_obj="text_obj1" bg_obj="plane_obj2" image_obj="plane_obj3" image_margin="10" id="style_image_button_list_button_youtube_aligned">
+      <planeobj texture0="_common_texture_list_70px" id="plane_obj2" />
+      <textobj font_size="28" bold="1" ellipsis="1" align_y="1" id="text_obj1" />
+      <planeobj scale_mode_y="3" scale_mode_x="3" size="120, 90" id="plane_obj3" />
+      <planeobj texture0="_common_texture_list_glow_70px" blend="2" id="plane_obj1" />
+    </style_image_button>
+    <style_text textobj="text_obj1" id="style_text_list_button_youtube_time">
+      <textobj font_size="16" ellipsis="1" align_y="1" back_color="0, 0, 0, 0.5" id="text_obj1" />
+    </style_text>
+    <style_text textobj="text_obj1" id="style_text_list_button_youtube_subtext">
+      <textobj font_size="20" font_color="0.9, 0.9, 0.9, 1" bold="1" ellipsis="1" max_line_count="2" line_space="0" id="text_obj1" />
+    </style_text>
+    
+    <!-- youtube player styles -->
+    <style_text textobj="text_obj1" id="style_text_youtube_video_title">
+      <textobj font_size="26" bold="1" ellipsis="1" id="text_obj1" />
+    </style_text>
+    <style_text textobj="text_obj1" id="style_text_youtube_video_stat">
+      <textobj font_size="20" bold="1" ellipsis="1" id="text_obj1" />
+    </style_text>
+    <style_text textobj="text_obj1" id="style_text_youtube_companel">
+      <textobj font_size="20" ellipsis="1" word_wrap="1" id="text_obj1" />
+    </style_text>
+    <style_image_button sound="_common_sound_image_button" image_obj="plane_obj1" image_back_obj="plane_obj2" glow_obj="plane_obj3" id="style_button_yt_expand">
+      <planeobj scale_mode_y="1" scale_mode_x="1" scale_value="1, 1" texture0="tex_button_expand" id="plane_obj1" />
+      <planeobj texture0="_common_texture_button" id="plane_obj2" />
+      <planeobj texture0="_common_texture_button_glow" blend="2" id="plane_obj3" />
+    </style_image_button>
+    <style_image_button sound="_common_sound_image_button" image_obj="plane_obj1" image_back_obj="plane_obj2" glow_obj="plane_obj3" id="style_button_yt_fav">
+      <planeobj scale_mode_y="1" scale_mode_x="1" scale_value="0.8, 0.8" texture0="tex_yt_icon_favourite_for_player" id="plane_obj1" />
+      <planeobj texture0="_common_texture_button" id="plane_obj2" />
+      <planeobj texture0="_common_texture_button_glow" blend="2" id="plane_obj3" />
+    </style_image_button>
+    <style_plane color="0, 0, 0, 0.5" id="style_plane_youtube_loader" />
+    <style_button bottom_margin="12" glow_obj="plane_obj2" right_margin="20" top_margin="12" left_margin="20" label_obj="text_obj1" bg_obj="plane_obj1" id="style_button_yt_companel">
+      <planeobj texture0="_common_texture_transparent" id="plane_obj1" />
+      <textobj font_size="26" bold="1" align_y="1" align_x="1" adjust_x="1" adjust_y="1" id="text_obj1" />
+      <planeobj texture0="_common_texture_copy_paste_menu_button_middle_glow" blend="1" id="plane_obj2" />
+    </style_button>
+    <style_list_view color="0, 0, 0, 0" id="style_list_view_companel" sbar_v_margin="6, 80, 9" />
+    <style_scroll_view color="0, 0, 0, 0" id="style_scroll_view_companel" sbar_v_margin="6, 56, 4"/>
+    <style_button sound="_common_sound_button_enter" label_obj="text_obj1" bg_obj="plane_obj1" glow_obj="plane_obj2" bottom_margin="8" right_margin="8" top_margin="8" left_margin="8" id="style_button_yt_comment">
+      <planeobj texture0="_common_texture_copy_paste_menu_button_middle" id="plane_obj1" />
+      <planeobj texture0="_common_texture_copy_paste_menu_button_middle_glow" blend="2" id="plane_obj2" />
+      <textobj font_size="20" ellipsis="1" word_wrap="1" max_line_count="2" id="text_obj1" />
+    </style_button>
+
+  </styletable>
+  
+  <templatetable>
+  
+    <!-- top title bar template -->
+    <template fast_open="1" id="template_top_title_bar">
+      <plane style="_common_style_plane_transparent" id="plane_top">
+        <layout_hint align="0, 2" size="960, 64" pos="0, 240" />
+        <box style="_common_default_style_box" id="box_top">
+          <layout_box space="0" align="0, 0" pos="0, 0" adjust="2, 2" layout_type="2" size="0, 0" />
+          <text style="style_text_top_title_bar" auto_scroll="1" id="text_top">
+            <layout_hint size="760, 0" align="0, 4" adjust="0, 2" pos="0, 0" />
+          </text>
+        </box>
+        <plane texture="_common_texture_ruled_line" id="plane_top_separator">
+          <layout_hint size="960, 2" pos="0, 0" anchor="0, 1" />
+        </plane>
+      </plane>
+    </template>
+  
+    <!-- generic list item template (image button) -->
+    <template fast_open="1" id="template_list_item_generic">
+      <list_item style="style_list_view_item_generic" id="list_item">
+        <layout_hint size="960, 80" />
+        <image_button sound="_common_sound_image_button" enable_long_press_text_auto_scroll="1" style="style_image_button_list_button" id="image_button_list_item">
+          <focus_hint focus_shape="3" />
+          <layout_hint size="840, 80" />
+        </image_button>
+      </list_item>
+    </template>
+  
+    <!-- generic list view template -->
+    <template fast_open="1" id="template_list_view_generic">
+      <list_view style="style_list_view_generic" id="list_view_generic">
+        <layout_hint align="0, 1" size="960, 448" pos="0, -272" />
+      </list_view>
+    </template>
+
+    <!-- youtube list view templates -->
+    <template fast_open="1" id="template_list_view_youtube_search">
+      <plane style="_common_style_plane_transparent" id="plane_list_view_youtube_search_root">
+        <layout_hint size="960, 544" pos="0, 0" />
+        <plane style="_common_style_plane_transparent" id="plane_top_youtube_search">
+          <layout_hint align="0, 2" size="960, 64" pos="0, 240" />
+          <box style="_common_default_style_box" id="box_top">
+            <layout_box space="16" align="0, 0" pos="0, 0" adjust="2, 2" layout_type="2" size="0, 0" />
+            <text_box auto_scroll="1" ime_type="0" edit_mode="1" paste_mode="1" edit_auto_transition_mode="0" style="style_text_box_top_youtube_search" id="text_box_top_youtube_search" >
+              <layout_hint pos="0, 8" align="0, 4" size="800, 44" />
+              <focus_hint focus_shape="0" />
+            </text_box>
+            <image_button style="style_button_yt_top_search" id="button_top_youtube_search">
+              <layout_hint size="102, 40" pos="0, 2" align="0, 4" />
+            </image_button>
+          </box>
+          <plane texture="_common_texture_ruled_line" id="plane_top_separator">
+            <layout_hint size="960, 2" pos="0, 0" anchor="0, 1" />
+          </plane>
+        </plane>
+        <list_view style="style_list_view_youtube" id="list_view_youtube">
+          <layout_hint anchor="0, 2" align="0, 2" size="960, 397" pos="0, -96" />
+        </list_view>
+      </plane>
+    </template>
+    <template fast_open="1" id="template_list_view_youtube_history">
+      <plane style="_common_style_plane_transparent" id="plane_list_view_youtube_history_root">
+        <layout_hint size="960, 544" pos="0, 0" />
+        <list_view style="style_list_view_youtube" id="list_view_youtube">
+          <layout_hint anchor="0, 2" align="0, 2" size="960, 397" pos="0, -96" />
+        </list_view>
+      </plane>
+    </template>
+    <template fast_open="1" id="template_list_view_youtube_fav">
+      <plane style="_common_style_plane_transparent" id="plane_list_view_youtube_fav_root">
+        <layout_hint size="960, 544" pos="0, 0" />
+        <plane style="_common_style_plane_transparent" id="plane_top_youtube_fav">
+          <layout_hint align="0, 2" size="960, 64" pos="0, 240" />
+          <box style="_common_default_style_box" id="box_top">
+            <layout_box space="16" align="0, 0" pos="0, 0" adjust="2, 2" layout_type="2" size="0, 0" />
+            <text_box auto_scroll="1" ime_type="0" edit_mode="1" paste_mode="1" edit_auto_transition_mode="0" style="style_text_box_top_youtube_search" id="text_box_top_youtube_search" >
+              <layout_hint pos="0, 8" align="0, 4" size="800, 44" />
+              <focus_hint focus_shape="0" />
+            </text_box>
+            <image_button style="style_button_yt_top_search" id="button_top_youtube_search">
+              <layout_hint size="102, 40" pos="0, 2" align="0, 4" />
+            </image_button>
+          </box>
+          <plane texture="_common_texture_ruled_line" id="plane_top_separator">
+            <layout_hint size="960, 2" pos="0, 0" anchor="0, 1" />
+          </plane>
+        </plane>
+        <list_view style="style_list_view_youtube" id="list_view_youtube">
+          <layout_hint anchor="0, 2" align="0, 2" size="960, 397" pos="0, -96" />
+        </list_view>
+      </plane>
+    </template>
+    <template fast_open="1" id="template_list_item_youtube">
+      <list_item style="style_list_view_item_generic" id="list_item_youtube">
+        <layout_hint size="960, 100" />
+        <image_button sound="_common_sound_image_button" enable_long_press_text_auto_scroll="1" style="style_image_button_list_button_youtube" id="image_button_list_item_youtube">
+          <focus_hint focus_shape="3" />
+          <layout_hint size="840, 100" />
+          <text style="style_text_list_button_youtube_time" id="text_list_item_youtube_time">
+            <layout_hint align="1, 1" anchor="1, 1" adjust="2, 2" pos="0, 5" />
+          </text>
+          <text style="style_text_list_button_youtube_subtext" id="text_list_item_youtube_subtext">
+            <layout_hint align="1, 1" anchor="1, 1" adjust="2, 2" pos="130, 5" />
+          </text>
+        </image_button>
+      </list_item>
+    </template>
+    <template fast_open="1" id="template_list_item_youtube_aligned">
+      <list_item style="style_list_view_item_generic" id="list_item_youtube_aligned">
+        <layout_hint size="960, 100" />
+        <image_button sound="_common_sound_image_button" enable_long_press_text_auto_scroll="1" style="style_image_button_list_button_youtube_aligned" id="image_button_list_item_youtube_aligned">
+          <focus_hint focus_shape="3" />
+          <layout_hint size="840, 100" />
+        </image_button>
+      </list_item>
+    </template>
+    <template fast_open="1" id="template_list_view_youtube_companel">
+      <list_view style="style_list_view_companel" id="list_view_youtube_companel">
+        <layout_hint anchor="1, 2" align="1, 2" size="414, 416" pos="6, -54" />
+      </list_view>
+    </template>
+    <template fast_open="1" id="template_scroll_view_youtube_companel">
+      <scroll_view style="style_scroll_view_companel" id="scroll_view_youtube_companel">
+        <layout_hint anchor="1, 2" align="1, 2" size="414, 416" pos="6, -54" />
+        <text style="style_text_youtube_companel" id="text_youtube_companel">
+          <layout_hint adjust="1, 2" />
+        </text>
+      </scroll_view>
+    </template>
+    <template fast_open="1" id="template_list_item_youtube_comment">
+      <list_item style="style_list_view_item_generic" id="list_item_youtube_comment">
+        <layout_hint size="414, 70" />
+        <button style="style_button_yt_comment" id="button_yt_companel_comment_item">
+          <layout_hint adjust="1, 1" />
+          <focus_hint focus_shape="3" />
+        </button>
+      </list_item>
+    </template>
+    <template fast_open="1" id="template_scroll_item_youtube_comment_detail">
+      <text style="style_text_youtube_companel" id="text_youtube_comment_detail">
+        <layout_hint adjust="1, 2" />
+      </text>
+      <plane texture="_common_texture_ruled_line" id="plane_comment_detail_separator">
+        <layout_hint size="736, 2" pos="0, 0" />
+      </plane>
+      <text style="style_text_youtube_companel" id="text_youtube_comment_detail_body">
+        <layout_hint adjust="1, 2" />
+      </text>
+    </template>
+
+  </templatetable>
+  
+  <stringtable>
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="ja" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="en" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="en-gb" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="fr" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="es" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="de" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="it" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="nl" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="pt" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="pt-br" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="ru" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="ko" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="zh-t" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="zh-s" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="fi" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="sv" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="da" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="no" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="pl" />
+    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="tr" />
+  </stringtable>
+  
+  <texturetable>
+    <texture origsize="4432" src="texture\tex_yt_icon_search.zlib" type="texture/gim" id="tex_yt_icon_search" compress="on" />
+    <texture origsize="4432" src="texture\tex_yt_icon_history.zlib" type="texture/gim" id="tex_yt_icon_history" compress="on" />
+    <texture origsize="4432" src="texture\tex_yt_icon_favourite.zlib" type="texture/gim" id="tex_yt_icon_favourite" compress="on" />
+    <texture origsize="2032" src="texture\tex_vertical_separator.zlib" type="texture/gim" id="tex_vertical_separator" compress="on" />
+    <texture origsize="10960" src="texture\tex_button_pause.zlib" type="texture/gim" id="tex_button_pause" compress="on" />
+    <texture origsize="10960" src="texture\tex_button_play.zlib" type="texture/gim" id="tex_button_play" compress="on" />
+    <texture origsize="33248" src="texture\tex_button_big_repeat.zlib" type="texture/gim" id="tex_button_big_repeat" compress="on" />
+    <texture origsize="5328" src="texture\tex_button_arrow_left.zlib" type="texture/gim" id="tex_button_arrow_left" compress="on" />
+    <texture origsize="5328" src="texture\tex_button_arrow_right.zlib" type="texture/gim" id="tex_button_arrow_right" compress="on" />
+    <texture src="texture\tex_common_bg.png" type="texture/png" id="tex_common_bg" />
+    <texture src="texture\tex_fpmenu_icon_youtube.png" type="texture/png" id="tex_fpmenu_icon_youtube" />
+    <texture src="texture\tex_fpmenu_icon_http.png" type="texture/png" id="tex_fpmenu_icon_http" />
+    <texture src="texture\tex_file_icon_video.png" type="texture/png" id="tex_file_icon_video" />
+    <texture src="texture\tex_file_icon_folder.png" type="texture/png" id="tex_file_icon_folder" />
+    <texture src="texture\tex_file_icon_unsupported.png" type="texture/png" id="tex_file_icon_unsupported" />
+    <texture src="texture\tex_black.dds" type="texture/dds" id="tex_black" />
+    <texture src="texture\tex_button_expand.png" type="texture/png" id="tex_button_expand" />
+    <texture src="texture\tex_button_compress.png" type="texture/png" id="tex_button_compress" />
+    <texture src="texture\tex_yt_icon_live_now.png" type="texture/png" id="tex_yt_icon_live_now" />
+    <texture src="texture\tex_yt_icon_fav_for_player.png" type="texture/png" id="tex_yt_icon_favourite_for_player" />
+    <texture src="texture\tex_yt_icon_fav_for_player_glow.png" type="texture/png" id="tex_yt_icon_favourite_for_player_glow" />
+  </texturetable>
+  
+  <filetable>
+    <file origsize="4907" src="RES_RCO_TMP\netstream_settings.xml.zlib" type="application/xml" id="file_netstream_settings" compress="on" />
+  </filetable>
+  
+</resource>
