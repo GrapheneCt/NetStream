@@ -131,7 +131,7 @@
       <Command>call "$(ProjectDir)gen_rco.bat"
 "$(SCE_PSP2_SDK_DIR)/host_tools/build/bin/vdsuite-pubprx.exe" --strip --compress --boot-param "$(ProjectDir)ebootparam.bin" "$(LocalDebuggerCommand)" "$(OutDir)eboot.bin"
 "$(SCE_PSP2_SDK_DIR)/host_tools/build/bin/vdsuite-pubsfo.exe" "$(ProjectDir)param.sfx" "$(OutDir)param.sfo"
-"$(SCE_PSP2_SDK_DIR)/host_tools/build/bin/vdsuite-pubgen.exe" --file "$(OutDir)eboot.bin" eboot.bin  --file "$(OutDir)param.sfo" sce_sys/param.sfo --file "$(ProjectDir)CONTENTS/sce_sys/icon0.png" sce_sys/icon0.png --file "$(ProjectDir)CONTENTS/sce_sys/pic0.png" sce_sys/pic0.png --file "$(ProjectDir)CONTENTS/sce_sys/livearea" sce_sys/livearea --file "$(ProjectDir)CONTENTS/module" module  --file "$(ProjectDir)CONTENTS/netstream_plugin.rco" netstream_plugin.rco "$(OutDir)$(ProjectName).vpk"
+"$(SCE_PSP2_SDK_DIR)/host_tools/build/bin/vdsuite-pubgen.exe" --file "$(OutDir)eboot.bin" eboot.bin  --file "$(OutDir)param.sfo" sce_sys/param.sfo --file "$(ProjectDir)CONTENTS/sce_sys/icon0.png" sce_sys/icon0.png --file "$(ProjectDir)CONTENTS/sce_sys/pic0.png" sce_sys/pic0.png --file "$(ProjectDir)CONTENTS/sce_sys/livearea" sce_sys/livearea --file "$(ProjectDir)CONTENTS/sce_sys/manual" sce_sys/manual --file "$(ProjectDir)CONTENTS/module" module  --file "$(ProjectDir)CONTENTS/netstream_plugin.rco" netstream_plugin.rco "$(OutDir)$(ProjectName).vpk"
 copy /Y "$(OutDir)eboot.bin" "$(ProjectDir)CONTENTS/eboot.bin"
 copy /Y "$(OutDir)param.sfo" "$(ProjectDir)CONTENTS/sce_sys/param.sfo"
 "$(SCE_ROOT_DIR)/PSP2/Tools/Publishing Tools/bin/ext/make_pkg.exe" --output $(OutDir) "$(ProjectDir)package.conf" $(ProjectDir)</Command>
