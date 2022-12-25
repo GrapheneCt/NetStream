@@ -23,6 +23,8 @@
         <list_item id="list_youtube_search_date_04" title="msg_option_search_date_4" value="4" />
         <list_item id="list_youtube_search_date_05" title="msg_option_search_date_5" value="5" />
       </list>
+      <button id="button_youtube_clean_history" title="msg_settings_youtube_clean_history" success_dialog_message="msg_settings_youtube_clean_history_done" confirm="msg_settings_youtube_clean_history_confirm" />
+      <button id="button_youtube_clean_fav" title="msg_settings_youtube_clean_fav" success_dialog_message="msg_settings_youtube_clean_fav_done" confirm="msg_settings_youtube_clean_fav_confirm" />
     </setting_list>
     <setting_list id="youtube_comment_setting" title="msg_settings_comment">
       <list id="list_youtube_comment_sort" title="msg_youtube_comment_sort" key="yt_comment_sort" default_value="0">
@@ -46,9 +48,9 @@
     <setting_list id="youtube_player_setting" title="msg_settings_youtube_player">
       <toggle_switch id="toggle_youtube_min" title="msg_toggle_youtube_min" key="yt_min" default_value="1" />
     </setting_list>
-    <button id="button_youtube_clean_history" title="msg_settings_youtube_clean_history" success_dialog_message="msg_settings_youtube_clean_history_done" confirm="msg_settings_youtube_clean_history_confirm" />
-    <button id="button_youtube_clean_fav" title="msg_settings_youtube_clean_fav" success_dialog_message="msg_settings_youtube_clean_fav_done" confirm="msg_settings_youtube_clean_fav_confirm" />
-    <button id="button_youtube_download" title="msg_settings_youtube_download" success_dialog_message="msg_settings_youtube_download_begin" />
+    <setting_list id="youtube_download_setting" title="msg_settings_youtube_download">
+      <button id="button_youtube_download" title="msg_settings_youtube_download" success_dialog_message="msg_settings_youtube_download_begin" />
+    </setting_list>
     <setting_list id="verinfo_setting" title="msg_settings_verinfo" style="edit">
       <label id="label_verinfo" title="msg_verinfo" style="heading" />
     </setting_list>

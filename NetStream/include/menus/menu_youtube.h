@@ -228,13 +228,11 @@ namespace menu {
 		ui::Widget *favBt;
 		Submenu *currentSubmenu;
 
-		const SceUInt32 k_settingsIdList[6] = {
+		const SceUInt32 k_settingsIdList[4] = {
 			youtube_search_setting,
 			youtube_comment_setting,
 			youtube_quality_setting,
-			youtube_player_setting,
-			button_youtube_clean_history,
-			button_youtube_clean_fav,
+			youtube_player_setting
 		};
 	};
 

@@ -106,11 +106,12 @@ namespace menu {
 
 		BEAVPlayer *player;
 
-		const SceUInt32 k_settingsIdListYoutubeOverride[4] = {
+		const SceUInt32 k_settingsIdListYoutubeOverride[5] = {
 			youtube_search_setting,
 			youtube_comment_setting,
 			youtube_quality_setting,
-			youtube_player_setting
+			youtube_player_setting,
+			youtube_download_setting
 		};
 	};
 }

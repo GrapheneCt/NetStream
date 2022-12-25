@@ -158,14 +158,12 @@ namespace menu {
 		vector<CommentItem> commentItems;
 		HlsCommentParseThread *hlsCommentThread;
 
-		const SceUInt32 k_settingsIdList[7] = {
+		const SceUInt32 k_settingsIdList[5] = {
 			youtube_search_setting,
 			youtube_comment_setting,
 			youtube_quality_setting,
 			youtube_player_setting,
-			button_youtube_clean_history,
-			button_youtube_clean_fav,
-			button_youtube_download
+			youtube_download_setting
 		};
 	};
 }
