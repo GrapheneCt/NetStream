@@ -103,6 +103,7 @@
 #define style_text_list_button_youtube_subtext (0x92697e0c)
 #define style_text_youtube_video_title (0x52460631)
 #define style_text_youtube_video_stat (0xd461b912)
+#define style_text_youtube_video_stat_right_align (0xa9e17ed6)
 #define style_text_youtube_companel (0x38fa4408)
 #define style_button_yt_expand (0x578c3485)
 #define style_button_yt_fav (0x3465f513)

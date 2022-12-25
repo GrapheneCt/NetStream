@@ -87,8 +87,8 @@
       <text style="style_text_youtube_video_stat" id="text_video_stat_1">
         <layout_hint size="240, 0" anchor="1, 2" align="1, 2" adjust="0, 2" pos="13, -447" />
       </text>
-       <text style="style_text_youtube_video_stat" id="text_video_stat_2">
-        <layout_hint size="240, 0" anchor="2, 2" align="2, 2" adjust="0, 2" pos="-338, -447" />
+       <text style="style_text_youtube_video_stat_right_align" id="text_video_stat_2">
+        <layout_hint size="240, 0" anchor="2, 2" align="2, 2" adjust="0, 2" pos="-467, -447" />
       </text>
       <image_button style="style_button_yt_fav" id="button_youtube_fav">
         <layout_hint size="102, 50" anchor="1, 2" align="1, 2" pos="13, -362" />
@@ -316,6 +316,9 @@
     </style_text>
     <style_text textobj="text_obj1" id="style_text_youtube_video_stat">
       <textobj font_size="20" bold="1" ellipsis="1" id="text_obj1" />
+    </style_text>
+    <style_text textobj="text_obj1" id="style_text_youtube_video_stat_right_align">
+      <textobj font_size="20" bold="1" ellipsis="1" align_x="2" id="text_obj1" />
     </style_text>
     <style_text textobj="text_obj1" id="style_text_youtube_companel">
       <textobj font_size="20" ellipsis="1" word_wrap="1" id="text_obj1" />

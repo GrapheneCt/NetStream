@@ -99,6 +99,7 @@ key:409c87af(0) id:style_text_list_button_youtube_time
 key:92697e0c(0) id:style_text_list_button_youtube_subtext
 key:52460631(0) id:style_text_youtube_video_title
 key:d461b912(0) id:style_text_youtube_video_stat
+key:a9e17ed6(0) id:style_text_youtube_video_stat_right_align
 key:38fa4408(0) id:style_text_youtube_companel
 key:578c3485(0) id:style_button_yt_expand
 key:3465f513(0) id:style_button_yt_fav

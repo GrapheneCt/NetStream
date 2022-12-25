@@ -71,5 +71,39 @@ void InitDebug()
 #endif
 }
 
+/*
+SceUInt32 oldButtons = 0;
+ui::Widget *widg = SCE_NULL;
+
+SceVoid DirectInputCallback(input::GamePad::GamePadData *pData)
+{
+	Vector4 opos = widg->GetPosition();
+
+	if (pData->buttons & SCE_PAF_CTRL_UP)
+	{
+		opos.y += 1;
+	}
+	else if (pData->buttons & SCE_PAF_CTRL_DOWN)
+	{
+		opos.y -= 1;
+	}
+	else if (pData->buttons & SCE_PAF_CTRL_RIGHT)
+	{
+		opos.x += 1;
+	}
+	else if (pData->buttons & SCE_PAF_CTRL_LEFT)
+	{
+		opos.x -= 1;
+	}
+	else if ((pData->buttons & SCE_PAF_CTRL_CROSS) && !(oldButtons & SCE_PAF_CTRL_CROSS))
+	{
+		sceClibPrintf("\nx: %f\ny: %f\n", opos.x, opos.y);
+	}
+
+	widg->SetPosition(&opos);
+
+	oldButtons = pData->buttons;
+}
+*/
 
 #endif
