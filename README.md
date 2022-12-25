@@ -1,13 +1,15 @@
 # NetStream
 ![](https://github.com/GrapheneCt/NetStream/raw/main/logo.PNG)
 
-Universal video streaming client for PS Vita
+### Universal video streaming client for PS Vita
+
+![](https://github.com/GrapheneCt/NetStream/raw/main/demo.png)
 
 Supports:
 - YouTube videos and livestreams
 - HTTP server
 
-Coming in the future:
+Planned in the future releases:
 - Local file playback
 - Twitch
 - NicoNico
