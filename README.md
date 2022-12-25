@@ -14,4 +14,6 @@ Planned in the future releases:
 - Twitch
 - NicoNico
 
-Please read included user manual for more information and controls!
+Please read included PS Vita user manual for more information and controls!
+
+![](https://github.com/GrapheneCt/NetStream/raw/main/manual.png)
