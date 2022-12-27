@@ -294,6 +294,7 @@ SceVoid menu::YouTube::SearchSubmenu::GoToNextPage()
 
 	SearchJob *job = new SearchJob("YouTube::SearchJob");
 	job->workObj = this;
+	job->isId = SCE_FALSE;
 	SharedPtr<job::JobItem> itemParam(job);
 	allJobsComplete = SCE_FALSE;
 	utils::GetJobQueue()->Enqueue(&itemParam);
@@ -306,6 +307,7 @@ SceVoid menu::YouTube::SearchSubmenu::GoToPrevPage()
 
 	SearchJob *job = new SearchJob("YouTube::SearchJob");
 	job->workObj = this;
+	job->isId = SCE_FALSE;
 	SharedPtr<job::JobItem> itemParam(job);
 	allJobsComplete = SCE_FALSE;
 	utils::GetJobQueue()->Enqueue(&itemParam);

@@ -13,6 +13,13 @@ key:e950a63a(0) id:plane_browser_root_page_http
 key:0225f81e(0) id:busyindicator_loader_page_http
 key:3d5b0c73(0) id:button_back_page_http
 key:82e2e83c(0) id:button_settings_page_http
+key:1332c3df(0) id:page_local
+key:a7a58bf5(0) id:plane_base_bg_page_local
+key:de4604fd(0) id:template_ref_top_title_bar_page_local
+key:137b43f7(0) id:plane_browser_root_page_local
+key:262eecf2(0) id:busyindicator_loader_page_local
+key:e24ed91b(0) id:button_back_page_local
+key:6ce20cb2(0) id:button_settings_page_local
 key:d9d437d7(0) id:page_youtube
 key:86efefd3(0) id:plane_base_bg_page_youtube
 key:a1049fc2(0) id:template_ref_top_title_bar_page_youtube

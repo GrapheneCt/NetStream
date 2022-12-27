@@ -16,10 +16,12 @@
     <ClCompile Include="source\dialog.cpp" />
     <ClCompile Include="source\downloader.cpp" />
     <ClCompile Include="source\http_server_browser.cpp" />
+    <ClCompile Include="source\local_server_browser.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\menus\menu_first.cpp" />
     <ClCompile Include="source\menus\menu_generic.cpp" />
     <ClCompile Include="source\menus\menu_http.cpp" />
+    <ClCompile Include="source\menus\menu_local.cpp" />
     <ClCompile Include="source\menus\menu_player_simple.cpp" />
     <ClCompile Include="source\menus\menu_settings.cpp" />
     <ClCompile Include="source\menus\menu_youtube.cpp" />
@@ -35,10 +37,12 @@
     <ClInclude Include="include\dialog.h" />
     <ClInclude Include="include\downloader.h" />
     <ClInclude Include="include\http_server_browser.h" />
+    <ClInclude Include="include\local_server_browser.h" />
     <ClInclude Include="include\main.h" />
     <ClInclude Include="include\menus\menu_first.h" />
     <ClInclude Include="include\menus\menu_generic.h" />
     <ClInclude Include="include\menus\menu_http.h" />
+    <ClInclude Include="include\menus\menu_local.h" />
     <ClInclude Include="include\menus\menu_player_simple.h" />
     <ClInclude Include="include\menus\menu_settings.h" />
     <ClInclude Include="include\menus\menu_youtube.h" />
@@ -93,7 +97,7 @@
       <AdditionalOptions>--no-standard-libraries </AdditionalOptions>
       <AdditionalLibraryDirectories>$(SCE_PSP2_SDK_DIR)\target\lib\vdsuite;$(ProjectDir)libs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateSnMapFile>FullMapFile</GenerateSnMapFile>
-      <AdditionalDependencies>-lSceSysmem_stub;-lSceThreadMgr_stub;-lSceThreadmgrCoredumpTime_stub;-lSceModuleMgr_stub;-lSceProcessMgr_stub;-lSceTouch_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceAppUtil_stub;-lSceAudio_stub;-lSceCtrl_stub;-lSceDisplay_stub;-lScePower_stub;-lSceSysmodule_stub;-lSceGxm_stub;-lSceDbg_stub;-lScePafThread_stub;-lScePafStdc_stub;-lScePafToplevel_stub;-lScePafResource_stub;-lScePafWidget_stub;-lScePafMisc_stub;-lScePafCommon_stub;-lScePafGraphics_stub;-lSceLibKernel_stub;-lSceNet_stub;-lSceNetCtl_stub;-lSceHttp_stub;-lSceSsl_stub;-lSceAppSettings_stub;-lSceCommonGuiDialog_stub;-lSceIniFileProcessor_stub;-lSceBEAVCorePlayer_stub;-lSceDmacmgr_stub;-lSceFiber_stub;-lSceVshBridge_stub;-ltaihenUnsafe_stub;-lInvidious_stub;-lcurl_stub;-lsnc;-lCurlFile;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>-lSceIpmi_stub;-lSceSysmem_stub;-lSceThreadMgr_stub;-lSceThreadmgrCoredumpTime_stub;-lSceModuleMgr_stub;-lSceProcessMgr_stub;-lSceTouch_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceAppUtil_stub;-lSceAudio_stub;-lSceCtrl_stub;-lSceDisplay_stub;-lScePower_stub;-lSceSysmodule_stub;-lSceGxm_stub;-lSceDbg_stub;-lScePafThread_stub;-lScePafStdc_stub;-lScePafToplevel_stub;-lScePafResource_stub;-lScePafWidget_stub;-lScePafMisc_stub;-lScePafCommon_stub;-lScePafGraphics_stub;-lSceLibKernel_stub;-lSceNet_stub;-lSceNetCtl_stub;-lSceHttp_stub;-lSceSsl_stub;-lSceAppSettings_stub;-lSceCommonGuiDialog_stub;-lSceIniFileProcessor_stub;-lSceBEAVCorePlayer_stub;-lSceDmacmgr_stub;-lSceFiber_stub;-lSceVshBridge_stub;-ltaihenUnsafe_stub;-lInvidious_stub;-lcurl_stub;-lsnc;-lCurlFile;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>"$(SCE_PSP2_SDK_DIR)/host_tools/build/bin/vdsuite-pubprx.exe" --boot-param "$(ProjectDir)ebootparam.bin" "$(LocalDebuggerCommand)" "$(OutDir)eboot.bin"</Command>

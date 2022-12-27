@@ -153,23 +153,23 @@ vector<HttpServerBrowser::Entry *> *HttpServerBrowser::GoTo(const char *ref, Sce
 	{
 		buffer[posInBuf - 1] = 0;
 
-		char *ref = SCE_NULL;
+		char *href = SCE_NULL;
 		char *refEnd = buffer;
 		while (1)
 		{
-			ref = sce_paf_strstr(refEnd + 1, "<a href=\"");
-			if (!ref)
+			href = sce_paf_strstr(refEnd + 1, "<a href=\"");
+			if (!href)
 				break;
-			ref += 9;
+			href += 9;
 
-			refEnd = sce_paf_strstr(ref, "\">");
+			refEnd = sce_paf_strstr(href, "\">");
 			*refEnd = 0;
 
-			BEAVPlayer::SupportType beavType = BEAVPlayer::IsSupported(ref);
+			BEAVPlayer::SupportType beavType = BEAVPlayer::IsSupported(href);
 
 			if (beavType != BEAVPlayer::SupportType_NotSupported)
 			{
-				char *decoded = curl_easy_unescape(curl, ref, 0, SCE_NULL);
+				char *decoded = curl_easy_unescape(curl, href, 0, SCE_NULL);
 				HttpServerBrowser::Entry *entry = new HttpServerBrowser::Entry();
 				entry->ref = decoded;
 				entry->type = HttpServerBrowser::Entry::Type_UnsupportedFile;

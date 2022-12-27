@@ -5,6 +5,7 @@
 #include "utils.h"
 #include "menus/menu_first.h"
 #include "menus/menu_http.h"
+#include "menus/menu_local.h"
 #include "menus/menu_youtube.h"
 #include "menus/menu_settings.h"
 
@@ -23,6 +24,10 @@ SceVoid menu::First::ListButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt3
 		menu::Http *hmenu = new menu::Http();
 		hmenu->PushBrowserPage(SCE_NULL);
 		break;
+	/*case 2:
+		menu::Local *lmenu = new menu::Local();
+		lmenu->PushBrowserPage(SCE_NULL);
+		break;*/
 	}
 }
 

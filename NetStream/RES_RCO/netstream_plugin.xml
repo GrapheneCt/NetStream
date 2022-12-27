@@ -27,6 +27,22 @@
       <corner_button style="_common_style_corner_bottom_right" id="button_settings_page_http" />
     </page>
 
+    <!-- local server page -->
+    <page id="page_local">
+      <plane texture="tex_common_bg" id="plane_base_bg_page_local">
+        <layout_hint size="960, 544" />
+      </plane>
+      <template_ref id="template_ref_top_title_bar_page_local" template="template_top_title_bar" />
+      <plane style="_common_style_plane_transparent" id="plane_browser_root_page_local">
+        <layout_hint size="960, 544" />
+      </plane>
+      <busyindicator style="style_busyindicator_big" texture="_common_texture_busy" id="busyindicator_loader_page_local" >
+        <layout_hint size="75, 75" />
+      </busyindicator>
+      <corner_button style="_common_style_corner_bottom_left" id="button_back_page_local" />
+      <corner_button style="_common_style_corner_bottom_right" id="button_settings_page_local" />
+    </page>
+
     <!-- youtube browser page -->
     <page id="page_youtube">
       <plane texture="tex_common_bg" id="plane_base_bg_page_youtube">

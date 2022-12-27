@@ -78,7 +78,7 @@ SceVoid menu::Settings::Init()
 	*verinfo = L"RELEASE ";
 #endif
 	*verinfo += WIDE(__DATE__);
-	*verinfo += L" v 1.00";
+	*verinfo += L" v 1.01";
 	s_verinfo = (wchar_t *)verinfo->c_str();
 }
 

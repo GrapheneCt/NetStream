@@ -5,6 +5,8 @@
 #include <paf.h>
 #include <psp2_compat/curl/curl.h>
 
+using namespace paf;
+
 class HttpServerBrowser
 {
 public:
