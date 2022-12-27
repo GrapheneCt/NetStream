@@ -491,10 +491,13 @@ SceVoid menu::PlayerYoutube::DescButtonCbFun(SceInt32 eventId, ui::Widget *self,
 		{
 			return;
 		}
-		workObj->hlsCommentThread->Cancel();
-		workObj->hlsCommentThread->Join();
-		delete workObj->hlsCommentThread;
-		workObj->hlsCommentThread = SCE_NULL;
+		if (workObj->hlsCommentThread)
+		{
+			workObj->hlsCommentThread->Cancel();
+			workObj->hlsCommentThread->Join();
+			delete workObj->hlsCommentThread;
+			workObj->hlsCommentThread = SCE_NULL;
+		}
 		effect::Play(0.0f, workObj->companelRoot, effect::EffectType_Fadein1, true, false);
 		workObj->companelRoot = SCE_NULL;
 	}
