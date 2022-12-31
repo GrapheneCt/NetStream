@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<stringset>
+
+  <string src="NetStream" id="msg_title_menu_first" />
+  <string src="YouTube" id="msg_fpmenu_item_0" />
+  <string src="Servidor HTTP" id="msg_fpmenu_item_1" />
+
+  <string src="Historial" id="msg_youtube_history" />
+  <string src="Descripción" id="msg_youtube_description" />
+  <string src="Cargar más comentarios..." id="msg_youtube_comment_more" />
+  <string src="Comentarios" id="msg_youtube_comment_detail" />
+  <string src="Respuestas" id="msg_youtube_comment_reply" />
+  <string src=" me gusta" id="msg_youtube_comment_like_count" />
+
+  <string src="Página siguiente" id="msg_next_page" />
+  <string src="Página anterior" id="msg_previous_page" />
+
+  <string src="Configuración" id="msg_settings" />
+  <string src="Servidor HTTP" id="msg_settings_http" />
+  <string src="Búsqueda" id="msg_settings_search" />
+  <string src="Comentarios" id="msg_settings_comment" />
+  <string src="Calidad" id="msg_settings_quality" />
+  <string src="Reproductor" id="msg_settings_youtube_player" />
+  <string src="Información de compilación" id="msg_settings_verinfo" />
+  
+  <string src="Dirección de Host" id="msg_http_host" />
+  <string src="Puerto" id="msg_http_port" />
+  <string src="Usuario" id="msg_http_user" />
+  <string src="Contraseña" id="msg_http_password" />
+
+  <string src="Calidad preferida de videos" id="msg_youtube_quality" />
+  <string src="Calidad Preferida de directos" id="msg_youtube_hls_quality" />
+
+  <string src="Instancia de Invidious" id="msg_youtube_inv_instance" />
+  <string src="Ordenar por" id="msg_youtube_search_sort" />
+  <string src="Fecha de carga" id="msg_youtube_search_date" />
+  <string src="Ordenar por" id="msg_youtube_comment_sort" />
+  
+  <string src="Relevancia" id="msg_option_search_sort_0" />
+  <string src="Calificación" id="msg_option_search_sort_1" />
+  <string src="Fecha" id="msg_option_search_sort_2" />
+  <string src="Vistas" id="msg_option_search_sort_3" />
+  
+  <string src="Hora" id="msg_option_search_date_0" />
+  <string src="Hoy" id="msg_option_search_date_1" />
+  <string src="Semana" id="msg_option_search_date_2" />
+  <string src="Mes" id="msg_option_search_date_3" />
+  <string src="Año" id="msg_option_search_date_4" />
+  <string src="Cualquiera" id="msg_option_search_date_5" />
+  
+  <string src="Mejores" id="msg_option_comment_sort_0" />
+  <string src="Recientes" id="msg_option_comment_sort_1" />
+  
+  <string src="360P" id="msg_option_youtube_quality_0" />
+  <string src="720P" id="msg_option_youtube_quality_1" />
+  
+  <string src="144P" id="msg_option_youtube_hls_quality_0" />
+  <string src="240P" id="msg_option_youtube_hls_quality_1" />
+  <string src="360P" id="msg_option_youtube_hls_quality_2" />
+  <string src="480P" id="msg_option_youtube_hls_quality_3" />
+  <string src="720P" id="msg_option_youtube_hls_quality_4" />
+
+  <string src="Inicio minimizado" id="msg_toggle_youtube_min" />
+
+  <string src="Eliminar historial" id="msg_settings_youtube_clean_history" />
+  <string src="Eliminar favoritos" id="msg_settings_youtube_clean_fav" />
+  <string src="Se ha eliminado el historial." id="msg_settings_youtube_clean_history_done" />
+  <string src="Se han eliminado los favoritos." id="msg_settings_youtube_clean_fav_done" />
+  <string src="Se eliminará todo de historial. ¿Continuar?" id="msg_settings_youtube_clean_history_confirm" />
+  <string src="Se eliminarán todos los favoritos. ¿Continuar?" id="msg_settings_youtube_clean_fav_confirm" />
+  <string src="Descargar" id="msg_settings_youtube_download" />
+  <string src="La descarga se ha añadido a la cola." id="msg_settings_youtube_download_begin" />
+
+</stringset>
