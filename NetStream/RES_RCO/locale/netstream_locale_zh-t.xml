@@ -34,22 +34,22 @@
   <string src="令人反感的實例" id="msg_youtube_inv_instance" />
   <string src="種類" id="msg_youtube_search_sort" />
   <string src="日期" id="msg_youtube_search_date" />
-  <string src="Sort" id="msg_youtube_comment_sort" />
+  <string src="種類" id="msg_youtube_comment_sort" />
   
-  <string src="Relevance" id="msg_option_search_sort_0" />
-  <string src="Rating" id="msg_option_search_sort_1" />
-  <string src="Date" id="msg_option_search_sort_2" />
-  <string src="View Count" id="msg_option_search_sort_3" />
+  <string src="關聯" id="msg_option_search_sort_0" />
+  <string src="評分" id="msg_option_search_sort_1" />
+  <string src="日期" id="msg_option_search_sort_2" />
+  <string src="查看次數" id="msg_option_search_sort_3" />
   
-  <string src="Hour" id="msg_option_search_date_0" />
-  <string src="Today" id="msg_option_search_date_1" />
-  <string src="Week" id="msg_option_search_date_2" />
-  <string src="Month" id="msg_option_search_date_3" />
-  <string src="Year" id="msg_option_search_date_4" />
-  <string src="Any" id="msg_option_search_date_5" />
+  <string src="小時" id="msg_option_search_date_0" />
+  <string src="今天" id="msg_option_search_date_1" />
+  <string src="星期" id="msg_option_search_date_2" />
+  <string src="月" id="msg_option_search_date_3" />
+  <string src="年" id="msg_option_search_date_4" />
+  <string src="任何" id="msg_option_search_date_5" />
   
-  <string src="Top" id="msg_option_comment_sort_0" />
-  <string src="New" id="msg_option_comment_sort_1" />
+  <string src="最佳" id="msg_option_comment_sort_0" />
+  <string src="新的" id="msg_option_comment_sort_1" />
   
   <string src="360P" id="msg_option_youtube_quality_0" />
   <string src="720P" id="msg_option_youtube_quality_1" />
@@ -60,15 +60,15 @@
   <string src="480P" id="msg_option_youtube_hls_quality_3" />
   <string src="720P" id="msg_option_youtube_hls_quality_4" />
 
-  <string src="Start Minimized" id="msg_toggle_youtube_min" />
+  <string src="開始最小化" id="msg_toggle_youtube_min" />
 
-  <string src="Clean History" id="msg_settings_youtube_clean_history" />
-  <string src="Clean Favourites" id="msg_settings_youtube_clean_fav" />
-  <string src="History has been cleaned." id="msg_settings_youtube_clean_history_done" />
-  <string src="Favourites has been cleaned." id="msg_settings_youtube_clean_fav_done" />
-  <string src="All history records will be deleted. Continue?" id="msg_settings_youtube_clean_history_confirm" />
-  <string src="All favourites will be deleted. Continue?" id="msg_settings_youtube_clean_fav_confirm" />
-  <string src="Download" id="msg_settings_youtube_download" />
-  <string src="Download has been added to queue." id="msg_settings_youtube_download_begin" />
+  <string src="清潔歷史" id="msg_settings_youtube_clean_history" />
+  <string src="清理收藏夾" id="msg_settings_youtube_clean_fav" />
+  <string src="歷史已被清理。" id="msg_settings_youtube_clean_history_done" />
+  <string src="收藏夾已清理。" id="msg_settings_youtube_clean_fav_done" />
+  <string src="所有歷史記錄將被刪除。 繼續？" id="msg_settings_youtube_clean_history_confirm" />
+  <string src="所有收藏夾都將被刪除。 繼續？" id="msg_settings_youtube_clean_fav_confirm" />
+  <string src="下載" id="msg_settings_youtube_download" />
+  <string src="下載已添加到隊列中。" id="msg_settings_youtube_download_begin" />
 
 </stringset>
