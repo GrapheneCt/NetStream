@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<stringset>
+
+  <string src="NetStream" id="msg_title_menu_first" />
+  <string src="YouTube" id="msg_fpmenu_item_0" />
+  <string src="HTTP-сервер" id="msg_fpmenu_item_1" />
+  <string src="FTP-сервер" id="msg_fpmenu_item_2" />
+  <string src="Память системы" id="msg_fpmenu_item_3" />
+
+  <string src="История" id="msg_youtube_history" />
+  <string src="Описание" id="msg_youtube_description" />
+  <string src="Загрузить больше..." id="msg_youtube_comment_more" />
+  <string src="Детали комментария" id="msg_youtube_comment_detail" />
+  <string src="Ответы комментария" id="msg_youtube_comment_reply" />
+  <string src=" лайков" id="msg_youtube_comment_like_count" />
+
+  <string src="Следующая страница" id="msg_next_page" />
+  <string src="Предыдущая страница" id="msg_previous_page" />
+
+  <string src="Настройки" id="msg_settings" />
+  <string src="HTTP-сервер" id="msg_settings_http" />
+  <string src="FTP-сервер" id="msg_settings_ftp" />
+  <string src="Поиск" id="msg_settings_search" />
+  <string src="Комментарии" id="msg_settings_comment" />
+  <string src="Качество" id="msg_settings_quality" />
+  <string src="Проигрыватель" id="msg_settings_youtube_player" />
+  <string src="Информация о приложении" id="msg_settings_verinfo" />
+  
+  <string src="Адрес" id="msg_http_host" />
+  <string src="Порт" id="msg_http_port" />
+  <string src="Пользователь" id="msg_http_user" />
+  <string src="Пароль" id="msg_http_password" />
+
+  <string src="Адрес" id="msg_ftp_host" />
+  <string src="Порт" id="msg_ftp_port" />
+  <string src="Пользователь" id="msg_ftp_user" />
+  <string src="Пароль" id="msg_ftp_password" />
+  <string src="Использовать NLST" id="msg_ftp_nlst" />
+  <string src="Включение этой опции позволяет NetStream отправлять на FTP-сервер команду NLST вместо команды LIST. Эта опция ускоряет работу приложения, но может не поддерживаться некоторыми FTP-серверами." id="msg_ftp_nlst_hint" />
+
+  <string src="Предпочитаемое качество видео" id="msg_youtube_quality" />
+  <string src="Предпочитаемое качество прямой трансляции" id="msg_youtube_hls_quality" />
+
+  <string src="Хост Invidious" id="msg_youtube_inv_instance" />
+  <string src="Сортировка" id="msg_youtube_search_sort" />
+  <string src="Фильтр по дате загрузки" id="msg_youtube_search_date" />
+  <string src="Сортировка" id="msg_youtube_comment_sort" />
+  
+  <string src="По релевантности" id="msg_option_search_sort_0" />
+  <string src="По рейтингу" id="msg_option_search_sort_1" />
+  <string src="По дате загрузки" id="msg_option_search_sort_2" />
+  <string src="По числу просмотров" id="msg_option_search_sort_3" />
+  
+  <string src="За последний час" id="msg_option_search_date_0" />
+  <string src="Сегодня" id="msg_option_search_date_1" />
+  <string src="За эту неделю" id="msg_option_search_date_2" />
+  <string src="За этот месяц" id="msg_option_search_date_3" />
+  <string src="За этот год" id="msg_option_search_date_4" />
+  <string src="Любая дата" id="msg_option_search_date_5" />
+  
+  <string src="Сначала популярные" id="msg_option_comment_sort_0" />
+  <string src="Сначала новые" id="msg_option_comment_sort_1" />
+  
+  <string src="360P" id="msg_option_youtube_quality_0" />
+  <string src="720P" id="msg_option_youtube_quality_1" />
+  
+  <string src="144P" id="msg_option_youtube_hls_quality_0" />
+  <string src="240P" id="msg_option_youtube_hls_quality_1" />
+  <string src="360P" id="msg_option_youtube_hls_quality_2" />
+  <string src="480P" id="msg_option_youtube_hls_quality_3" />
+  <string src="720P" id="msg_option_youtube_hls_quality_4" />
+
+  <string src="Запускать в минимизированном виде" id="msg_toggle_youtube_min" />
+
+  <string src="Очистить историю" id="msg_settings_youtube_clean_history" />
+  <string src="Очистить избранное" id="msg_settings_youtube_clean_fav" />
+  <string src="История была очищена" id="msg_settings_youtube_clean_history_done" />
+  <string src="Избранное было очищено." id="msg_settings_youtube_clean_fav_done" />
+  <string src="Все записи в истории просмотров будут удалены. Продолжить?" id="msg_settings_youtube_clean_history_confirm" />
+  <string src="Все записи в списке избранного будут удалены. Продолжить?" id="msg_settings_youtube_clean_fav_confirm" />
+  <string src="Загрузить" id="msg_settings_youtube_download" />
+  <string src="Загрузка была начата успешно." id="msg_settings_youtube_download_begin" />
+
+</stringset>

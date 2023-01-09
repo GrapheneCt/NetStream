@@ -171,5 +171,20 @@
     <Xml Include="RES_RCO\file\netstream_settings.xml">
       <Filter>Source Files\resource</Filter>
     </Xml>
+    <Xml Include="RES_RCO\locale\netstream_locale_es.xml">
+      <Filter>Source Files\resource</Filter>
+    </Xml>
+    <Xml Include="RES_RCO\locale\netstream_locale_ja.xml">
+      <Filter>Source Files\resource</Filter>
+    </Xml>
+    <Xml Include="RES_RCO\locale\netstream_locale_zh-s.xml">
+      <Filter>Source Files\resource</Filter>
+    </Xml>
+    <Xml Include="RES_RCO\locale\netstream_locale_zh-t.xml">
+      <Filter>Source Files\resource</Filter>
+    </Xml>
+    <Xml Include="RES_RCO\locale\netstream_locale_ru.xml">
+      <Filter>Source Files\resource</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

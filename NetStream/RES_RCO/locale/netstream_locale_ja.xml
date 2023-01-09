@@ -4,6 +4,8 @@
   <string src="NetStream" id="msg_title_menu_first" />
   <string src="YouTube" id="msg_fpmenu_item_0" />
   <string src="HTTPサーバー" id="msg_fpmenu_item_1" />
+  <string src="FTPサーバー" id="msg_fpmenu_item_2" />
+  <string src="ローカルストレージ" id="msg_fpmenu_item_3" />
 
   <string src="履歴" id="msg_youtube_history" />
   <string src="説明" id="msg_youtube_description" />
@@ -17,6 +19,7 @@
 
   <string src="設定" id="msg_settings" />
   <string src="HTTPサーバー" id="msg_settings_http" />
+  <string src="FTPサーバー" id="msg_settings_ftp" />
   <string src="検索" id="msg_settings_search" />
   <string src="コメント" id="msg_settings_comment" />
   <string src="画質" id="msg_settings_quality" />
@@ -27,6 +30,13 @@
   <string src="ポート" id="msg_http_port" />
   <string src="ユーザー" id="msg_http_user" />
   <string src="パスワード" id="msg_http_password" />
+
+  <string src="ホストアドレス" id="msg_ftp_host" />
+  <string src="ポート" id="msg_ftp_port" />
+  <string src="ユーザー" id="msg_ftp_user" />
+  <string src="パスワード" id="msg_ftp_password" />
+  <string src="NLSTを使用する" id="msg_ftp_nlst" />
+  <string src="このオプションを有効にすると、NetStreamはLISTコマンドの代わりにNLSTコマンドをFTPサーバーに送信するようになります。このオプションは動作を高速化しますが、一部のFTPサーバーではサポートされていない場合があります。" id="msg_ftp_nlst_hint" />
 
   <string src="優先するビデオの画質" id="msg_youtube_quality" />
   <string src="優先するライブストリームの画質" id="msg_youtube_hls_quality" />

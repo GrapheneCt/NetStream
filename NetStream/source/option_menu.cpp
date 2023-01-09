@@ -180,18 +180,24 @@ SceFloat32 OptionMenu::EstimateStringLength(wstring *s)
 	const wchar_t *ws = s->c_str();
 	wchar_t sval = 0;
 	SceFloat32 res = 0.0f;
+	SceBool found = SCE_FALSE;
 
 	for (int i = 0; i < s->length(); i++)
 	{
 		sval = ws[i];
-
+		found = SCE_FALSE;
 		for (int j = 0; j < sizeof(k_optionMenuFontSize) / sizeof(SceFloat32); j++)
 		{
 			if (sval == *k_optionMenuFontVal[j])
 			{
 				res += k_optionMenuFontSize[j];
+				found = SCE_TRUE;
 				break;
 			}
+		}
+		if (!found)
+		{
+			res += 19.0f;
 		}
 	}
 

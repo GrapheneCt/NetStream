@@ -65,6 +65,11 @@
       <SubType>Designer</SubType>
     </Xml>
     <Xml Include="RES_RCO\locale\netstream_locale_en.xml" />
+    <Xml Include="RES_RCO\locale\netstream_locale_es.xml" />
+    <Xml Include="RES_RCO\locale\netstream_locale_ja.xml" />
+    <Xml Include="RES_RCO\locale\netstream_locale_ru.xml" />
+    <Xml Include="RES_RCO\locale\netstream_locale_zh-s.xml" />
+    <Xml Include="RES_RCO\locale\netstream_locale_zh-t.xml" />
     <Xml Include="RES_RCO\netstream_plugin.xml">
       <SubType>Designer</SubType>
     </Xml>
