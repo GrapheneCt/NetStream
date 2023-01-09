@@ -8,9 +8,10 @@
 Supports:
 - YouTube videos and livestreams
 - HTTP server
+- FTP server
+- Local storage
 
 Planned in the future releases:
-- Local file playback
 - Twitch
 - NicoNico
 
