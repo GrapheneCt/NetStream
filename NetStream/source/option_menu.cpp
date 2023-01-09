@@ -1,6 +1,7 @@
 #include <kernel.h>
 #include <libdbg.h>
 #include <paf.h>
+#include <system_param.h>
 
 #include "utils.h"
 #include "option_menu.h"
@@ -180,6 +181,7 @@ SceFloat32 OptionMenu::EstimateStringLength(wstring *s)
 	const wchar_t *ws = s->c_str();
 	wchar_t sval = 0;
 	SceFloat32 res = 0.0f;
+	SceInt32 langCode = s_frameworkInstance->language;
 	SceBool found = SCE_FALSE;
 
 	for (int i = 0; i < s->length(); i++)
@@ -197,7 +199,15 @@ SceFloat32 OptionMenu::EstimateStringLength(wstring *s)
 		}
 		if (!found)
 		{
-			res += 19.0f;
+			switch (langCode)
+			{
+			case SCE_SYSTEM_PARAM_LANG_JAPANESE:
+				res += 30.0f;
+				break;
+			default:
+				res += 19.0f;
+				break;
+			}
 		}
 	}
 

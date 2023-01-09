@@ -46,8 +46,60 @@ string LocalServerBrowser::GetPath()
 
 string LocalServerBrowser::GetBEAVUrl(string *in)
 {
-	string ret = "mp4://";
-	ret += path + *in;
+	string fullPath = path + *in;
+	string ret;
+
+	if (sce_paf_strstr(in->c_str(), ".m3u8"))
+	{
+		SharedPtr<LocalFile> fres;
+		SceInt32 res = -1;
+		SceSize fsz = 0;
+		char *fbuf = SCE_NULL;
+		char *begin = SCE_NULL;
+		char *end = SCE_NULL;
+
+		fres = LocalFile::Open(fullPath.c_str(), SCE_O_RDONLY, 0, &res);
+		if (res < 0)
+		{
+			return ret;
+		}
+
+		fsz = fres->GetFileSize();
+		fbuf = (char *)sce_paf_malloc(fsz + 1);
+		if (!fbuf)
+		{
+			fres.reset();
+			return ret;
+		}
+
+		fbuf[fsz] = 0;
+		fres->Read(fbuf, fsz);
+		fres->Close();
+		fres.reset();
+
+		begin = sce_paf_strstr(fbuf, "http");
+		if (begin)
+		{
+			end = sce_paf_strchr(begin, '\r');
+			if (end)
+			{
+				*end = 0;
+			}
+			end = sce_paf_strchr(begin, '\n');
+			if (end)
+			{
+				*end = 0;
+			}
+			ret = begin;
+		}
+
+		sce_paf_free(fbuf);
+	}
+	else
+	{
+		ret = "mp4://";
+		ret += fullPath;
+	}
 
 	return ret;
 }
