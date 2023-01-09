@@ -11,6 +11,7 @@
 #include "dialog.h"
 #include "invidious.h"
 #include "curl_file.h"
+#include "option_menu.h"
 #include "menus/menu_generic.h"
 #include "menus/menu_player_youtube.h"
 #include "menus/menu_player_simple.h"
@@ -523,15 +524,65 @@ SceVoid menu::PlayerYoutube::BackButtonCbFun(SceInt32 eventId, ui::Widget *self,
 	delete workObj;
 }
 
+SceVoid menu::PlayerYoutube::DwAddCompleteCb(SceInt32 result)
+{
+	dialog::Close();
+	if (result == SCE_OK)
+	{
+		dialog::OpenOk(g_appPlugin, SCE_NULL, utils::GetString(msg_settings_youtube_download_begin));
+	}
+	else
+	{
+		dialog::OpenError(g_appPlugin, result);
+	}
+}
+
 SceVoid menu::PlayerYoutube::SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
 {
-	menu::GenericMenu *baseMenu = menu::GetMenuAt(menu::GetMenuCount() - 2);
-	ui::Widget::SetControlFlags(baseMenu->root, 0);
+	PlayerYoutube *workObj = (PlayerYoutube *)pUserData;
 
-	SceUInt32 clCbArg[2];
-	clCbArg[0] = (SceUInt32)SettingsCloseCbFun;
-	clCbArg[1] = (SceUInt32)pUserData;
-	menu::SettingsButtonCbFun(eventId, self, a3, clCbArg);
+	vector<OptionMenu::Button> buttons;
+	OptionMenu::Button bt;
+	bt.label = utils::GetString(msg_settings);
+	buttons.push_back(bt);
+	bt.label = utils::GetString(msg_settings_youtube_download);
+	buttons.push_back(bt);
+
+	new OptionMenu(g_appPlugin, workObj->root, &buttons, OptionButtonCb, pUserData);
+}
+
+SceVoid menu::PlayerYoutube::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)
+{
+	menu::PlayerYoutube *player = (menu::PlayerYoutube *)pUserData;
+
+	switch (index)
+	{
+	case 0:
+		menu::GenericMenu *baseMenu = menu::GetMenuAt(menu::GetMenuCount() - 2);
+		ui::Widget::SetControlFlags(baseMenu->root, 0);
+		SceUInt32 clCbArg[2];
+		clCbArg[0] = (SceUInt32)SettingsCloseCbFun;
+		clCbArg[1] = (SceUInt32)pUserData;
+		menu::SettingsButtonCbFun(ui::EventMain_Decide, SCE_NULL, 0, clCbArg);
+		break;
+	case 1:
+		wstring title16;
+		string title8;
+		player->title->GetLabel(&title16);
+		ccc::UTF16toUTF8(&title16, &title8);
+		title8 += ".mp4";
+
+		SceInt32 res = ytutils::EnqueueDownloadAsync(player->videoLink.c_str(), title8.c_str(), DwAddCompleteCb);
+		if (res == SCE_OK)
+		{
+			dialog::OpenPleaseWait(g_appPlugin, SCE_NULL, utils::GetString("msg_wait"));
+		}
+		else
+		{
+			dialog::OpenError(g_appPlugin, res);
+		}
+		break;
+	}
 }
 
 SceVoid menu::PlayerYoutube::SettingsCloseCbFun(ScePVoid pUserData)
@@ -650,8 +701,6 @@ menu::PlayerYoutube::PlayerYoutube(const char *id, SceBool isFavourite) :
 	job->workObj = this;
 	SharedPtr<job::JobItem> itemParam(job);
 	utils::GetJobQueue()->Enqueue(&itemParam);
-
-	menu::Settings::SetValueChangeCallback(menu::YouTube::SettingsValueChangeCb, this);
 }
 
 menu::PlayerYoutube::~PlayerYoutube()
@@ -662,6 +711,4 @@ menu::PlayerYoutube::~PlayerYoutube()
 		hlsCommentThread->Join();
 		delete hlsCommentThread;
 	}
-
-	menu::Settings::SetValueChangeCallback(menu::YouTube::SettingsValueChangeCb, SCE_NULL);
 }

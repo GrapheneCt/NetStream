@@ -5,28 +5,28 @@
 #include "utils.h"
 #include "dialog.h"
 #include "beav_player.h"
-#include "http_server_browser.h"
+#include "generic_server_browser.h"
 #include "option_menu.h"
-#include "menus/menu_http.h"
+#include "menus/menu_server.h"
 #include "menus/menu_settings.h"
 #include "menus/menu_player_simple.h"
 
 using namespace paf;
 
-SceVoid menu::Http::PlayerBackCb(PlayerSimple *player, ScePVoid pUserArg)
+SceVoid menu::GenericServerMenu::PlayerBackCb(PlayerSimple *player, ScePVoid pUserArg)
 {
 	delete player;
 }
 
-SceVoid menu::Http::PlayerFailCb(PlayerSimple *player, ScePVoid pUserArg)
+SceVoid menu::GenericServerMenu::PlayerFailCb(PlayerSimple *player, ScePVoid pUserArg)
 {
 	dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_EUNSUP, utils::GetString("msg_error_load_file"));
 	delete player;
 }
 
-SceVoid menu::Http::BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+SceVoid menu::GenericServerMenu::BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
 {
-	Http *workObj = (Http *)pUserData;
+	GenericServerMenu *workObj = (GenericServerMenu *)pUserData;
 
 	workObj->PopBrowserPage();
 	if (workObj->pageList.empty())
@@ -35,25 +35,25 @@ SceVoid menu::Http::BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32
 	}
 }
 
-SceVoid menu::Http::ListButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+SceVoid menu::GenericServerMenu::ListButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
 {
-	Http *workObj = (Http *)pUserData;
+	GenericServerMenu *workObj = (GenericServerMenu *)pUserData;
 	BrowserPage *workPage = workObj->pageList.back();
-	HttpServerBrowser::Entry *entry = workPage->itemList->at(self->elem.hash);
+	GenericServerBrowser::Entry *entry = workPage->itemList->at(self->elem.hash);
 
-	if (entry->type == HttpServerBrowser::Entry::Type_Folder)
+	if (entry->type == GenericServerBrowser::Entry::Type_Folder)
 	{
 		workObj->PushBrowserPage(&entry->ref);
 	}
-	else if (entry->type == HttpServerBrowser::Entry::Type_SupportedFile)
+	else if (entry->type == GenericServerBrowser::Entry::Type_SupportedFile)
 	{
 		new menu::PlayerSimple(workObj->browser->GetBEAVUrl(&entry->ref).c_str(), SCE_NULL, PlayerFailCb, PlayerBackCb, pUserData);
 	}
 }
 
-SceVoid menu::Http::SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+SceVoid menu::GenericServerMenu::SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
 {
-	Http *workObj = (Http *)pUserData;
+	GenericServerMenu *workObj = (GenericServerMenu *)pUserData;
 	
 	vector<OptionMenu::Button> buttons;
 	OptionMenu::Button bt;
@@ -63,12 +63,12 @@ SceVoid menu::Http::SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceI
 	new OptionMenu(g_appPlugin, workObj->root, &buttons, OptionButtonCb, SCE_NULL);
 }
 
-SceVoid menu::Http::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)
+SceVoid menu::GenericServerMenu::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)
 {
 	menu::SettingsButtonCbFun(ui::EventMain_Decide, SCE_NULL, 0, SCE_NULL);
 }
 
-ui::ListItem *menu::Http::ListViewCb::Create(Param *info)
+ui::ListItem *menu::GenericServerMenu::ListViewCb::Create(Param *info)
 {
 	rco::Element searchParam;
 	Plugin::TemplateOpenParam tmpParam;
@@ -78,7 +78,7 @@ ui::ListItem *menu::Http::ListViewCb::Create(Param *info)
 
 	BrowserPage *workPage = workObj->pageList.back();
 
-	HttpServerBrowser::Entry *entry = workPage->itemList->at(info->cellIndex);
+	GenericServerBrowser::Entry *entry = workPage->itemList->at(info->cellIndex);
 	ui::Widget *targetRoot = info->parent;
 
 	searchParam.hash = template_list_item_generic;
@@ -94,13 +94,13 @@ ui::ListItem *menu::Http::ListViewCb::Create(Param *info)
 
 	switch (entry->type)
 	{
-	case HttpServerBrowser::Entry::Type_UnsupportedFile:
+	case GenericServerBrowser::Entry::Type_UnsupportedFile:
 		tex = utils::GetTexture(tex_file_icon_unsupported);
 		break;
-	case HttpServerBrowser::Entry::Type_SupportedFile:
+	case GenericServerBrowser::Entry::Type_SupportedFile:
 		tex = utils::GetTexture(tex_file_icon_video);
 		break;
-	case HttpServerBrowser::Entry::Type_Folder:
+	case GenericServerBrowser::Entry::Type_Folder:
 		tex = utils::GetTexture(tex_file_icon_folder);
 		break;
 	}
@@ -111,9 +111,9 @@ ui::ListItem *menu::Http::ListViewCb::Create(Param *info)
 	return (ui::ListItem *)item;
 }
 
-SceVoid menu::Http::GoToJob::ConnectionFailedDialogHandler(dialog::ButtonCode buttonCode, ScePVoid pUserArg)
+SceVoid menu::GenericServerMenu::GoToJob::ConnectionFailedDialogHandler(dialog::ButtonCode buttonCode, ScePVoid pUserArg)
 {
-	Http *workObj = (Http *)pUserArg;
+	GenericServerMenu *workObj = (GenericServerMenu *)pUserArg;
 	workObj->PopBrowserPage();
 	menu::SettingsButtonCbFun(ui::EventMain_Decide, SCE_NULL, 0, SCE_NULL);
 	if (workObj->pageList.empty())
@@ -126,7 +126,7 @@ SceVoid menu::Http::GoToJob::ConnectionFailedDialogHandler(dialog::ButtonCode bu
 	}
 }
 
-SceVoid menu::Http::GoToJob::Run()
+SceVoid menu::GenericServerMenu::GoToJob::Run()
 {
 	SceInt32 ret = SCE_OK;
 	string currentPath;
@@ -157,8 +157,8 @@ SceVoid menu::Http::GoToJob::Run()
 	}
 	if (workObj->firstBoot)
 	{
-		ui::Widget *backButton = utils::GetChild(workObj->root, button_back_page_http);
-		ui::Widget *settingsButton = utils::GetChild(workObj->root, button_settings_page_http);
+		ui::Widget *backButton = utils::GetChild(workObj->root, button_back_page_server_generic);
+		ui::Widget *settingsButton = utils::GetChild(workObj->root, button_settings_page_server_generic);
 		thread::s_mainThreadMutex.Lock();
 		backButton->PlayEffect(0.0f, effect::EffectType_Reset);
 		settingsButton->PlayEffect(0.0f, effect::EffectType_Reset);
@@ -178,8 +178,8 @@ SceVoid menu::Http::GoToJob::Run()
 	workPage->isLoaded = SCE_TRUE;
 }
 
-menu::Http::Http() :
-	GenericMenu("page_http",
+menu::GenericServerMenu::GenericServerMenu() :
+	GenericMenu("page_server_generic",
 	MenuOpenParam(false, 200.0f, Plugin::PageEffectType_SlideFromBottom),
 	MenuCloseParam(false, 200.0f, Plugin::PageEffectType_SlideFromBottom))
 {
@@ -187,34 +187,20 @@ menu::Http::Http() :
 	Plugin::TemplateOpenParam tmpParam;
 	firstBoot = SCE_TRUE;
 
-	ui::Widget *settingsButton = utils::GetChild(root, button_settings_page_http);
+	ui::Widget *settingsButton = utils::GetChild(root, button_settings_page_server_generic);
 	settingsButton->PlayEffectReverse(0.0f, effect::EffectType_Reset);
 	settingsButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(SettingsButtonCbFun, this));
 
-	ui::Widget *backButton = utils::GetChild(root, button_back_page_http);
+	ui::Widget *backButton = utils::GetChild(root, button_back_page_server_generic);
 	backButton->PlayEffectReverse(0.0f, effect::EffectType_Reset);
 	backButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(BackButtonCbFun, this));
 
-	browserRoot = utils::GetChild(root, plane_browser_root_page_http);
-	loaderIndicator = (ui::BusyIndicator *)utils::GetChild(root, busyindicator_loader_page_http);
+	browserRoot = utils::GetChild(root, plane_browser_root_page_server_generic);
+	loaderIndicator = (ui::BusyIndicator *)utils::GetChild(root, busyindicator_loader_page_server_generic);
 	topText = (ui::Text *)utils::GetChild(root, text_top);
-
-	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
-
-	char host[256];
-	char port[32];
-	char user[256];
-	char password[256];
-
-	settings->GetString("http_host", host, sizeof(host), "");
-	settings->GetString("http_port", port, sizeof(port), "");
-	settings->GetString("http_user", user, sizeof(user), "");
-	settings->GetString("http_password", password, sizeof(password), "");
-
-	browser = new HttpServerBrowser(host, port, user, password);
 }
 
-menu::Http::~Http()
+menu::GenericServerMenu::~GenericServerMenu()
 {
 	while (PopBrowserPage())
 	{
@@ -224,7 +210,7 @@ menu::Http::~Http()
 	delete browser;
 }
 
-SceBool menu::Http::PushBrowserPage(string *ref)
+SceBool menu::GenericServerMenu::PushBrowserPage(string *ref)
 {
 	rco::Element searchParam;
 	Plugin::TemplateOpenParam tmpParam;
@@ -270,7 +256,7 @@ SceBool menu::Http::PushBrowserPage(string *ref)
 	return SCE_TRUE;
 }
 
-SceBool menu::Http::PopBrowserPage()
+SceBool menu::GenericServerMenu::PopBrowserPage()
 {
 	BrowserPage *pageToPop;
 	SceBool isLastPage = SCE_FALSE;

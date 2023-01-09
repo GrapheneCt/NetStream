@@ -59,7 +59,7 @@ Downloader::~Downloader()
 	sce_paf_free(dw.bufMem);
 }
 
-SceInt32 Downloader::Enqueue(const char *url, const char *name)
+SceInt32 Downloader::Enqueue(const char *url, const char *name, OnStartCallback cb)
 {
 	IPMI::DataInfo dtInfo;
 	IPMI::BufferInfo bfInfo;
@@ -94,9 +94,12 @@ SceInt32 Downloader::Enqueue(const char *url, const char *name)
 
 	ret = dw.client->invokeSyncMethod(0x1234000D, &dtInfo, 2, &ret2, &bfInfo, 1);
 	if (ret != SCE_OK)
-		return ret;
+		goto end;
 	else if (ret2 != SCE_OK)
-		return ret2;
+	{
+		ret = ret2;
+		goto end;
+	}
 
 	sce_paf_memset(&minfo.name, 0, sizeof(minfo.name));
 	sce_paf_strcpy((char *)minfo.name, name);
@@ -116,7 +119,8 @@ SceInt32 Downloader::Enqueue(const char *url, const char *name)
 
 	ret2 = SCE_OK;
 	ret = dw.client->invokeSyncMethod(0x12340011, &dtInfo, 3, &ret2, &bfInfo, 1);
-	if (ret2 != SCE_OK) {
+	if (ret2 != SCE_OK)
+	{
 		//invalid filename?
 		sce_paf_memset(&minfo.name, 0, sizeof(minfo.name));
 		char *ext = sce_paf_strrchr(name, '.');
@@ -125,18 +129,27 @@ SceInt32 Downloader::Enqueue(const char *url, const char *name)
 		ret2 = SCE_OK;
 		ret = dw.client->invokeSyncMethod(0x12340011, &dtInfo, 3, &ret2, &bfInfo, 1);
 		if (ret2 != SCE_OK)
-			return ret2;
+		{
+			ret = ret2;
+			goto end;
+		}
 	}
+
+end:
+
+	if (cb)
+		cb(ret);
 
 	return ret;
 }
 
-SceInt32 Downloader::EnqueueAsync(const char *url, const char *name)
+SceInt32 Downloader::EnqueueAsync(const char *url, const char *name, OnStartCallback cb)
 {
 	AsyncEnqueue *dwJob = new AsyncEnqueue("Downloader::AsyncEnqueue");
 	dwJob->downloader = this;
 	dwJob->url8 = url;
 	dwJob->name8 = name;
+	dwJob->onStart = cb;
 
 	SharedPtr<job::JobItem> itemParam(dwJob);
 

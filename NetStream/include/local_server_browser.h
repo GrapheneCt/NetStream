@@ -5,26 +5,13 @@
 #include <paf.h>
 #include <psp2_compat/curl/curl.h>
 
+#include "generic_server_browser.h"
+
 using namespace paf;
 
-class LocalServerBrowser
+class LocalServerBrowser : public GenericServerBrowser
 {
 public:
-
-	class Entry
-	{
-	public:
-
-		enum Type
-		{
-			Type_UnsupportedFile,
-			Type_SupportedFile,
-			Type_Folder
-		};
-
-		string ref;
-		Type type;
-	};
 
 	LocalServerBrowser();
 

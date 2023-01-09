@@ -15,6 +15,7 @@
 #include "dialog.h"
 #include "utils.h"
 #include "yt_utils.h"
+#include "tw_utils.h"
 #include "beav_player.h"
 #include "invidious.h"
 #include "menus/menu_generic.h"
@@ -149,6 +150,7 @@ int main()
 	sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_INI_FILE_PROCESSOR);
 	sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_COMMON_GUI_DIALOG);
 	new Module("app0:module/libInvidious.suprx", 0, 0, 0);
+	new Module("app0:module/libLootkit.suprx", 0, 0, 0);
 	new Module("app0:module/libcurl.suprx", 0, 0, 0);
 
 	curl_global_memmanager_set_np(sce_paf_malloc, sce_paf_free, sce_paf_realloc);

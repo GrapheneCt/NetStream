@@ -52,6 +52,9 @@ dkms.conf
 
 # VDS
 *.vs
+*.rco
+*.rcd
+*.pptx
 eboot.bin
 eboot2.bin
 param.sfo

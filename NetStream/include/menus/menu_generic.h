@@ -12,6 +12,8 @@ namespace menu {
 	{
 		MenuType_First,
 		MenuType_Http,
+		MenuType_Ftp,
+		MenuType_Local,
 		MenuType_Youtube,
 		MenuType_PlayerSimple,
 		MenuType_PlayerYouTube,

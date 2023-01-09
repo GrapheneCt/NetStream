@@ -5,28 +5,28 @@
 #include "utils.h"
 #include "dialog.h"
 #include "beav_player.h"
-#include "http_server_browser.h"
+#include "ftp_server_browser.h"
 #include "option_menu.h"
-#include "menus/menu_http.h"
+#include "menus/menu_ftp.h"
 #include "menus/menu_settings.h"
 #include "menus/menu_player_simple.h"
 
 using namespace paf;
 
-SceVoid menu::Http::PlayerBackCb(PlayerSimple *player, ScePVoid pUserArg)
+SceVoid menu::Ftp::PlayerBackCb(PlayerSimple *player, ScePVoid pUserArg)
 {
 	delete player;
 }
 
-SceVoid menu::Http::PlayerFailCb(PlayerSimple *player, ScePVoid pUserArg)
+SceVoid menu::Ftp::PlayerFailCb(PlayerSimple *player, ScePVoid pUserArg)
 {
 	dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_EUNSUP, utils::GetString("msg_error_load_file"));
 	delete player;
 }
 
-SceVoid menu::Http::BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+SceVoid menu::Ftp::BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
 {
-	Http *workObj = (Http *)pUserData;
+	Ftp *workObj = (Ftp *)pUserData;
 
 	workObj->PopBrowserPage();
 	if (workObj->pageList.empty())
@@ -35,25 +35,25 @@ SceVoid menu::Http::BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32
 	}
 }
 
-SceVoid menu::Http::ListButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+SceVoid menu::Ftp::ListButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
 {
-	Http *workObj = (Http *)pUserData;
+	Ftp *workObj = (Ftp *)pUserData;
 	BrowserPage *workPage = workObj->pageList.back();
-	HttpServerBrowser::Entry *entry = workPage->itemList->at(self->elem.hash);
+	FtpServerBrowser::Entry *entry = workPage->itemList->at(self->elem.hash);
 
-	if (entry->type == HttpServerBrowser::Entry::Type_Folder)
+	if (entry->type == FtpServerBrowser::Entry::Type_Folder)
 	{
 		workObj->PushBrowserPage(&entry->ref);
 	}
-	else if (entry->type == HttpServerBrowser::Entry::Type_SupportedFile)
+	else if (entry->type == FtpServerBrowser::Entry::Type_SupportedFile)
 	{
 		new menu::PlayerSimple(workObj->browser->GetBEAVUrl(&entry->ref).c_str(), SCE_NULL, PlayerFailCb, PlayerBackCb, pUserData);
 	}
 }
 
-SceVoid menu::Http::SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+SceVoid menu::Ftp::SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
 {
-	Http *workObj = (Http *)pUserData;
+	Ftp *workObj = (Ftp *)pUserData;
 	
 	vector<OptionMenu::Button> buttons;
 	OptionMenu::Button bt;
@@ -63,12 +63,12 @@ SceVoid menu::Http::SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceI
 	new OptionMenu(g_appPlugin, workObj->root, &buttons, OptionButtonCb, SCE_NULL);
 }
 
-SceVoid menu::Http::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)
+SceVoid menu::Ftp::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)
 {
 	menu::SettingsButtonCbFun(ui::EventMain_Decide, SCE_NULL, 0, SCE_NULL);
 }
 
-ui::ListItem *menu::Http::ListViewCb::Create(Param *info)
+ui::ListItem *menu::Ftp::ListViewCb::Create(Param *info)
 {
 	rco::Element searchParam;
 	Plugin::TemplateOpenParam tmpParam;
@@ -78,7 +78,7 @@ ui::ListItem *menu::Http::ListViewCb::Create(Param *info)
 
 	BrowserPage *workPage = workObj->pageList.back();
 
-	HttpServerBrowser::Entry *entry = workPage->itemList->at(info->cellIndex);
+	FtpServerBrowser::Entry *entry = workPage->itemList->at(info->cellIndex);
 	ui::Widget *targetRoot = info->parent;
 
 	searchParam.hash = template_list_item_generic;
@@ -94,13 +94,13 @@ ui::ListItem *menu::Http::ListViewCb::Create(Param *info)
 
 	switch (entry->type)
 	{
-	case HttpServerBrowser::Entry::Type_UnsupportedFile:
+	case FtpServerBrowser::Entry::Type_UnsupportedFile:
 		tex = utils::GetTexture(tex_file_icon_unsupported);
 		break;
-	case HttpServerBrowser::Entry::Type_SupportedFile:
+	case FtpServerBrowser::Entry::Type_SupportedFile:
 		tex = utils::GetTexture(tex_file_icon_video);
 		break;
-	case HttpServerBrowser::Entry::Type_Folder:
+	case FtpServerBrowser::Entry::Type_Folder:
 		tex = utils::GetTexture(tex_file_icon_folder);
 		break;
 	}
@@ -111,9 +111,9 @@ ui::ListItem *menu::Http::ListViewCb::Create(Param *info)
 	return (ui::ListItem *)item;
 }
 
-SceVoid menu::Http::GoToJob::ConnectionFailedDialogHandler(dialog::ButtonCode buttonCode, ScePVoid pUserArg)
+SceVoid menu::Ftp::GoToJob::ConnectionFailedDialogHandler(dialog::ButtonCode buttonCode, ScePVoid pUserArg)
 {
-	Http *workObj = (Http *)pUserArg;
+	Ftp *workObj = (Ftp *)pUserArg;
 	workObj->PopBrowserPage();
 	menu::SettingsButtonCbFun(ui::EventMain_Decide, SCE_NULL, 0, SCE_NULL);
 	if (workObj->pageList.empty())
@@ -126,7 +126,7 @@ SceVoid menu::Http::GoToJob::ConnectionFailedDialogHandler(dialog::ButtonCode bu
 	}
 }
 
-SceVoid menu::Http::GoToJob::Run()
+SceVoid menu::Ftp::GoToJob::Run()
 {
 	SceInt32 ret = SCE_OK;
 	string currentPath;
@@ -178,8 +178,8 @@ SceVoid menu::Http::GoToJob::Run()
 	workPage->isLoaded = SCE_TRUE;
 }
 
-menu::Http::Http() :
-	GenericMenu("page_http",
+menu::Ftp::Ftp() :
+	GenericMenu("page_ftp",
 	MenuOpenParam(false, 200.0f, Plugin::PageEffectType_SlideFromBottom),
 	MenuCloseParam(false, 200.0f, Plugin::PageEffectType_SlideFromBottom))
 {
@@ -211,10 +211,10 @@ menu::Http::Http() :
 	settings->GetString("http_user", user, sizeof(user), "");
 	settings->GetString("http_password", password, sizeof(password), "");
 
-	browser = new HttpServerBrowser(host, port, user, password);
+	browser = new FtpServerBrowser(host, port, user, password);
 }
 
-menu::Http::~Http()
+menu::Ftp::~Ftp()
 {
 	while (PopBrowserPage())
 	{
@@ -224,7 +224,7 @@ menu::Http::~Http()
 	delete browser;
 }
 
-SceBool menu::Http::PushBrowserPage(string *ref)
+SceBool menu::Ftp::PushBrowserPage(string *ref)
 {
 	rco::Element searchParam;
 	Plugin::TemplateOpenParam tmpParam;
@@ -258,7 +258,7 @@ SceBool menu::Http::PushBrowserPage(string *ref)
 
 	pageList.push_back(page);
 
-	GoToJob *job = new GoToJob("Http::GoToJob");
+	GoToJob *job = new GoToJob("Ftp::GoToJob");
 	job->workObj = this;
 	if (ref)
 	{
@@ -270,7 +270,7 @@ SceBool menu::Http::PushBrowserPage(string *ref)
 	return SCE_TRUE;
 }
 
-SceBool menu::Http::PopBrowserPage()
+SceBool menu::Ftp::PopBrowserPage()
 {
 	BrowserPage *pageToPop;
 	SceBool isLastPage = SCE_FALSE;

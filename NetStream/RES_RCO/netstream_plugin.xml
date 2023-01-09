@@ -10,37 +10,21 @@
       <template_ref id="template_ref_top_title_bar_page_first" template="template_top_title_bar" />
       <template_ref id="template_ref_list_view_page_first" template="template_list_view_generic" />
     </page>
-  
-    <!-- http server page -->
-    <page id="page_http">
-      <plane texture="tex_common_bg" id="plane_base_bg_page_http">
-        <layout_hint size="960, 544" />
-      </plane>
-      <template_ref id="template_ref_top_title_bar_page_http" template="template_top_title_bar" />
-      <plane style="_common_style_plane_transparent" id="plane_browser_root_page_http">
-        <layout_hint size="960, 544" />
-      </plane>
-      <busyindicator style="style_busyindicator_big" texture="_common_texture_busy" id="busyindicator_loader_page_http" >
-        <layout_hint size="75, 75" />
-      </busyindicator>
-      <corner_button style="_common_style_corner_bottom_left" id="button_back_page_http" />
-      <corner_button style="_common_style_corner_bottom_right" id="button_settings_page_http" />
-    </page>
 
-    <!-- local server page -->
-    <page id="page_local">
-      <plane texture="tex_common_bg" id="plane_base_bg_page_local">
+    <!-- generic server page -->
+    <page id="page_server_generic">
+      <plane texture="tex_common_bg" id="plane_base_bg_page_server_generic">
         <layout_hint size="960, 544" />
       </plane>
-      <template_ref id="template_ref_top_title_bar_page_local" template="template_top_title_bar" />
-      <plane style="_common_style_plane_transparent" id="plane_browser_root_page_local">
+      <template_ref id="template_ref_top_title_bar_page_server_generic" template="template_top_title_bar" />
+      <plane style="_common_style_plane_transparent" id="plane_browser_root_page_server_generic">
         <layout_hint size="960, 544" />
       </plane>
-      <busyindicator style="style_busyindicator_big" texture="_common_texture_busy" id="busyindicator_loader_page_local" >
+      <busyindicator style="style_busyindicator_big" texture="_common_texture_busy" id="busyindicator_loader_page_server_generic" >
         <layout_hint size="75, 75" />
       </busyindicator>
-      <corner_button style="_common_style_corner_bottom_left" id="button_back_page_local" />
-      <corner_button style="_common_style_corner_bottom_right" id="button_settings_page_local" />
+      <corner_button style="_common_style_corner_bottom_left" id="button_back_page_server_generic" />
+      <corner_button style="_common_style_corner_bottom_right" id="button_settings_page_server_generic" />
     </page>
 
     <!-- youtube browser page -->
@@ -226,6 +210,28 @@
   
   <styletable>
   
+    <!-- option menu styles -->
+    <style_button sound="_common_sound_button_enter" bottom_margin="12" right_margin="20" top_margin="12" left_margin="20" label_obj="label_obj1" bg_obj="plane_obj1" glow_obj="plane_obj2" id="style_button_option_single">
+      <planeobj texture0="_common_texture_option_menu_button_single" id="plane_obj1" />
+      <textobj font_size="28" bold="1" align_y="1" align_x="3" id="label_obj1" />
+      <planeobj texture0="_common_texture_option_menu_button_single_glow" blend="2" id="plane_obj2" />
+    </style_button>
+    <style_button sound="_common_sound_button_enter" bottom_margin="12" right_margin="20" top_margin="12" left_margin="20" label_obj="label_obj1" bg_obj="plane_obj1" glow_obj="plane_obj2" id="style_button_option_top">
+      <planeobj texture0="_common_texture_option_menu_button_top" id="plane_obj1" />
+      <textobj font_size="28" bold="1" align_y="1" align_x="3" id="label_obj1" />
+      <planeobj texture0="_common_texture_option_menu_button_top_glow" blend="2" id="plane_obj2" />
+    </style_button>
+    <style_button sound="_common_sound_button_enter" bottom_margin="12" right_margin="20" top_margin="12" left_margin="20" label_obj="label_obj1" bg_obj="plane_obj1" glow_obj="plane_obj2" id="style_button_option_bottom">
+      <planeobj texture0="_common_texture_option_menu_button_bottom" id="plane_obj1" />
+      <textobj font_size="28" bold="1" align_y="1" align_x="3" id="label_obj1" />
+      <planeobj texture0="_common_texture_option_menu_button_bottom_glow" blend="2" id="plane_obj2" />
+    </style_button>
+    <style_button sound="_common_sound_button_enter" bottom_margin="12" right_margin="20" top_margin="12" left_margin="20" label_obj="label_obj1" bg_obj="plane_obj1" glow_obj="plane_obj2" id="style_button_option_middle">
+      <planeobj texture0="_common_texture_option_menu_button_middle" id="plane_obj1" />
+      <textobj font_size="28" bold="1" align_y="1" align_x="3" id="label_obj1" />
+      <planeobj texture0="_common_texture_option_menu_button_middle_glow" blend="2" id="plane_obj2" />
+    </style_button>
+    
     <!-- common stuff -->
     <style_plane color="0, 0, 0, 1" id="style_plane_black" />
     <style_busyindicator ball_color="0.78, 0.8, 0.85, 1" ball_size="16" id="style_busyindicator_big" />
@@ -367,6 +373,41 @@
   
   <templatetable>
   
+    <!-- option menu templates -->
+    <template fast_open="1" id="template_option_menu_base">
+      <button sound="_common_sound_button_back" style="_common_default_style_button_transparent" id="button_option_menu_close">
+        <layout_hint size="960, 544" />
+        <focus_hint enable="0" />
+        <plane style="_common_default_style_plane" texture="_common_texture_option_menu_base_down" id="plane_option_menu_base">
+          <layout_hint anchor="0, 1" align="0, 1" size="214, 12" pos="264, 43" />
+          <box id="box_option_menu">
+            <layout_box anchor="1, 2" align="1, 2" layout_type="1" bottom_margin="6" top_margin="6" right_margin="6" left_margin="6" />
+          </box>
+        </plane>
+      </button>
+    </template>
+    <template fast_open="1" id="template_option_menu_button_single">
+      <button style="style_button_option_single" id="button_option_menu_single" >
+        <layout_hint size="202, 60" />
+      </button>
+    </template>
+    <template fast_open="1" id="template_option_menu_button_top">
+      <button style="style_button_option_top" id="button_option_menu_top" >
+        <layout_hint size="202, 60" />
+      </button>
+    </template>
+    <template fast_open="1" id="template_option_menu_button_bottom">
+      <button style="style_button_option_bottom" id="button_option_menu_bottom" >
+        <layout_hint size="202, 60" />
+      </button>
+    </template>
+    <template fast_open="1" id="template_option_menu_button_middle">
+      <button style="style_button_option_middle" id="button_option_menu_middle" >
+        <layout_hint size="202, 60" />
+        <focus_hint focus_shape="2" />
+      </button>
+    </template>
+    
     <!-- top title bar template -->
     <template fast_open="1" id="template_top_title_bar">
       <plane style="_common_style_plane_transparent" id="plane_top">
@@ -519,26 +560,26 @@
   </templatetable>
   
   <stringtable>
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="ja" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="en" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="en-gb" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="fr" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="es" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="de" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="it" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="nl" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="pt" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="pt-br" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="ru" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="ko" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="zh-t" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="zh-s" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="fi" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="sv" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="da" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="no" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="pl" />
-    <locale origsize="5232" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="tr" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="ja" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="en" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="en-gb" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="fr" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="es" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="de" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="it" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="nl" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="pt" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="pt-br" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="ru" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="ko" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="zh-t" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="zh-s" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="fi" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="sv" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="da" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="no" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="pl" />
+    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="tr" />
   </stringtable>
   
   <texturetable>
@@ -554,19 +595,20 @@
     <texture src="texture\tex_common_bg.png" type="texture/png" id="tex_common_bg" />
     <texture src="texture\tex_fpmenu_icon_youtube.png" type="texture/png" id="tex_fpmenu_icon_youtube" />
     <texture src="texture\tex_fpmenu_icon_http.png" type="texture/png" id="tex_fpmenu_icon_http" />
+    <texture src="texture\tex_fpmenu_icon_ftp.png" type="texture/png" id="tex_fpmenu_icon_ftp" />
+    <texture src="texture\tex_fpmenu_icon_local.png" type="texture/png" id="tex_fpmenu_icon_local" />
     <texture src="texture\tex_file_icon_video.png" type="texture/png" id="tex_file_icon_video" />
     <texture src="texture\tex_file_icon_folder.png" type="texture/png" id="tex_file_icon_folder" />
     <texture src="texture\tex_file_icon_unsupported.png" type="texture/png" id="tex_file_icon_unsupported" />
     <texture src="texture\tex_black.dds" type="texture/dds" id="tex_black" />
     <texture src="texture\tex_button_expand.png" type="texture/png" id="tex_button_expand" />
-    <texture src="texture\tex_button_compress.png" type="texture/png" id="tex_button_compress" />
     <texture src="texture\tex_yt_icon_live_now.png" type="texture/png" id="tex_yt_icon_live_now" />
     <texture src="texture\tex_yt_icon_fav_for_player.png" type="texture/png" id="tex_yt_icon_favourite_for_player" />
     <texture src="texture\tex_yt_icon_fav_for_player_glow.png" type="texture/png" id="tex_yt_icon_favourite_for_player_glow" />
   </texturetable>
   
   <filetable>
-    <file origsize="5022" src="RES_RCO_TMP\netstream_settings.xml.zlib" type="application/xml" id="file_netstream_settings" compress="on" />
+    <file origsize="5289" src="RES_RCO_TMP\netstream_settings.xml.zlib" type="application/xml" id="file_netstream_settings" compress="on" />
   </filetable>
   
 </resource>

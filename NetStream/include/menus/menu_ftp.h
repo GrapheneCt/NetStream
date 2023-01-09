@@ -1,22 +1,22 @@
-#ifndef _MENU_HTTP_H_
-#define _MENU_HTTP_H_
+#ifndef _MENU_FTP_H_
+#define _MENU_FTP_H_
 
 #include <kernel.h>
 #include <paf.h>
 
 #include "dialog.h"
 #include "menu_server.h"
-#include "http_server_browser.h"
+#include "ftp_server_browser.h"
 #include "menus/menu_player_simple.h"
 
 using namespace paf;
 
 namespace menu {
-	class Http : public GenericServerMenu
+	class Ftp : public GenericServerMenu
 	{
 	public:
 
-		Http()
+		Ftp()
 		{
 			sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
 
@@ -25,17 +25,17 @@ namespace menu {
 			char user[256];
 			char password[256];
 
-			settings->GetString("http_host", host, sizeof(host), "");
-			settings->GetString("http_port", port, sizeof(port), "");
-			settings->GetString("http_user", user, sizeof(user), "");
-			settings->GetString("http_password", password, sizeof(password), "");
+			settings->GetString("ftp_host", host, sizeof(host), "");
+			settings->GetString("ftp_port", port, sizeof(port), "");
+			settings->GetString("ftp_user", user, sizeof(user), "");
+			settings->GetString("ftp_password", password, sizeof(password), "");
 
-			browser = new HttpServerBrowser(host, port, user, password);
+			browser = new FtpServerBrowser(host, port, user, password);
 		}
 
 		MenuType GetMenuType()
 		{
-			return MenuType_Http;
+			return MenuType_Ftp;
 		}
 
 		const SceUInt32 *GetSupportedSettingsItems(SceInt32 *count)
@@ -47,7 +47,7 @@ namespace menu {
 	private:
 
 		const SceUInt32 k_settingsIdList[1] = {
-			http_setting
+			ftp_setting
 		};
 	};
 }

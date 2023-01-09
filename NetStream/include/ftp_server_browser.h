@@ -1,5 +1,5 @@
-#ifndef _HTTP_SERVER_BROWSER_H_
-#define _HTTP_SERVER_BROWSER_H_
+#ifndef _FTP_SERVER_BROWSER_H_
+#define _FTP_SERVER_BROWSER_H_
 
 #include <kernel.h>
 #include <paf.h>
@@ -9,13 +9,13 @@
 
 using namespace paf;
 
-class HttpServerBrowser : public GenericServerBrowser
+class FtpServerBrowser : public GenericServerBrowser
 {
 public:
 
-	HttpServerBrowser(const char *host, const char *port, const char *user, const char *password);
+	FtpServerBrowser(const char *host, const char *port, const char *user, const char *password);
 
-	~HttpServerBrowser();
+	~FtpServerBrowser();
 
 	SceBool Probe();
 
@@ -29,7 +29,7 @@ public:
 
 	string GetBEAVUrl(string *in);
 
-	vector<HttpServerBrowser::Entry *> *GoTo(const char *ref, SceInt32 *result);
+	vector<FtpServerBrowser::Entry *> *GoTo(const char *ref, SceInt32 *result);
 
 private:
 
@@ -40,6 +40,7 @@ private:
 	string root;
 	char *buffer;
 	SceUInt32 posInBuf;
+	SceInt32 useNlst;
 };
 
 #endif

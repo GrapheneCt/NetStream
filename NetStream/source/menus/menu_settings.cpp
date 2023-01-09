@@ -23,7 +23,7 @@ using namespace paf;
 using namespace sce;
 
 const SceUInt32 k_safeMemIniLimit = 0x400;
-const SceInt32 k_settingsVersion = 1;
+const SceInt32 k_settingsVersion = 2;
 
 static sce::AppSettings *s_appSet = SCE_NULL;
 static menu::Settings *s_instance = SCE_NULL;
@@ -78,7 +78,7 @@ SceVoid menu::Settings::Init()
 	*verinfo = L"RELEASE ";
 #endif
 	*verinfo += WIDE(__DATE__);
-	*verinfo += L" v 1.01";
+	*verinfo += L" v 2.00";
 	s_verinfo = (wchar_t *)verinfo->c_str();
 }
 

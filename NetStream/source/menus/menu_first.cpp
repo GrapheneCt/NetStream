@@ -4,6 +4,7 @@
 #include "common.h"
 #include "utils.h"
 #include "menus/menu_first.h"
+#include "menus/menu_ftp.h"
 #include "menus/menu_http.h"
 #include "menus/menu_local.h"
 #include "menus/menu_youtube.h"
@@ -24,10 +25,14 @@ SceVoid menu::First::ListButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt3
 		menu::Http *hmenu = new menu::Http();
 		hmenu->PushBrowserPage(SCE_NULL);
 		break;
-	/*case 2:
+	case 2:
+		menu::Ftp *fmenu = new menu::Ftp();
+		fmenu->PushBrowserPage(SCE_NULL);
+		break;
+	case 3:
 		menu::Local *lmenu = new menu::Local();
 		lmenu->PushBrowserPage(SCE_NULL);
-		break;*/
+		break;
 	}
 }
 
@@ -59,6 +64,12 @@ ui::ListItem *menu::First::ListViewCb::Create(Param *info)
 	case 1:
 		tex = utils::GetTexture(tex_fpmenu_icon_http);
 		break;
+	case 2:
+		tex = utils::GetTexture(tex_fpmenu_icon_ftp);
+		break;
+	case 3:
+		tex = utils::GetTexture(tex_fpmenu_icon_local);
+		break;
 	}
 
 	button->SetSurfaceBase(&tex);
@@ -82,7 +93,7 @@ menu::First::First() : GenericMenu("page_first", MenuOpenParam(true), MenuCloseP
 	Vector4 sz(960.0f, 80.0f);
 	listView->SetCellSize(0, &sz);
 	listView->SetConfigurationType(0, ui::ListView::ConfigurationType_Simple);
-	listView->AddItem(0, 0, 2);
+	listView->AddItem(0, 0, 4);
 }
 
 menu::First::~First()

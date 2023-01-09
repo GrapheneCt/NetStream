@@ -56,9 +56,6 @@
     <ClCompile Include="source\menus\menu_player_simple.cpp">
       <Filter>Source Files\menus</Filter>
     </ClCompile>
-    <ClCompile Include="source\menus\menu_http.cpp">
-      <Filter>Source Files\menus</Filter>
-    </ClCompile>
     <ClCompile Include="source\menus\menu_youtube.cpp">
       <Filter>Source Files\menus</Filter>
     </ClCompile>
@@ -71,8 +68,20 @@
     <ClCompile Include="source\local_server_browser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\menus\menu_local.cpp">
+    <ClCompile Include="source\option_menu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ftp_server_browser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\menus\menu_server.cpp">
       <Filter>Source Files\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="source\tw_utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ftpparse.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -129,6 +138,27 @@
     </ClInclude>
     <ClInclude Include="include\menus\menu_local.h">
       <Filter>Header Files\menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\generic_server_browser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\option_menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ftp_server_browser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\menus\menu_ftp.h">
+      <Filter>Header Files\menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\menus\menu_server.h">
+      <Filter>Header Files\menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tw_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ftpparse.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

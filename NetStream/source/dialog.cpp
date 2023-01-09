@@ -71,6 +71,25 @@ SceVoid dialog::OpenYesNo(Plugin *workPlugin, const wchar_t *titleText, const wc
 		thread::s_mainThreadMutex.Unlock();
 }
 
+SceVoid dialog::OpenOk(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageText, EventHandler eventHandler, ScePVoid userArg)
+{
+	if (s_currentDialog != CURRENT_DIALOG_NONE)
+		return;
+
+	SceBool isMainThread = thread::IsMainThread();
+
+	wstring title = titleText;
+	wstring message = messageText;
+
+	s_currentEventHandler = eventHandler;
+
+	if (!isMainThread)
+		thread::s_mainThreadMutex.Lock();
+	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &CommonGuiDialog::Param::s_dialogOk, CommonGuiEventHandler, userArg);
+	if (!isMainThread)
+		thread::s_mainThreadMutex.Unlock();
+}
+
 SceVoid dialog::OpenError(Plugin *workPlugin, SceInt32 errorCode, const wchar_t *messageText, EventHandler eventHandler, ScePVoid userArg)
 {
 	if (s_currentDialog != CURRENT_DIALOG_NONE)

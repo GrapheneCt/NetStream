@@ -11,6 +11,7 @@
 #include "dialog.h"
 #include "invidious.h"
 #include "curl_file.h"
+#include "option_menu.h"
 #include "menus/menu_generic.h"
 #include "menus/menu_youtube.h"
 #include "menus/menu_player_youtube.h"
@@ -771,6 +772,56 @@ SceVoid menu::YouTube::ListButtonCbFun(SceInt32 eventId, ui::Widget *self, SceIn
 	}
 }
 
+SceVoid menu::YouTube::SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+{
+	YouTube *workObj = (YouTube *)pUserData;
+
+	vector<OptionMenu::Button> buttons;
+	OptionMenu::Button bt;
+	bt.label = utils::GetString(msg_settings);
+	buttons.push_back(bt);
+	bt.label = utils::GetString(msg_settings_youtube_clean_history);
+	buttons.push_back(bt);
+	bt.label = utils::GetString(msg_settings_youtube_clean_fav);
+	buttons.push_back(bt);
+
+	new OptionMenu(g_appPlugin, workObj->root, &buttons, OptionButtonCb, SCE_NULL);
+}
+
+SceVoid menu::YouTube::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)
+{
+	switch (index)
+	{
+	case 0:
+		menu::SettingsButtonCbFun(ui::EventMain_Decide, SCE_NULL, 0, SCE_NULL);
+		break;
+	case 1:
+		dialog::OpenYesNo(g_appPlugin, SCE_NULL, utils::GetString(msg_settings_youtube_clean_history_confirm), DialogEventHandler, (ScePVoid)index);
+		break;
+	case 2:
+		dialog::OpenYesNo(g_appPlugin, SCE_NULL, utils::GetString(msg_settings_youtube_clean_fav_confirm), DialogEventHandler, (ScePVoid)index);
+		break;
+	}
+}
+
+SceVoid menu::YouTube::DialogEventHandler(dialog::ButtonCode buttonCode, ScePVoid pUserArg)
+{
+	SceUInt32 index = (SceUInt32)pUserArg;
+
+	if (buttonCode == dialog::ButtonCode_Yes)
+	{
+		switch (index)
+		{
+		case 1:
+			ytutils::HistLog::Clean();
+			break;
+		case 2:
+			ytutils::FavLog::Clean();
+			break;
+		}
+	}
+}
+
 SceVoid menu::YouTube::BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
 {
 	YouTube *workObj = (YouTube *)pUserData;
@@ -784,41 +835,6 @@ SceVoid menu::YouTube::SubmenuButtonCbFun(SceInt32 eventId, ui::Widget *self, Sc
 	workObj->SwitchSubmenu((Submenu::SubmenuType)self->elem.hash);
 }
 
-SceInt32 menu::YouTube::SettingsValueChangeCb(const char *id, const char *newValue, ScePVoid pUserArg)
-{
-	SceUInt32 idhash = utils::GetHash(id);
-
-	switch (idhash)
-	{
-	case button_youtube_clean_history:
-		ytutils::HistLog::Clean();
-		break;
-	case button_youtube_clean_fav:
-		ytutils::FavLog::Clean();
-		break;
-	case button_youtube_download:
-		if (pUserArg)
-		{
-			menu::PlayerYoutube *player = (menu::PlayerYoutube *)pUserArg;
-
-			wstring title16;
-			string title8;
-			player->title->GetLabel(&title16);
-			ccc::UTF16toUTF8(&title16, &title8);
-			title8 += ".mp4";
-
-			return ytutils::EnqueueDownload(player->videoLink.c_str(), title8.c_str());
-		}
-		else
-		{
-			return SCE_ERROR_ERRNO_EACCES;
-		}
-		break;
-	}
-
-	return SCE_OK;
-}
-
 menu::YouTube::YouTube() :
 	GenericMenu("page_youtube",
 	MenuOpenParam(false, 200.0f, Plugin::PageEffectType_SlideFromBottom),
@@ -828,7 +844,7 @@ menu::YouTube::YouTube() :
 
 	ui::Widget *settingsButton = utils::GetChild(root, button_settings_page_youtube);
 	settingsButton->PlayEffect(0.0f, effect::EffectType_Reset);
-	settingsButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(menu::SettingsButtonCbFun));
+	settingsButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(SettingsButtonCbFun, this));
 
 	ui::Widget *backButton = utils::GetChild(root, button_back_page_youtube);
 	backButton->PlayEffect(0.0f, effect::EffectType_Reset);
@@ -852,13 +868,10 @@ menu::YouTube::YouTube() :
 	invSetInstanceUrl(instance);
 
 	SwitchSubmenu(Submenu::SubmenuType_Search);
-
-	menu::Settings::SetValueChangeCallback(SettingsValueChangeCb, SCE_NULL);
 }
 
 menu::YouTube::~YouTube()
 {
-	menu::Settings::SetValueChangeCallback(SCE_NULL, SCE_NULL);
 	delete currentSubmenu;
 }
 

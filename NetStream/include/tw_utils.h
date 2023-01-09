@@ -1,15 +1,13 @@
-#ifndef _YTUTILS_H_
-#define _YTUTILS_H_
+#ifndef _TWUTILS_H_
+#define _TWUTILS_H_
 
 #include <kernel.h>
 #include <paf.h>
 #include <ini_file_processor.h>
 
-#include "downloader.h"
-
 using namespace paf;
 
-namespace ytutils
+namespace twutils
 {
 	class Log
 	{
@@ -101,10 +99,6 @@ namespace ytutils
 	HistLog *GetHistLog();
 
 	FavLog *GetFavLog();
-
-	SceInt32 EnqueueDownload(const char *url, const char *name);
-
-	SceInt32 EnqueueDownloadAsync(const char *url, const char *name, Downloader::OnStartCallback cb);
 };
 
 #endif

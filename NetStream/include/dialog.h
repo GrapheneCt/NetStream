@@ -27,6 +27,8 @@ namespace dialog
 
 	SceVoid OpenYesNo(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageText, EventHandler eventHandler = SCE_NULL, ScePVoid userArg = SCE_NULL);
 
+	SceVoid OpenOk(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageText, EventHandler eventHandler = SCE_NULL, ScePVoid userArg = SCE_NULL);
+
 	SceVoid OpenError(Plugin *workPlugin, SceInt32 errorCode, const wchar_t *messageText = SCE_NULL, EventHandler eventHandler = SCE_NULL, ScePVoid userArg = SCE_NULL);
 
 	SceVoid OpenTwoButton(

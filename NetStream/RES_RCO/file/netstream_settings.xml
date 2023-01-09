@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <application_settings version="1.0" bg_color="17.0, 75.0, 168.0, 255.0">
   <setting_list id="ns_setting" title="msg_settings">
-    <setting_list id="http_setting" title="msg_settings_http" style="edit">
+    <setting_list id="http_setting" title="msg_settings_http" style="edit" icon="tex_spanner">
       <text_field id="http_host" title="msg_http_host" max_length="255" min_length="0" keyboard_type="url" key="http_host" default_value=""/>
       <text_field id="http_port" title="msg_http_port" max_length="31" min_length="0" keyboard_type="numeral" key="http_port" default_value=""/>
       <text_field id="http_user" title="msg_http_user" max_length="255" min_length="0" keyboard_type="alphabet" key="http_user" default_value=""/>
       <text_field id="http_password" title="msg_http_password" max_length="255" min_length="0" keyboard_type="alphabet" key="http_password" default_value=""/>
     </setting_list>
-    <setting_list id="youtube_search_setting" title="msg_settings_search">
+    <setting_list id="ftp_setting" title="msg_settings_ftp" style="edit" icon="tex_spanner">
+      <text_field id="ftp_host" title="msg_ftp_host" max_length="255" min_length="0" keyboard_type="url" key="ftp_host" default_value=""/>
+      <text_field id="ftp_port" title="msg_ftp_port" max_length="31" min_length="0" keyboard_type="numeral" key="ftp_port" default_value=""/>
+      <text_field id="ftp_user" title="msg_ftp_user" max_length="255" min_length="0" keyboard_type="alphabet" key="ftp_user" default_value=""/>
+      <text_field id="ftp_password" title="msg_ftp_password" max_length="255" min_length="0" keyboard_type="alphabet" key="ftp_password" default_value=""/>
+      <toggle_switch id="ftp_nlst" title="msg_ftp_nlst" hint="msg_ftp_nlst_hint" key="ftp_nlst" default_value="0" />
+    </setting_list>
+    <setting_list id="youtube_search_setting" title="msg_settings_search" icon="tex_spanner">
       <text_field id="youtube_inv_instance" title="msg_youtube_inv_instance" max_length="255" min_length="0" keyboard_type="url" key="inv_instance" default_value="https://invidious.namazso.eu"/>
       <list id="list_youtube_search_sort" title="msg_youtube_search_sort" key="yt_search_sort" default_value="0">
         <list_item id="list_youtube_search_sort_00" title="msg_option_search_sort_0" value="0" />
@@ -23,16 +30,14 @@
         <list_item id="list_youtube_search_date_04" title="msg_option_search_date_4" value="4" />
         <list_item id="list_youtube_search_date_05" title="msg_option_search_date_5" value="5" />
       </list>
-      <button id="button_youtube_clean_history" title="msg_settings_youtube_clean_history" success_dialog_message="msg_settings_youtube_clean_history_done" confirm="msg_settings_youtube_clean_history_confirm" />
-      <button id="button_youtube_clean_fav" title="msg_settings_youtube_clean_fav" success_dialog_message="msg_settings_youtube_clean_fav_done" confirm="msg_settings_youtube_clean_fav_confirm" />
     </setting_list>
-    <setting_list id="youtube_comment_setting" title="msg_settings_comment">
+    <setting_list id="youtube_comment_setting" title="msg_settings_comment" icon="tex_spanner">
       <list id="list_youtube_comment_sort" title="msg_youtube_comment_sort" key="yt_comment_sort" default_value="0">
         <list_item id="llist_youtube_comment_sort_00" title="msg_option_comment_sort_0" value="0" />
         <list_item id="llist_youtube_comment_sort_01" title="msg_option_comment_sort_1" value="1" />
       </list>
     </setting_list>
-    <setting_list id="youtube_quality_setting" title="msg_settings_quality">
+    <setting_list id="youtube_quality_setting" title="msg_settings_quality" icon="tex_spanner">
       <list id="list_youtube_quality" title="msg_youtube_quality" key="yt_quality" default_value="1">
         <list_item id="list_youtube_quality_00" title="msg_option_youtube_quality_0" value="0" />
         <list_item id="list_youtube_quality_01" title="msg_option_youtube_quality_1" value="1" />
@@ -45,13 +50,10 @@
         <list_item id="list_youtube_hls_quality_04" title="msg_option_youtube_hls_quality_4" value="4" />
       </list>
     </setting_list>
-    <setting_list id="youtube_player_setting" title="msg_settings_youtube_player">
+    <setting_list id="youtube_player_setting" title="msg_settings_youtube_player" icon="tex_spanner">
       <toggle_switch id="toggle_youtube_min" title="msg_toggle_youtube_min" key="yt_min" default_value="1" />
     </setting_list>
-    <setting_list id="youtube_download_setting" title="msg_settings_youtube_download">
-      <button id="button_youtube_download" title="msg_settings_youtube_download" success_dialog_message="msg_settings_youtube_download_begin" />
-    </setting_list>
-    <setting_list id="verinfo_setting" title="msg_settings_verinfo" style="edit">
+    <setting_list id="verinfo_setting" title="msg_settings_verinfo" style="edit" icon="tex_spanner">
       <label id="label_verinfo" title="msg_verinfo" style="heading" />
     </setting_list>
   </setting_list>

@@ -197,10 +197,12 @@ namespace menu {
 			string request;
 		};
 
+		static SceVoid OptionButtonCb(SceUInt32 index, ScePVoid pUserData);
+		static SceVoid DialogEventHandler(dialog::ButtonCode buttonCode, ScePVoid pUserArg);
 		static SceVoid BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
 		static SceVoid ListButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
 		static SceVoid SubmenuButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceInt32 SettingsValueChangeCb(const char *id, const char *newValue, ScePVoid pUserArg);
+		static SceVoid SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
 
 		YouTube();
 

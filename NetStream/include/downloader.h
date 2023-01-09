@@ -12,13 +12,15 @@ class Downloader
 {
 public:
 
+	typedef SceVoid(*OnStartCallback)(SceInt32 result);
+
 	Downloader();
 
 	~Downloader();
 
-	SceInt32 Enqueue(const char *url, const char *name);
+	SceInt32 Enqueue(const char *url, const char *name, OnStartCallback cb = SCE_NULL);
 
-	SceInt32 EnqueueAsync(const char *url, const char *name);
+	SceInt32 EnqueueAsync(const char *url, const char *name, OnStartCallback cb = SCE_NULL);
 
 private:
 
@@ -33,7 +35,7 @@ private:
 		SceVoid Run()
 		{
 			Downloader *pdownloader = (Downloader *)downloader;
-			pdownloader->Enqueue(url8.c_str(), name8.c_str());
+			pdownloader->Enqueue(url8.c_str(), name8.c_str(), onStart);
 		}
 
 		SceVoid Finish() {}
@@ -41,6 +43,7 @@ private:
 		string url8;
 		string name8;
 		ScePVoid downloader;
+		OnStartCallback onStart;
 	};
 
 	sce::Download dw;

@@ -5,85 +5,25 @@
 #include <paf.h>
 
 #include "dialog.h"
-#include "menu_generic.h"
+#include "menu_server.h"
 #include "local_server_browser.h"
 #include "menus/menu_player_simple.h"
 
 using namespace paf;
 
 namespace menu {
-	class Local : public GenericMenu
+	class Local : public GenericServerMenu
 	{
 	public:
 
-		static SceVoid PlayerBackCb(PlayerSimple *player, ScePVoid pUserArg);
-		static SceVoid PlayerFailCb(PlayerSimple *player, ScePVoid pUserArg);
-		static SceVoid BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid ListButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-
-		class ListViewCb : public ui::ListView::ItemCallback
+		Local()
 		{
-		public:
-
-			~ListViewCb()
-			{
-
-			}
-
-			ui::ListItem *Create(Param *info);
-
-			SceVoid Start(Param *info)
-			{
-				info->parent->PlayEffect(0.0f, effect::EffectType_Popup1);
-			}
-
-			Local *workObj;
-		};
-
-		class GoToJob : public job::JobItem
-		{
-		public:
-
-			using job::JobItem::JobItem;
-
-			~GoToJob() {}
-
-			SceVoid Run();
-
-			SceVoid Finish() {}
-
-			static SceVoid ConnectionFailedDialogHandler(dialog::ButtonCode buttonCode, ScePVoid pUserArg);
-
-			Local *workObj;
-			string targetRef;
-		};
-
-		class BrowserPage
-		{
-		public:
-
-			BrowserPage() : isLoaded(SCE_FALSE)
-			{
-
-			}
-
-			~BrowserPage()
-			{
-
-			}
-
-			vector<LocalServerBrowser::Entry *> *itemList;
-			ui::ListView *list;
-			SceBool isLoaded;
-		};
-
-		Local();
-
-		~Local();
+			browser = new LocalServerBrowser();
+		}
 
 		MenuType GetMenuType()
 		{
-			return MenuType_Http;
+			return MenuType_Local;
 		}
 
 		const SceUInt32 *GetSupportedSettingsItems(SceInt32 *count)
@@ -92,21 +32,10 @@ namespace menu {
 			return k_settingsIdList;
 		}
 
-		SceBool PushBrowserPage(string *ref);
-
-		SceBool PopBrowserPage();
-
-		LocalServerBrowser *browser;
-		ui::Widget *browserRoot;
-		ui::BusyIndicator *loaderIndicator;
-		ui::Text *topText;
-		vector<BrowserPage *> pageList;
-		SceBool firstBoot;
-
 	private:
 
 		const SceUInt32 k_settingsIdList[1] = {
-			http_setting
+			0
 		};
 	};
 }

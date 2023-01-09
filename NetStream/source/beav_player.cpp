@@ -328,6 +328,8 @@ SceVoid BEAVPlayer::BEAVAudioThread::EntryFunction()
 
 	SCE_DBG_LOG_INFO("[BEAV] Audio: uSampleRate: %u, uChannelCount: %u\n", data.uSampleRate, data.uChannelCount);
 
+	workObj->initState = InitState_InitOk;
+
 	ScePVoid silence = sce_paf_malloc(data.uBufSize);
 	sce_paf_memset(silence, 0, data.uBufSize);
 
@@ -442,8 +444,6 @@ SceVoid BEAVPlayer::BEAVVideoThread::EntryFunction()
 
 	SCE_DBG_LOG_INFO("[BEAV] Video: uTexWidth: %d, uTexPitch: %d, uTexHeight: %d\n", data.uTexWidth, data.uTexPitch, data.uTexHeight);
 
-	workObj->initState = InitState_InitOk;
-
 	for (int i = 0; i < BEAV_SURFACE_COUNT; i++)
 	{
 		drawSurf[i] = new graph::Surface(s_beavSurfacePool, data.uTexWidth, data.uTexHeight, image::ImageMode_U8U8U8U8_ABGR, image::ImageOrder_Linear, 1, 1, 0);
@@ -535,6 +535,7 @@ SceVoid BEAVPlayer::BootJob::Run()
 
 	workObj->audioThread = new BEAVAudioThread(SCE_KERNEL_HIGHEST_PRIORITY_USER + 1, SCE_KERNEL_16KiB, "BEAVAudioThread", &opt);
 	workObj->audioThread->playerCore = workObj->playerCore;
+	workObj->audioThread->workObj = workObj;
 
 	workObj->videoThread->Start();
 	workObj->audioThread->Start();

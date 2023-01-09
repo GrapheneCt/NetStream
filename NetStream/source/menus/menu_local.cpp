@@ -5,6 +5,7 @@
 #include "utils.h"
 #include "dialog.h"
 #include "beav_player.h"
+#include "option_menu.h"
 #include "local_server_browser.h"
 #include "menus/menu_local.h"
 #include "menus/menu_settings.h"
@@ -21,6 +22,23 @@ SceVoid menu::Local::PlayerFailCb(PlayerSimple *player, ScePVoid pUserArg)
 {
 	dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_EUNSUP, utils::GetString("msg_error_load_file"));
 	delete player;
+}
+
+SceVoid menu::Local::SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+{
+	Local *workObj = (Local *)pUserData;
+
+	vector<OptionMenu::Button> buttons;
+	OptionMenu::Button bt;
+	bt.label = utils::GetString(msg_settings);
+	buttons.push_back(bt);
+
+	new OptionMenu(g_appPlugin, workObj->root, &buttons, OptionButtonCb, SCE_NULL);
+}
+
+SceVoid menu::Local::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)
+{
+	menu::SettingsButtonCbFun(ui::EventMain_Decide, SCE_NULL, 0, SCE_NULL);
 }
 
 SceVoid menu::Local::BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
@@ -97,7 +115,6 @@ SceVoid menu::Local::GoToJob::ConnectionFailedDialogHandler(dialog::ButtonCode b
 {
 	Local *workObj = (Local *)pUserArg;
 	workObj->PopBrowserPage();
-	menu::SettingsButtonCbFun(ui::EventMain_Decide, SCE_NULL, 0, SCE_NULL);
 	if (workObj->pageList.empty())
 	{
 		delete workObj;
@@ -171,7 +188,7 @@ menu::Local::Local() :
 
 	ui::Widget *settingsButton = utils::GetChild(root, button_settings_page_local);
 	settingsButton->PlayEffectReverse(0.0f, effect::EffectType_Reset);
-	settingsButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(menu::SettingsButtonCbFun));
+	settingsButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(SettingsButtonCbFun, this));
 
 	ui::Widget *backButton = utils::GetChild(root, button_back_page_local);
 	backButton->PlayEffectReverse(0.0f, effect::EffectType_Reset);

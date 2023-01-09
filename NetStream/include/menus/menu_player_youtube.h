@@ -112,6 +112,8 @@ namespace menu {
 		static SceVoid PlayerOkCb(PlayerSimple *player, ScePVoid pUserArg);
 		static SceVoid PlayerFailCb(PlayerSimple *player, ScePVoid pUserArg);
 		static SceVoid TaskLoadSecondStage(void *pArgBlock);
+		static SceVoid DwAddCompleteCb(SceInt32 result);
+		static SceVoid OptionButtonCb(SceUInt32 index, ScePVoid pUserData);
 		static SceVoid BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
 		static SceVoid SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
 		static SceVoid ExpandButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
@@ -120,7 +122,6 @@ namespace menu {
 		static SceVoid DescButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
 		static SceVoid CommentBodyButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
 		static SceVoid SettingsCloseCbFun(ScePVoid pUserData);
-		static SceInt32 SettingsValueChangeCb(const char *id, const char *newValue, ScePVoid pUserArg);
 
 		PlayerYoutube(const char *id, SceBool isFavourite);
 
@@ -158,12 +159,11 @@ namespace menu {
 		vector<CommentItem> commentItems;
 		HlsCommentParseThread *hlsCommentThread;
 
-		const SceUInt32 k_settingsIdList[5] = {
+		const SceUInt32 k_settingsIdList[4] = {
 			youtube_search_setting,
 			youtube_comment_setting,
 			youtube_quality_setting,
-			youtube_player_setting,
-			youtube_download_setting
+			youtube_player_setting
 		};
 	};
 }

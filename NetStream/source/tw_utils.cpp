@@ -4,18 +4,16 @@
 #include <ini_file_processor.h>
 
 #include "common.h"
-#include "downloader.h"
-#include "yt_utils.h"
-#include "invidious.h"
+#include "tw_utils.h"
+#include "lootkit.h"
 
 using namespace paf;
 using namespace sce;
 
-static ytutils::HistLog *s_histLog = SCE_NULL;
-static ytutils::FavLog *s_favLog = SCE_NULL;
-static Downloader *s_downloader = SCE_NULL;
+static twutils::HistLog *s_histLog = SCE_NULL;
+static twutils::FavLog *s_favLog = SCE_NULL;
 
-SceInt32 ytutils::Log::GetNext(char *data)
+SceInt32 twutils::Log::GetNext(char *data)
 {
 	SceInt32 ret;
 	char *sptr;
@@ -36,7 +34,7 @@ SceInt32 ytutils::Log::GetNext(char *data)
 	return ret;
 }
 
-SceInt32 ytutils::Log::Get(const char *data)
+SceInt32 twutils::Log::Get(const char *data)
 {
 	char *sptr;
 	char dataCopy[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
@@ -55,22 +53,22 @@ SceInt32 ytutils::Log::Get(const char *data)
 	return  ini->get(dataCopy, val, sizeof(val), 0);
 }
 
-SceVoid ytutils::Log::Flush()
+SceVoid twutils::Log::Flush()
 {
 	ini->flush();
 }
 
-SceInt32 ytutils::Log::GetSize()
+SceInt32 twutils::Log::GetSize()
 {
 	return ini->size();
 }
 
-SceVoid ytutils::Log::Reset()
+SceVoid twutils::Log::Reset()
 {
 	ini->reset();
 }
 
-SceVoid ytutils::Log::Add(const char *data)
+SceVoid twutils::Log::Add(const char *data)
 {
 	char *sptr;
 	char dataCopy[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
@@ -89,7 +87,7 @@ SceVoid ytutils::Log::Add(const char *data)
 	ini->flush();
 }
 
-SceVoid ytutils::Log::AddAsyncJob::Run()
+SceVoid twutils::Log::AddAsyncJob::Run()
 {
 	char *sptr;
 
@@ -106,7 +104,7 @@ SceVoid ytutils::Log::AddAsyncJob::Run()
 	workObj->ini->flush();
 }
 
-SceVoid ytutils::Log::AddAsync(const char *data)
+SceVoid twutils::Log::AddAsync(const char *data)
 {
 	AddAsyncJob *job = new AddAsyncJob("utils::AddAsyncJob");
 	job->workObj = this;
@@ -115,7 +113,7 @@ SceVoid ytutils::Log::AddAsync(const char *data)
 	job::s_defaultJobQueue->Enqueue(&itemParam);
 }
 
-SceVoid ytutils::Log::Remove(const char *data)
+SceVoid twutils::Log::Remove(const char *data)
 {
 	char *sptr;
 	char dataCopy[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
@@ -134,7 +132,7 @@ SceVoid ytutils::Log::Remove(const char *data)
 	ini->flush();
 }
 
-ytutils::HistLog::HistLog()
+twutils::HistLog::HistLog()
 {
 	SceUInt32 i = 0;
 	char val[2];
@@ -150,7 +148,7 @@ ytutils::HistLog::HistLog()
 
 	ini = new Ini::IniFileProcessor();
 	ini->initialize(&param);
-	ini->open("savedata0:yt_hist_log.ini", "rw", 0);
+	ini->open("savedata0:tw_hist_log.ini", "rw", 0);
 
 	i = ini->size();
 	if (i <= k_maxHistItems)
@@ -168,7 +166,7 @@ ytutils::HistLog::HistLog()
 	ini->reset();
 }
 
-ytutils::FavLog::FavLog()
+twutils::FavLog::FavLog()
 {
 	Ini::InitParameter param;
 	Ini::MemAllocator alloc;
@@ -181,42 +179,53 @@ ytutils::FavLog::FavLog()
 
 	ini = new Ini::IniFileProcessor();
 	ini->initialize(&param);
-	ini->open("savedata0:yt_fav_log.ini", "rw", 0);
+	ini->open("savedata0:tw_fav_log.ini", "rw", 0);
 }
 
-SceVoid ytutils::FavLog::Clean()
+SceVoid twutils::FavLog::Clean()
 {
 	if (s_favLog)
 	{
 		delete s_favLog;
-		sceIoRemove("savedata0:yt_fav_log.ini");
-		s_favLog = new ytutils::FavLog();
+		sceIoRemove("savedata0:tw_fav_log.ini");
+		s_favLog = new twutils::FavLog();
 	}
 }
 
-SceVoid ytutils::HistLog::Clean()
+SceVoid twutils::HistLog::Clean()
 {
 	if (s_histLog)
 	{
 		delete s_histLog;
-		sceIoRemove("savedata0:yt_hist_log.ini");
-		s_histLog = new ytutils::HistLog();
+		sceIoRemove("savedata0:tw_hist_log.ini");
+		s_histLog = new twutils::HistLog();
 	}
 }
 
-SceVoid ytutils::Init()
+static char *tryid = "vedal987";
+
+SceVoid twutils::Init()
 {
-	invInit(sce_paf_malloc, sce_paf_free, SCE_NULL);
+	ltkInit(sce_paf_malloc, sce_paf_free, "https://github.com/GrapheneCt/NetStream/raw/main/loot.bin");
+
+	LtkItem *ch = SCE_NULL;
+	LtkItemVideo *vid = SCE_NULL;
+	SceInt32 ret = 0;
+	char dummy[1024];
+
+	ret = ltkParseSearch("vedal987", SCE_NULL, LTK_SEARCH_TYPE_CHANNEL, LTK_SEARCH_DIR_AFTER, &ch);
+	sceClibPrintf("ltkParseSearch: 0x%08X\n", ret);
+	ltkParseVideo(ch[0].channelItem, LTK_VIDEO_TYPE_VOD, SCE_NULL, LTK_SEARCH_DIR_AFTER, &vid);
+	ltkGetVideoUrl(&vid[0], LTK_HLS_QUALITY_360P, dummy, sizeof(dummy));
+	sceClibPrintf("video url: %s\n", dummy);
 
 	if (!s_histLog)
-		s_histLog = new ytutils::HistLog();
+		s_histLog = new twutils::HistLog();
 	if (!s_favLog)
-		s_favLog = new ytutils::FavLog();
-
-	s_downloader = new Downloader();
+		s_favLog = new twutils::FavLog();
 }
 
-SceVoid ytutils::Flush()
+SceVoid twutils::Flush()
 {
 	if (s_histLog)
 	{
@@ -228,7 +237,7 @@ SceVoid ytutils::Flush()
 	}
 }
 
-SceVoid ytutils::Term()
+SceVoid twutils::Term()
 {
 	if (s_histLog)
 	{
@@ -241,25 +250,15 @@ SceVoid ytutils::Term()
 		s_favLog = SCE_NULL;
 	}
 
-	invTerm();
+	ltkTerm();
 }
 
-ytutils::HistLog *ytutils::GetHistLog()
+twutils::HistLog *twutils::GetHistLog()
 {
 	return s_histLog;
 }
 
-ytutils::FavLog *ytutils::GetFavLog()
+twutils::FavLog *twutils::GetFavLog()
 {
 	return s_favLog;
-}
-
-SceInt32 ytutils::EnqueueDownload(const char *url, const char *name)
-{
-	return s_downloader->Enqueue(url, name);
-}
-
-SceInt32 ytutils::EnqueueDownloadAsync(const char *url, const char *name, Downloader::OnStartCallback cb)
-{
-	return s_downloader->EnqueueAsync(url, name, cb);
 }

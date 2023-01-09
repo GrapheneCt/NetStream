@@ -160,6 +160,7 @@ public:
 
 		SceVoid EntryFunction();
 
+		BEAVPlayer *workObj;
 		SceBeavCorePlayerHandle playerCore;
 	};
 

@@ -10,12 +10,13 @@
 using namespace paf;
 
 const char *k_supportedRoots[] = {
-		"ux0:"
+		"ux0:",
+		"uma0:"
 };
 
 LocalServerBrowser::LocalServerBrowser()
 {
-
+	
 }
 
 LocalServerBrowser::~LocalServerBrowser()
@@ -91,7 +92,6 @@ SceVoid LocalServerBrowser::SetPath(const char *ref)
 vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, SceInt32 *result)
 {
 	vector<LocalServerBrowser::Entry *> *ret = new vector<LocalServerBrowser::Entry *>;
-	CURLcode cret;
 
 	SetPath(ref);
 
