@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<stringset>
+
+  <string src="NetStream" id="msg_title_menu_first" />
+  <string src="YouTube" id="msg_fpmenu_item_0" />
+  <string src="HTTPサーバー" id="msg_fpmenu_item_1" />
+
+  <string src="履歴" id="msg_youtube_history" />
+  <string src="説明" id="msg_youtube_description" />
+  <string src="さらにコメントを読み込む..." id="msg_youtube_comment_more" />
+  <string src="コメントの詳細" id="msg_youtube_comment_detail" />
+  <string src="コメントの返信" id="msg_youtube_comment_reply" />
+  <string src=" 好き" id="msg_youtube_comment_like_count" />
+
+  <string src="次のページ" id="msg_next_page" />
+  <string src="前のページ" id="msg_previous_page" />
+
+  <string src="設定" id="msg_settings" />
+  <string src="HTTPサーバー" id="msg_settings_http" />
+  <string src="検索" id="msg_settings_search" />
+  <string src="コメント" id="msg_settings_comment" />
+  <string src="画質" id="msg_settings_quality" />
+  <string src="プレイヤー" id="msg_settings_youtube_player" />
+  <string src="ビルド情報" id="msg_settings_verinfo" />
+  
+  <string src="ホストアドレス" id="msg_http_host" />
+  <string src="ポート" id="msg_http_port" />
+  <string src="ユーザー" id="msg_http_user" />
+  <string src="パスワード" id="msg_http_password" />
+
+  <string src="優先するビデオの画質" id="msg_youtube_quality" />
+  <string src="優先するライブストリームの画質" id="msg_youtube_hls_quality" />
+
+  <string src="邪悪な実例" id="msg_youtube_inv_instance" />
+  <string src="ソート" id="msg_youtube_search_sort" />
+  <string src="日付" id="msg_youtube_search_date" />
+  <string src="ソート" id="msg_youtube_comment_sort" />
+  
+  <string src="関連性" id="msg_option_search_sort_0" />
+  <string src="評価" id="msg_option_search_sort_1" />
+  <string src="日付" id="msg_option_search_sort_2" />
+  <string src="視聴数" id="msg_option_search_sort_3" />
+  
+  <string src="時間" id="msg_option_search_date_0" />
+  <string src="今日" id="msg_option_search_date_1" />
+  <string src="週" id="msg_option_search_date_2" />
+  <string src="月" id="msg_option_search_date_3" />
+  <string src="年" id="msg_option_search_date_4" />
+  <string src="全て" id="msg_option_search_date_5" />
+  
+  <string src="トップ" id="msg_option_comment_sort_0" />
+  <string src="新しい" id="msg_option_comment_sort_1" />
+  
+  <string src="360P" id="msg_option_youtube_quality_0" />
+  <string src="720P" id="msg_option_youtube_quality_1" />
+  
+  <string src="144P" id="msg_option_youtube_hls_quality_0" />
+  <string src="240P" id="msg_option_youtube_hls_quality_1" />
+  <string src="360P" id="msg_option_youtube_hls_quality_2" />
+  <string src="480P" id="msg_option_youtube_hls_quality_3" />
+  <string src="720P" id="msg_option_youtube_hls_quality_4" />
+
+  <string src="最小化して開始" id="msg_toggle_youtube_min" />
+
+  <string src="履歴の消去" id="msg_settings_youtube_clean_history" />
+  <string src="お気に入りの消去" id="msg_settings_youtube_clean_fav" />
+  <string src="履歴が消去されました。" id="msg_settings_youtube_clean_history_done" />
+  <string src="お気に入りが消去されました。" id="msg_settings_youtube_clean_fav_done" />
+  <string src="全ての履歴が削除されます。 続けますか？" id="msg_settings_youtube_clean_history_confirm" />
+  <string src="全てのお気に入りが削除されます。 続けますか？" id="msg_settings_youtube_clean_fav_confirm" />
+  <string src="ダウンロード" id="msg_settings_youtube_download" />
+  <string src="ダウンロードがキューに追加されました。" id="msg_settings_youtube_download_begin" />
+
+</stringset>

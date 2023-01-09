@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<stringset>
+
+  <string src="NetStream" id="msg_title_menu_first" />
+  <string src="YouTube" id="msg_fpmenu_item_0" />
+  <string src="HTTP 服务器" id="msg_fpmenu_item_1" />
+
+  <string src="历史" id="msg_youtube_history" />
+  <string src="描述" id="msg_youtube_description" />
+  <string src="加载更多评论..." id="msg_youtube_comment_more" />
+  <string src="评论详情" id="msg_youtube_comment_detail" />
+  <string src="评论回复" id="msg_youtube_comment_reply" />
+  <string src="喜欢" id="msg_youtube_comment_like_count" />
+
+  <string src="下一页" id="msg_next_page" />
+  <string src="上一页" id="msg_previous_page" />
+
+  <string src="设置" id="msg_settings" />
+  <string src="HTTP 服务器" id="msg_settings_http" />
+  <string src="搜索" id="msg_settings_search" />
+  <string src="注释" id="msg_settings_comment" />
+  <string src="质量" id="msg_settings_quality" />
+  <string src="播放器" id="msg_settings_youtube_player" />
+  <string src="构建信息" id="msg_settings_verinfo" />
+  
+  <string src="主机地址" id="msg_http_host" />
+  <string src="港口" id="msg_http_port" />
+  <string src="用户" id="msg_http_user" />
+  <string src="密码" id="msg_http_password" />
+
+  <string src="首选视频质量" id="msg_youtube_quality" />
+  <string src="首选直播质量" id="msg_youtube_hls_quality" />
+
+  <string src="令人反感的实例" id="msg_youtube_inv_instance" />
+  <string src="种类" id="msg_youtube_search_sort" />
+  <string src="日期" id="msg_youtube_search_date" />
+  <string src="种类" id="msg_youtube_comment_sort" />
+  
+  <string src="关联" id="msg_option_search_sort_0" />
+  <string src="评分" id="msg_option_search_sort_1" />
+  <string src="日期" id="msg_option_search_sort_2" />
+  <string src="查看次数" id="msg_option_search_sort_3" />
+  
+  <string src="小时" id="msg_option_search_date_0" />
+  <string src="今天" id="msg_option_search_date_1" />
+  <string src="星期" id="msg_option_search_date_2" />
+  <string src="月" id="msg_option_search_date_3" />
+  <string src="年" id="msg_option_search_date_4" />
+  <string src="任何" id="msg_option_search_date_5" />
+  
+  <string src="最佳" id="msg_option_comment_sort_0" />
+  <string src="新的" id="msg_option_comment_sort_1" />
+  
+  <string src="360P" id="msg_option_youtube_quality_0" />
+  <string src="720P" id="msg_option_youtube_quality_1" />
+  
+  <string src="144P" id="msg_option_youtube_hls_quality_0" />
+  <string src="240P" id="msg_option_youtube_hls_quality_1" />
+  <string src="360P" id="msg_option_youtube_hls_quality_2" />
+  <string src="480P" id="msg_option_youtube_hls_quality_3" />
+  <string src="720P" id="msg_option_youtube_hls_quality_4" />
+
+  <string src="开始最小化" id="msg_toggle_youtube_min" />
+
+  <string src="清洁历史" id="msg_settings_youtube_clean_history" />
+  <string src="清理收藏夹" id="msg_settings_youtube_clean_fav" />
+  <string src="历史已被清理。" id="msg_settings_youtube_clean_history_done" />
+  <string src="收藏夹已清理。" id="msg_settings_youtube_clean_fav_done" />
+  <string src="所有历史记录将被删除。 继续？" id="msg_settings_youtube_clean_history_confirm" />
+  <string src="所有收藏夹都将被删除。 继续？" id="msg_settings_youtube_clean_fav_confirm" />
+  <string src="下载" id="msg_settings_youtube_download" />
+  <string src="下载已添加到队列中。" id="msg_settings_youtube_download_begin" />
+
+</stringset>
