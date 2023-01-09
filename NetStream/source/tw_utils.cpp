@@ -202,22 +202,22 @@ SceVoid twutils::HistLog::Clean()
 	}
 }
 
-static char *tryid = "vedal987";
-
 SceVoid twutils::Init()
 {
 	ltkInit(sce_paf_malloc, sce_paf_free, "https://github.com/GrapheneCt/NetStream/raw/main/loot.bin");
 
+	/*
 	LtkItem *ch = SCE_NULL;
 	LtkItemVideo *vid = SCE_NULL;
 	SceInt32 ret = 0;
 	char dummy[1024];
 
-	ret = ltkParseSearch("vedal987", SCE_NULL, LTK_SEARCH_TYPE_CHANNEL, LTK_SEARCH_DIR_AFTER, &ch);
+	ret = ltkParseSearch("", SCE_NULL, LTK_SEARCH_TYPE_CHANNEL, LTK_SEARCH_DIR_AFTER, &ch);
 	sceClibPrintf("ltkParseSearch: 0x%08X\n", ret);
 	ltkParseVideo(ch[0].channelItem, LTK_VIDEO_TYPE_VOD, SCE_NULL, LTK_SEARCH_DIR_AFTER, &vid);
 	ltkGetVideoUrl(&vid[0], LTK_HLS_QUALITY_360P, dummy, sizeof(dummy));
 	sceClibPrintf("video url: %s\n", dummy);
+	*/
 
 	if (!s_histLog)
 		s_histLog = new twutils::HistLog();
