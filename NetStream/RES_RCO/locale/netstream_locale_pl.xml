@@ -12,7 +12,7 @@
   <string src="Załaduj więcej komentarzy..." id="msg_youtube_comment_more" />
   <string src="Szczegóły komentarza" id="msg_youtube_comment_detail" />
   <string src="Odpowiedzi na komentarze" id="msg_youtube_comment_reply" />
-  <string src=" likes" id="msg_youtube_comment_like_count" />
+  <string src=" lajki" id="msg_youtube_comment_like_count" />
 
   <string src="Następna strona" id="msg_next_page" />
   <string src="Poprzednia strona" id="msg_previous_page" />
