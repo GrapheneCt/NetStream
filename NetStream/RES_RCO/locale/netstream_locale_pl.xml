@@ -5,7 +5,7 @@
   <string src="YouTube" id="msg_fpmenu_item_0" />
   <string src="Serwer HTTP" id="msg_fpmenu_item_1" />
   <string src="Serwer FTP" id="msg_fpmenu_item_2" />
-  <string src="Pamięć wewnętrzna" id="msg_fpmenu_item_3" />
+  <string src="Pamięć konsoli" id="msg_fpmenu_item_3" />
 
   <string src="Historia" id="msg_youtube_history" />
   <string src="Opis" id="msg_youtube_description" />
@@ -33,7 +33,7 @@
 
   <string src="Adres hosta" id="msg_ftp_host" />
   <string src="Port" id="msg_ftp_port" />
-  <string src="Użytkowik" id="msg_ftp_user" />
+  <string src="Użytkownik" id="msg_ftp_user" />
   <string src="Hasło" id="msg_ftp_password" />
   <string src="Użyj NLST" id="msg_ftp_nlst" />
   <string src="Włączenie tej opcji spowoduje, że NetStream wyśle polecenie NLST do serwera FTP zamiast polecenia LIST. Ta opcja przyspiesza działanie, ale może nie być obsługiwana przez niektóre serwery FTP." id="msg_ftp_nlst_hint" />
@@ -70,7 +70,7 @@
   <string src="480P" id="msg_option_youtube_hls_quality_3" />
   <string src="720P" id="msg_option_youtube_hls_quality_4" />
 
-  <string src="Uruchom zminimalizowane" id="msg_toggle_youtube_min" />
+  <string src="Uruchom zminimalizowany" id="msg_toggle_youtube_min" />
 
   <string src="Wyczyść historię" id="msg_settings_youtube_clean_history" />
   <string src="Wyczyść ulubione" id="msg_settings_youtube_clean_fav" />
