@@ -20,7 +20,7 @@
   <string src="設定" id="msg_settings" />
   <string src="HTTPサーバー" id="msg_settings_http" />
   <string src="FTPサーバー" id="msg_settings_ftp" />
-  <string src="Local Storage" id="msg_settings_local" />
+  <string src="ローカルストレージ" id="msg_settings_local" />
   <string src="検索" id="msg_settings_search" />
   <string src="コメント" id="msg_settings_comment" />
   <string src="画質" id="msg_settings_quality" />

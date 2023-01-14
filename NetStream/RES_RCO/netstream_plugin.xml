@@ -566,10 +566,10 @@
     <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="fr" />
     <locale src="RES_RCO_TMP\netstream_locale_es.xml.rcs" id="es" />
     <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="de" />
-    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="it" />
+    <locale src="RES_RCO_TMP\netstream_locale_it.xml.rcs" id="it" />
     <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="nl" />
-    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="pt" />
-    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="pt-br" />
+    <locale src="RES_RCO_TMP\netstream_locale_pt.xml.rcs" id="pt" />
+    <locale src="RES_RCO_TMP\netstream_locale_pt-br.xml.rcs" id="pt-br" />
     <locale src="RES_RCO_TMP\netstream_locale_ru.xml.rcs" id="ru" />
     <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="ko" />
     <locale src="RES_RCO_TMP\netstream_locale_zh-t.xml.rcs" id="zh-t" />

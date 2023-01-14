@@ -189,5 +189,14 @@
     <Xml Include="RES_RCO\locale\netstream_locale_pl.xml">
       <Filter>Source Files\resource</Filter>
     </Xml>
+    <Xml Include="RES_RCO\locale\netstream_locale_pt.xml">
+      <Filter>Source Files\resource</Filter>
+    </Xml>
+    <Xml Include="RES_RCO\locale\netstream_locale_pt-br.xml">
+      <Filter>Source Files\resource</Filter>
+    </Xml>
+    <Xml Include="RES_RCO\locale\netstream_locale_it.xml">
+      <Filter>Source Files\resource</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

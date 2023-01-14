@@ -20,7 +20,7 @@
   <string src="设置" id="msg_settings" />
   <string src="HTTP 服务器" id="msg_settings_http" />
   <string src="FTP 服务器" id="msg_settings_ftp" />
-  <string src="Local Storage" id="msg_settings_local" />
+  <string src="本地存储" id="msg_settings_local" />
   <string src="搜索" id="msg_settings_search" />
   <string src="注释" id="msg_settings_comment" />
   <string src="质量" id="msg_settings_quality" />

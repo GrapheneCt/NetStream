@@ -66,8 +66,11 @@
     </Xml>
     <Xml Include="RES_RCO\locale\netstream_locale_en.xml" />
     <Xml Include="RES_RCO\locale\netstream_locale_es.xml" />
+    <Xml Include="RES_RCO\locale\netstream_locale_it.xml" />
     <Xml Include="RES_RCO\locale\netstream_locale_ja.xml" />
     <Xml Include="RES_RCO\locale\netstream_locale_pl.xml" />
+    <Xml Include="RES_RCO\locale\netstream_locale_pt-br.xml" />
+    <Xml Include="RES_RCO\locale\netstream_locale_pt.xml" />
     <Xml Include="RES_RCO\locale\netstream_locale_ru.xml" />
     <Xml Include="RES_RCO\locale\netstream_locale_zh-s.xml" />
     <Xml Include="RES_RCO\locale\netstream_locale_zh-t.xml" />
