@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<stringset>
+
+  <string src="NetStream" id="msg_title_menu_first" />
+  <string src="YouTube" id="msg_fpmenu_item_0" />
+  <string src="HTTP Server" id="msg_fpmenu_item_1" />
+  <string src="FTP Server" id="msg_fpmenu_item_2" />
+  <string src="Memoria locale" id="msg_fpmenu_item_3" />
+
+  <string src="Cronologia" id="msg_youtube_history" />
+  <string src="Descrizione" id="msg_youtube_description" />
+  <string src="Carica altri commenti..." id="msg_youtube_comment_more" />
+  <string src="Dettagli Commento" id="msg_youtube_comment_detail" />
+  <string src="Risposte ai commenti" id="msg_youtube_comment_reply" />
+  <string src=" likes" id="msg_youtube_comment_like_count" />
+
+  <string src="Pagina successiva" id="msg_next_page" />
+  <string src="Pagina precedente" id="msg_previous_page" />
+
+  <string src="Impostazioni" id="msg_settings" />
+  <string src="HTTP Server" id="msg_settings_http" />
+  <string src="FTP Server" id="msg_settings_ftp" />
+  <string src="Cerca" id="msg_settings_search" />
+  <string src="Commenti" id="msg_settings_comment" />
+  <string src="Qualità" id="msg_settings_quality" />
+  <string src="Player" id="msg_settings_youtube_player" />
+  <string src="Informazioni della Build" id="msg_settings_verinfo" />
+  
+  <string src="Indirizzo Host" id="msg_http_host" />
+  <string src="Porta" id="msg_http_port" />
+  <string src="Utente" id="msg_http_user" />
+  <string src="Password" id="msg_http_password" />
+
+  <string src="Indirizzo Host" id="msg_ftp_host" />
+  <string src="Porta" id="msg_ftp_port" />
+  <string src="Utente" id="msg_ftp_user" />
+  <string src="Password" id="msg_ftp_password" />
+  <string src="Usa NLST" id="msg_ftp_nlst" />
+  <string src="Abilitando questa opzione, NetStream invierà il comando NLST al server FTP invece del comando LIST. Questa opzione rende l'operazione più veloce ma potrebbe non essere supportata da alcuni server FTP." id="msg_ftp_nlst_hint" />
+
+  <string src="Qualità video preferita" id="msg_youtube_quality" />
+  <string src="Qualità livestream preferita" id="msg_youtube_hls_quality" />
+
+  <string src="Invidious Instance" id="msg_youtube_inv_instance" />
+  <string src="Ordina" id="msg_youtube_search_sort" />
+  <string src="Data" id="msg_youtube_search_date" />
+  <string src="Ordina" id="msg_youtube_comment_sort" />
+  
+  <string src="Rilevanza" id="msg_option_search_sort_0" />
+  <string src="Valutazione" id="msg_option_search_sort_1" />
+  <string src="Data" id="msg_option_search_sort_2" />
+  <string src="Visualizza conteggio" id="msg_option_search_sort_3" />
+  
+  <string src="Ora" id="msg_option_search_date_0" />
+  <string src="Oggi" id="msg_option_search_date_1" />
+  <string src="Settimana" id="msg_option_search_date_2" />
+  <string src="Mese" id="msg_option_search_date_3" />
+  <string src="Anno" id="msg_option_search_date_4" />
+  <string src="Qualsiasi" id="msg_option_search_date_5" />
+  
+  <string src="Top" id="msg_option_comment_sort_0" />
+  <string src="Nuovo" id="msg_option_comment_sort_1" />
+  
+  <string src="360P" id="msg_option_youtube_quality_0" />
+  <string src="720P" id="msg_option_youtube_quality_1" />
+  
+  <string src="144P" id="msg_option_youtube_hls_quality_0" />
+  <string src="240P" id="msg_option_youtube_hls_quality_1" />
+  <string src="360P" id="msg_option_youtube_hls_quality_2" />
+  <string src="480P" id="msg_option_youtube_hls_quality_3" />
+  <string src="720P" id="msg_option_youtube_hls_quality_4" />
+
+  <string src="Avvia ridotto a icona" id="msg_toggle_youtube_min" />
+
+  <string src="Pulisci Cronologia" id="msg_settings_youtube_clean_history" />
+  <string src="Pulisci i preferiti" id="msg_settings_youtube_clean_fav" />
+  <string src="La cronologia è stata pulita." id="msg_settings_youtube_clean_history_done" />
+  <string src="I preferiti sono stati puliti." id="msg_settings_youtube_clean_fav_done" />
+  <string src="Tutti i record della cronologia verranno eliminati. Vuoi continuare?" id="msg_settings_youtube_clean_history_confirm" />
+  <string src="Tutti i preferiti verranno eliminati. Vuoi continuare?" id="msg_settings_youtube_clean_fav_confirm" />
+  <string src="Download" id="msg_settings_youtube_download" />
+  <string src="Il download è stato aggiunto alla coda di download." id="msg_settings_youtube_download_begin" />
+
+</stringset>
