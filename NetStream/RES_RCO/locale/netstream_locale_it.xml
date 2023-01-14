@@ -39,15 +39,15 @@
   <string src="Usa NLST" id="msg_ftp_nlst" />
   <string src="Abilitando questa opzione, NetStream invierà il comando NLST al server FTP invece del comando LIST. Questa opzione rende l'operazione più veloce ma potrebbe non essere supportata da alcuni server FTP." id="msg_ftp_nlst_hint" />
 
-  <string src="Prefix For Relative .m3u8 Playlists" id="msg_local_playlist_prefix" />
+  <string src="Prefisso per Relativo .m3u8 Playlists" id="msg_local_playlist_prefix" />
 
   <string src="Qualità video preferita" id="msg_youtube_quality" />
   <string src="Qualità livestream preferita" id="msg_youtube_hls_quality" />
 
-  <string src="Invidious Instance" id="msg_youtube_inv_instance" />
-  <string src="Ordina" id="msg_youtube_search_sort" />
+  <string src="Instanza Invidious" id="msg_youtube_inv_instance" />
+  <string src="Ordina per" id="msg_youtube_search_sort" />
   <string src="Data" id="msg_youtube_search_date" />
-  <string src="Ordina" id="msg_youtube_comment_sort" />
+  <string src="Ordina per" id="msg_youtube_comment_sort" />
   
   <string src="Rilevanza" id="msg_option_search_sort_0" />
   <string src="Valutazione" id="msg_option_search_sort_1" />
@@ -61,7 +61,7 @@
   <string src="Anno" id="msg_option_search_date_4" />
   <string src="Qualsiasi" id="msg_option_search_date_5" />
   
-  <string src="Top" id="msg_option_comment_sort_0" />
+  <string src="Recente" id="msg_option_comment_sort_0" />
   <string src="Nuovo" id="msg_option_comment_sort_1" />
   
   <string src="360P" id="msg_option_youtube_quality_0" />
