@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<stringset>
+
+  <string src="NetStream" id="msg_title_menu_first" />
+  <string src="YouTube" id="msg_fpmenu_item_0" />
+  <string src="Servidor HTTP" id="msg_fpmenu_item_1" />
+  <string src="Servidor FTP" id="msg_fpmenu_item_2" />
+  <string src="Armazenamento local" id="msg_fpmenu_item_3" />
+
+  <string src="Histórico" id="msg_youtube_history" />
+  <string src="Descrição" id="msg_youtube_description" />
+  <string src="Carregar mais comentários..." id="msg_youtube_comment_more" />
+  <string src="Detalhes do comentário" id="msg_youtube_comment_detail" />
+  <string src="Respostas ao comentário" id="msg_youtube_comment_reply" />
+  <string src=" gostos" id="msg_youtube_comment_like_count" />
+
+  <string src="Página seguinte" id="msg_next_page" />
+  <string src="Página anterior" id="msg_previous_page" />
+
+  <string src="Configurações" id="msg_settings" />
+  <string src="Servidor HTTP" id="msg_settings_http" />
+  <string src="Servidor FTP" id="msg_settings_ftp" />
+  <string src="Pesquisar" id="msg_settings_search" />
+  <string src="Comentários" id="msg_settings_comment" />
+  <string src="Qualidade" id="msg_settings_quality" />
+  <string src="Reprodutor" id="msg_settings_youtube_player" />
+  <string src="Informação da versão" id="msg_settings_verinfo" />
+  
+  <string src="Endereço de host" id="msg_http_host" />
+  <string src="Porto" id="msg_http_port" />
+  <string src="Utilizador" id="msg_http_user" />
+  <string src="Senha" id="msg_http_password" />
+
+  <string src="Endereço de host" id="msg_ftp_host" />
+  <string src="Porto" id="msg_ftp_port" />
+  <string src="Utilizador" id="msg_ftp_user" />
+  <string src="Senha" id="msg_ftp_password" />
+  <string src="Usar NLST" id="msg_ftp_nlst" />
+  <string src="Activar esta opção fará com que o NetStream envie o comando NLST para o servidor FTP em vez do comando LIST. Esta opção torna a operação mais rápida mas pode não ser suportado por alguns servidores FTP." id="msg_ftp_nlst_hint" />
+
+  <string src="Qualidade de video preferencial" id="msg_youtube_quality" />
+  <string src="Qualidade de stream preferencial" id="msg_youtube_hls_quality" />
+
+  <string src="Instância Invidious" id="msg_youtube_inv_instance" />
+  <string src="Ordenar" id="msg_youtube_search_sort" />
+  <string src="Data" id="msg_youtube_search_date" />
+  <string src="Ordenar" id="msg_youtube_comment_sort" />
+  
+  <string src="Relevância" id="msg_option_search_sort_0" />
+  <string src="Classificação" id="msg_option_search_sort_1" />
+  <string src="Data" id="msg_option_search_sort_2" />
+  <string src="Número de visualizações" id="msg_option_search_sort_3" />
+  
+  <string src="Hora" id="msg_option_search_date_0" />
+  <string src="Hoje" id="msg_option_search_date_1" />
+  <string src="Semana" id="msg_option_search_date_2" />
+  <string src="Mês" id="msg_option_search_date_3" />
+  <string src="Ano" id="msg_option_search_date_4" />
+  <string src="Qualquer" id="msg_option_search_date_5" />
+  
+  <string src="Mais relevantes" id="msg_option_comment_sort_0" />
+  <string src="Novos" id="msg_option_comment_sort_1" />
+  
+  <string src="360P" id="msg_option_youtube_quality_0" />
+  <string src="720P" id="msg_option_youtube_quality_1" />
+  
+  <string src="144P" id="msg_option_youtube_hls_quality_0" />
+  <string src="240P" id="msg_option_youtube_hls_quality_1" />
+  <string src="360P" id="msg_option_youtube_hls_quality_2" />
+  <string src="480P" id="msg_option_youtube_hls_quality_3" />
+  <string src="720P" id="msg_option_youtube_hls_quality_4" />
+
+  <string src="Iniciar minimizado" id="msg_toggle_youtube_min" />
+
+  <string src="Apagar histórico" id="msg_settings_youtube_clean_history" />
+  <string src="Apagar favoritos" id="msg_settings_youtube_clean_fav" />
+  <string src="O histórico foi apagado." id="msg_settings_youtube_clean_history_done" />
+  <string src="Os favoritos foram apagados." id="msg_settings_youtube_clean_fav_done" />
+  <string src="Todos os registos de histórico serão apagados. Deseja continuar?" id="msg_settings_youtube_clean_history_confirm" />
+  <string src="Todos os favoritos serão apagados. Deseja continuar?" id="msg_settings_youtube_clean_fav_confirm" />
+  <string src="Transferência" id="msg_settings_youtube_download" />
+  <string src="A transferência foi adicionada à lista de transferências." id="msg_settings_youtube_download_begin" />
+
+</stringset>
