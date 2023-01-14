@@ -560,26 +560,26 @@
   </templatetable>
   
   <stringtable>
-    <locale origsize="5568" src="RES_RCO_TMP\netstream_locale_ja.xml.rcs.zlib" compress="on" id="ja" />
-    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="en" />
-    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="en-gb" />
-    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="fr" />
-    <locale origsize="6544" src="RES_RCO_TMP\netstream_locale_es.xml.rcs.zlib" compress="on" id="es" />
-    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="de" />
-    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="it" />
-    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="nl" />
-    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="pt" />
-    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="pt-br" />
-    <locale origsize="6752" src="RES_RCO_TMP\netstream_locale_ru.xml.rcs.zlib" compress="on" id="ru" />
-    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="ko" />
-    <locale origsize="5280" src="RES_RCO_TMP\netstream_locale_zh-t.xml.rcs.zlib" compress="on" id="zh-t" />
-    <locale origsize="5296" src="RES_RCO_TMP\netstream_locale_zh-s.xml.rcs.zlib" compress="on" id="zh-s" />
-    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="fi" />
-    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="sv" />
-    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="da" />
-    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="no" />
-    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="pl" />
-    <locale origsize="6368" src="RES_RCO_TMP\netstream_locale_en.xml.rcs.zlib" compress="on" id="tr" />
+    <locale src="RES_RCO_TMP\netstream_locale_ja.xml.rcs" id="ja" />
+    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="en" />
+    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="en-gb" />
+    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="fr" />
+    <locale src="RES_RCO_TMP\netstream_locale_es.xml.rcs" id="es" />
+    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="de" />
+    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="it" />
+    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="nl" />
+    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="pt" />
+    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="pt-br" />
+    <locale src="RES_RCO_TMP\netstream_locale_ru.xml.rcs" id="ru" />
+    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="ko" />
+    <locale src="RES_RCO_TMP\netstream_locale_zh-t.xml.rcs" id="zh-t" />
+    <locale src="RES_RCO_TMP\netstream_locale_zh-s.xml.rcs" id="zh-s" />
+    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="fi" />
+    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="sv" />
+    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="da" />
+    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="no" />
+    <locale src="RES_RCO_TMP\netstream_locale_pl.xml.rcs" id="pl" />
+    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="tr" />
   </stringtable>
   
   <texturetable>
@@ -608,7 +608,7 @@
   </texturetable>
   
   <filetable>
-    <file origsize="5289" src="RES_RCO_TMP\netstream_settings.xml.zlib" type="application/xml" id="file_netstream_settings" compress="on" />
+    <file src="file\netstream_settings.xml" type="application/xml" id="file_netstream_settings" />
   </filetable>
   
 </resource>

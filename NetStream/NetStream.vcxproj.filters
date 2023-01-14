@@ -186,5 +186,8 @@
     <Xml Include="RES_RCO\locale\netstream_locale_ru.xml">
       <Filter>Source Files\resource</Filter>
     </Xml>
+    <Xml Include="RES_RCO\locale\netstream_locale_pl.xml">
+      <Filter>Source Files\resource</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

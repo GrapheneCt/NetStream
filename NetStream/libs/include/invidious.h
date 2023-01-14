@@ -67,6 +67,14 @@ typedef enum InvHlsQuality
 	INV_HLS_QUALITY_MAX
 } InvHlsQuality;
 
+typedef enum InvVideoQuality
+{
+	INV_VIDEO_QUALITY_360P,
+	INV_VIDEO_QUALITY_720P,
+
+	INV_VIDEO_QUALITY_MAX
+} InvVideoQuality;
+
 typedef struct InvItemVideo
 {
 	ScePVoid reserved;
@@ -158,5 +166,7 @@ INV_EXPORT SceInt32 invCleanupComments(InvItemComment *item);
 INV_EXPORT SceInt32 invCleanupHlsComments(InvItemComment *item);
 
 INV_EXPORT SceInt32 invGetHlsUrl(const char *videoId, InvHlsQuality quality, char *hlsUrl, SceInt32 sizeOfUrl);
+
+INV_EXPORT SceInt32 invGetProxyUrl(const char *videoId, InvVideoQuality quality, char *proxyUrl, SceInt32 sizeOfUrl);
 
 SCE_CDECL_END

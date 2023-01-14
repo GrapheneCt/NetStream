@@ -14,6 +14,9 @@
       <text_field id="ftp_password" title="msg_ftp_password" max_length="255" min_length="0" keyboard_type="alphabet" key="ftp_password" default_value=""/>
       <toggle_switch id="ftp_nlst" title="msg_ftp_nlst" hint="msg_ftp_nlst_hint" key="ftp_nlst" default_value="0" />
     </setting_list>
+    <setting_list id="local_setting" title="msg_settings_local" style="edit" icon="tex_spanner">
+      <text_field id="local_playlist_prefix" title="msg_local_playlist_prefix" max_length="255" min_length="0" keyboard_type="url" key="local_playlist_prefix" default_value=""/>
+    </setting_list>
     <setting_list id="youtube_search_setting" title="msg_settings_search" icon="tex_spanner">
       <text_field id="youtube_inv_instance" title="msg_youtube_inv_instance" max_length="255" min_length="0" keyboard_type="url" key="inv_instance" default_value="https://invidious.namazso.eu"/>
       <list id="list_youtube_search_sort" title="msg_youtube_search_sort" key="yt_search_sort" default_value="0">

@@ -17,6 +17,8 @@
 #define ftp_user (0x89e77ea8)
 #define ftp_password (0x571003fe)
 #define ftp_nlst (0xd6f1d921)
+#define local_setting (0x988ec70c)
+#define local_playlist_prefix (0xa088d09c)
 #define youtube_search_setting (0x47942f14)
 #define youtube_inv_instance (0xb938b374)
 #define list_youtube_search_sort (0xcf6d2a1c)

@@ -280,6 +280,8 @@ SceVoid menu::YouTube::SearchSubmenu::SearchButtonCbFun(SceInt32 eventId, ui::Wi
 		isId = SCE_TRUE;
 	}
 
+	workObj->currentPage = 0;
+
 	SearchJob *job = new SearchJob("YouTube::SearchJob");
 	job->workObj = workObj;
 	job->isId = isId;

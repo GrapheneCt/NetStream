@@ -33,8 +33,6 @@ namespace menu {
 
 			using job::JobItem::JobItem;
 
-			static SceVoid LoadFailedDialogHandler(dialog::ButtonCode buttonCode, ScePVoid pUserArg);
-
 			~LoadJob() {}
 
 			SceVoid Run();
@@ -158,6 +156,7 @@ namespace menu {
 		string commentCont;
 		vector<CommentItem> commentItems;
 		HlsCommentParseThread *hlsCommentThread;
+		SceBool lastAttempt;
 
 		const SceUInt32 k_settingsIdList[4] = {
 			youtube_search_setting,

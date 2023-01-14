@@ -20,6 +20,7 @@
   <string src="Ustawienia" id="msg_settings" />
   <string src="Serwer HTTP" id="msg_settings_http" />
   <string src="Serwer FTP" id="msg_settings_ftp" />
+  <string src="Local Storage" id="msg_settings_local" />
   <string src="Wyszukiwarka" id="msg_settings_search" />
   <string src="Komentarze" id="msg_settings_comment" />
   <string src="Jakość" id="msg_settings_quality" />
@@ -37,6 +38,8 @@
   <string src="Hasło" id="msg_ftp_password" />
   <string src="Użyj NLST" id="msg_ftp_nlst" />
   <string src="Włączenie tej opcji spowoduje, że NetStream wyśle polecenie NLST do serwera FTP zamiast polecenia LIST. Ta opcja przyspiesza działanie, ale może nie być obsługiwana przez niektóre serwery FTP." id="msg_ftp_nlst_hint" />
+
+  <string src="Prefix For Relative .m3u8 Playlists" id="msg_local_playlist_prefix" />
 
   <string src="Preferowana jakość wideo" id="msg_youtube_quality" />
   <string src="Preferowana jakość transmisji na żywo" id="msg_youtube_hls_quality" />

@@ -14,7 +14,6 @@ copy /b "%Z%" "%TMP%"
 for %%f in (RES_RCO/locale/*.xml) do (
 
 "%PYTHON%" "%RCS%" -o "%TMP%/%%f.rcs" RES_RCO/locale/%%f
-"%TMP%/zdrop.exe" "%TMP%/%%f.rcs"
 
 )
 
@@ -22,7 +21,6 @@ for %%f in (RES_RCO/locale/*.xml) do (
 for %%f in (RES_RCO/file/*) do (
 
 copy /b "RES_RCO/file\%%f" "%TMP%"
-"%TMP%/zdrop.exe" "%TMP%/%%f"
 
 )
 

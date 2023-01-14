@@ -41,7 +41,7 @@ SceVoid menu::GenericServerMenu::ListButtonCbFun(SceInt32 eventId, ui::Widget *s
 	BrowserPage *workPage = workObj->pageList.back();
 	GenericServerBrowser::Entry *entry = workPage->itemList->at(self->elem.hash);
 
-	if (entry->type == GenericServerBrowser::Entry::Type_Folder)
+	if (entry->type == GenericServerBrowser::Entry::Type_Folder || entry->type == GenericServerBrowser::Entry::Type_PlaylistFile)
 	{
 		workObj->PushBrowserPage(&entry->ref);
 	}
@@ -94,6 +94,7 @@ ui::ListItem *menu::GenericServerMenu::ListViewCb::Create(Param *info)
 
 	switch (entry->type)
 	{
+	default:
 	case GenericServerBrowser::Entry::Type_UnsupportedFile:
 		tex = utils::GetTexture(tex_file_icon_unsupported);
 		break;
@@ -102,6 +103,9 @@ ui::ListItem *menu::GenericServerMenu::ListViewCb::Create(Param *info)
 		break;
 	case GenericServerBrowser::Entry::Type_Folder:
 		tex = utils::GetTexture(tex_file_icon_folder);
+		break;
+	case GenericServerBrowser::Entry::Type_PlaylistFile:
+		tex = utils::GetTexture(tex_file_icon_video);
 		break;
 	}
 

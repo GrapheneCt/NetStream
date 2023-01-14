@@ -20,6 +20,7 @@
   <string src="Настройки" id="msg_settings" />
   <string src="HTTP-сервер" id="msg_settings_http" />
   <string src="FTP-сервер" id="msg_settings_ftp" />
+  <string src="Память системы" id="msg_settings_local" />
   <string src="Поиск" id="msg_settings_search" />
   <string src="Комментарии" id="msg_settings_comment" />
   <string src="Качество" id="msg_settings_quality" />
@@ -38,6 +39,8 @@
   <string src="Использовать NLST" id="msg_ftp_nlst" />
   <string src="Включение этой опции позволяет NetStream отправлять на FTP-сервер команду NLST вместо команды LIST. Эта опция ускоряет работу приложения, но может не поддерживаться некоторыми FTP-серверами." id="msg_ftp_nlst_hint" />
 
+  <string src="Префикс для относительных плейлистов .m3u8" id="msg_local_playlist_prefix" />
+  
   <string src="Предпочитаемое качество видео" id="msg_youtube_quality" />
   <string src="Предпочитаемое качество прямой трансляции" id="msg_youtube_hls_quality" />
 

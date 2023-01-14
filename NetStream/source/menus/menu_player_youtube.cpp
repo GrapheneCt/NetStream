@@ -19,11 +19,6 @@
 
 using namespace paf;
 
-SceVoid  menu::PlayerYoutube::LoadJob::LoadFailedDialogHandler(dialog::ButtonCode buttonCode, ScePVoid pUserArg)
-{
-	
-}
-
 SceVoid menu::PlayerYoutube::LoadJob::Run()
 {
 	InvItemVideo *invItem = SCE_NULL;
@@ -36,37 +31,46 @@ SceVoid menu::PlayerYoutube::LoadJob::Run()
 	{
 		if (invItem->id)
 		{
-			workObj->description = invItem->description;
+			if (!workObj->lastAttempt)
+			{
+				workObj->description = invItem->description;
 
-			thread::s_mainThreadMutex.Lock();
+				thread::s_mainThreadMutex.Lock();
 
-			DescButtonCbFun(0, workObj->descButton, 0, workObj);
+				DescButtonCbFun(0, workObj->descButton, 0, workObj);
 
-			text8 = invItem->title;
-			ccc::UTF8toUTF16(&text8, &text16);
-			workObj->title->SetLabel(&text16);
+				text8 = invItem->title;
+				ccc::UTF8toUTF16(&text8, &text16);
+				workObj->title->SetLabel(&text16);
 
-			text8 = "Uploaded by ";
-			text8 += invItem->author;
-			ccc::UTF8toUTF16(&text8, &text16);
-			workObj->stat0->SetLabel(&text16);
+				text8 = "Uploaded by ";
+				text8 += invItem->author;
+				ccc::UTF8toUTF16(&text8, &text16);
+				workObj->stat0->SetLabel(&text16);
 
-			text8 = invItem->subCount;
-			text8 += " subscribers";
-			ccc::UTF8toUTF16(&text8, &text16);
-			workObj->stat1->SetLabel(&text16);
+				text8 = invItem->subCount;
+				text8 += " subscribers";
+				ccc::UTF8toUTF16(&text8, &text16);
+				workObj->stat1->SetLabel(&text16);
 
-			text8 = invItem->published;
-			ccc::UTF8toUTF16(&text8, &text16);
-			workObj->stat2->SetLabel(&text16);
+				text8 = invItem->published;
+				ccc::UTF8toUTF16(&text8, &text16);
+				workObj->stat2->SetLabel(&text16);
 
-			thread::s_mainThreadMutex.Unlock();
+				thread::s_mainThreadMutex.Unlock();
+			}
 
 			SceInt32 quality = 0;
 			sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
 
 			if (invItem->isLive)
 			{
+				if (workObj->lastAttempt)
+				{
+					ret = -1;
+					goto releaseLocks;
+				}
+
 				char *hls = new char[SCE_KERNEL_1KiB];
 				hls[0] = 0;
 				settings->GetInt("yt_hls_quality", (SceInt32 *)&quality, 0);
@@ -103,27 +107,38 @@ SceVoid menu::PlayerYoutube::LoadJob::Run()
 			else
 			{
 				settings->GetInt("yt_quality", (SceInt32 *)&quality, 0);
-				switch (quality)
+				if (workObj->lastAttempt)
 				{
-				case 0:
-					if (invItem->avcLqUrl)
-						workObj->videoLink = invItem->avcLqUrl;
-					else
-						workObj->videoLink = invItem->avcHqUrl;
-					break;
-				case 1:
-					if (invItem->avcHqUrl)
-						workObj->videoLink = invItem->avcHqUrl;
-					else
-						workObj->videoLink = invItem->avcLqUrl;
-					break;
+					sceClibPrintf("using last resort...\n");
+					char lastResort[256];
+					lastResort[0] = 0;
+					ret = invGetProxyUrl(workObj->videoId.c_str(), (InvVideoQuality)quality, lastResort, sizeof(lastResort));
+					sceClibPrintf("last resort url: %s\n", lastResort);
+					workObj->videoLink = lastResort;
+				}
+				else
+				{
+					switch (quality)
+					{
+					case 0:
+						if (invItem->avcLqUrl)
+							workObj->videoLink = invItem->avcLqUrl;
+						else
+							workObj->videoLink = invItem->avcHqUrl;
+						break;
+					case 1:
+						if (invItem->avcHqUrl)
+							workObj->videoLink = invItem->avcHqUrl;
+						else
+							workObj->videoLink = invItem->avcLqUrl;
+						break;
+					}
 				}
 			}
 		}
 		else
 		{
 			ret = -1;
-			goto releaseLocks;
 		}
 
 		invCleanupVideo(invItem);
@@ -131,28 +146,16 @@ SceVoid menu::PlayerYoutube::LoadJob::Run()
 	else
 	{
 		ret = -1;
-		goto releaseLocks;
 	}
 
 releaseLocks:
 
-	ui::BusyIndicator *loaderIndicator = (ui::BusyIndicator *)utils::GetChild(workObj->root, busyindicator_youtube_loader);
-	ui::Widget *loaderPlane = utils::GetChild(workObj->root, plane_youtube_loader);
-
-	thread::s_mainThreadMutex.Lock();
-	loaderIndicator->Stop();
-	effect::Play(0.0f, loaderPlane, effect::EffectType_Fadein1, true, false);
-	ui::Widget::SetControlFlags(workObj->root, 1);
-	thread::s_mainThreadMutex.Unlock();
-
 	if (ret < 0)
 	{
-		dialog::OpenError(g_appPlugin, ret, utils::GetString("msg_error_connect_server_peer"), LoadFailedDialogHandler, workObj);
+		workObj->videoLink = "";
 	}
-	else
-	{
-		task::Register(menu::PlayerYoutube::TaskLoadSecondStage, workObj);
-	}
+
+	task::Register(menu::PlayerYoutube::TaskLoadSecondStage, workObj);
 }
 
 ui::ListItem *menu::PlayerYoutube::HlsCommentListViewCb::Create(Param *info)
@@ -613,7 +616,18 @@ SceVoid menu::PlayerYoutube::PlayerBackCb(PlayerSimple *player, ScePVoid pUserAr
 
 SceVoid menu::PlayerYoutube::PlayerOkCb(PlayerSimple *player, ScePVoid pUserArg)
 {
+	PlayerYoutube *workObj = (PlayerYoutube *)pUserArg;
 	SceInt32 min = 0;
+
+	ui::BusyIndicator *loaderIndicator = (ui::BusyIndicator *)utils::GetChild(workObj->root, busyindicator_youtube_loader);
+	ui::Widget *loaderPlane = utils::GetChild(workObj->root, plane_youtube_loader);
+
+	thread::s_mainThreadMutex.Lock();
+	loaderIndicator->Stop();
+	effect::Play(0.0f, loaderPlane, effect::EffectType_Fadein1, true, false);
+	ui::Widget::SetControlFlags(workObj->root, 1);
+	thread::s_mainThreadMutex.Unlock();
+
 	menu::Settings::GetAppSetInstance()->GetInt("yt_min", &min, 0);
 	if (min)
 	{
@@ -627,15 +641,43 @@ SceVoid menu::PlayerYoutube::PlayerOkCb(PlayerSimple *player, ScePVoid pUserArg)
 			player->SetPosition(13.0f, -79.0f);
 		}
 	}
+	else
+	{
+		workObj->player->SetPosition(0.0f, 0.0f);
+		workObj->root->SetGraphicsDisabled(true);
+	}
 }
 
 SceVoid menu::PlayerYoutube::PlayerFailCb(PlayerSimple *player, ScePVoid pUserArg)
 {
 	PlayerYoutube *workObj = (PlayerYoutube *)pUserArg;
 
-	dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_EUNSUP, utils::GetString("msg_error_connect_server_peer"));
 	delete workObj->player;
 	workObj->player = SCE_NULL;
+
+	if (workObj->lastAttempt)
+	{
+		workObj->lastAttempt = SCE_FALSE;
+
+		ui::BusyIndicator *loaderIndicator = (ui::BusyIndicator *)utils::GetChild(workObj->root, busyindicator_youtube_loader);
+		ui::Widget *loaderPlane = utils::GetChild(workObj->root, plane_youtube_loader);
+
+		thread::s_mainThreadMutex.Lock();
+		loaderIndicator->Stop();
+		effect::Play(0.0f, loaderPlane, effect::EffectType_Fadein1, true, false);
+		ui::Widget::SetControlFlags(workObj->root, 1);
+		thread::s_mainThreadMutex.Unlock();
+
+		dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_EUNSUP, utils::GetString("msg_error_connect_server_peer"));
+	}
+	else
+	{
+		workObj->lastAttempt = SCE_TRUE;
+		LoadJob *job = new LoadJob("YouTube::LoadJob");
+		job->workObj = workObj;
+		SharedPtr<job::JobItem> itemParam(job);
+		utils::GetJobQueue()->Enqueue(&itemParam);
+	}
 }
 
 SceVoid menu::PlayerYoutube::TaskLoadSecondStage(void *pArgBlock)
@@ -643,6 +685,8 @@ SceVoid menu::PlayerYoutube::TaskLoadSecondStage(void *pArgBlock)
 	PlayerYoutube *workObj = (PlayerYoutube *)pArgBlock;
 
 	workObj->player = new menu::PlayerSimple(workObj->videoLink.c_str(), PlayerOkCb, PlayerFailCb, PlayerBackCb, pArgBlock);
+	workObj->player->SetPosition(-1920.0f, -1080.0f);
+	workObj->root->SetGraphicsDisabled(false);
 	if (workObj->isHighHls)
 	{
 		workObj->player->player->LimitFPS(SCE_TRUE);
@@ -664,6 +708,7 @@ menu::PlayerYoutube::PlayerYoutube(const char *id, SceBool isFavourite) :
 	isFav = isFavourite;
 	companelRoot = SCE_NULL;
 	hlsCommentThread = SCE_NULL;
+	lastAttempt = SCE_FALSE;
 
 	ui::BusyIndicator *loaderIndicator = (ui::BusyIndicator *)utils::GetChild(root, busyindicator_youtube_loader);
 	loaderIndicator->Start();

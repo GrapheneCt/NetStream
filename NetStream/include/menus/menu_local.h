@@ -35,7 +35,7 @@ namespace menu {
 	private:
 
 		const SceUInt32 k_settingsIdList[1] = {
-			0
+			local_setting
 		};
 	};
 }

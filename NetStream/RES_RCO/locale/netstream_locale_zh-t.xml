@@ -19,7 +19,8 @@
 
   <string src="設置" id="msg_settings" />
   <string src="HTTP 服務器" id="msg_settings_http" />
-  <string src="HTTP 服務器" id="msg_settings_ftp" />
+  <string src="FTP 服務器" id="msg_settings_ftp" />
+  <string src="Local Storage" id="msg_settings_local" />
   <string src="搜索" id="msg_settings_search" />
   <string src="註釋" id="msg_settings_comment" />
   <string src="質量" id="msg_settings_quality" />
@@ -37,6 +38,8 @@
   <string src="密碼" id="msg_ftp_password" />
   <string src="使用NLST" id="msg_ftp_nlst" />
   <string src="啟用此選項將使NetStream向FTP服務器發送NLST命令而不是LIST命令。此選項使操作更快，但某些FTP服務器可能不支持。" id="msg_ftp_nlst_hint" />
+
+  <string src="Prefix For Relative .m3u8 Playlists" id="msg_local_playlist_prefix" />
 
   <string src="首選視頻質量" id="msg_youtube_quality" />
   <string src="首選直播質量" id="msg_youtube_hls_quality" />

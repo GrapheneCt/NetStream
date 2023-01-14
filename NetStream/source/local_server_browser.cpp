@@ -49,51 +49,9 @@ string LocalServerBrowser::GetBEAVUrl(string *in)
 	string fullPath = path + *in;
 	string ret;
 
-	if (sce_paf_strstr(in->c_str(), ".m3u8"))
+	if (!sce_paf_strncmp(in->c_str(), "http", 4) || !sce_paf_strncmp(in->c_str(), "ftp", 3) || !sce_paf_strncmp(in->c_str(), "smb", 3))
 	{
-		SharedPtr<LocalFile> fres;
-		SceInt32 res = -1;
-		SceSize fsz = 0;
-		char *fbuf = SCE_NULL;
-		char *begin = SCE_NULL;
-		char *end = SCE_NULL;
-
-		fres = LocalFile::Open(fullPath.c_str(), SCE_O_RDONLY, 0, &res);
-		if (res < 0)
-		{
-			return ret;
-		}
-
-		fsz = fres->GetFileSize();
-		fbuf = (char *)sce_paf_malloc(fsz + 1);
-		if (!fbuf)
-		{
-			fres.reset();
-			return ret;
-		}
-
-		fbuf[fsz] = 0;
-		fres->Read(fbuf, fsz);
-		fres->Close();
-		fres.reset();
-
-		begin = sce_paf_strstr(fbuf, "http");
-		if (begin)
-		{
-			end = sce_paf_strchr(begin, '\r');
-			if (end)
-			{
-				*end = 0;
-			}
-			end = sce_paf_strchr(begin, '\n');
-			if (end)
-			{
-				*end = 0;
-			}
-			ret = begin;
-		}
-
-		sce_paf_free(fbuf);
+		ret = *in;
 	}
 	else
 	{
@@ -143,7 +101,9 @@ SceVoid LocalServerBrowser::SetPath(const char *ref)
 
 vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, SceInt32 *result)
 {
+	char prefix[256];
 	vector<LocalServerBrowser::Entry *> *ret = new vector<LocalServerBrowser::Entry *>;
+	menu::Settings::GetAppSetInstance()->GetString("local_playlist_prefix", prefix, sizeof(prefix), "");
 
 	SetPath(ref);
 
@@ -151,42 +111,130 @@ vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, S
 
 	if (ref)
 	{
-		Dir dir;
-		Dir::Entry dentry;
-
-		if (dir.Open(path.c_str()) >= 0)
+		if (sce_paf_strstr(ref, ".m3u8"))
 		{
-			while (dir.Read(&dentry) >= 0)
+			SharedPtr<LocalFile> fres;
+			SceInt32 res = -1;
+			SceSize fsz = 0;
+			char *fbuf = SCE_NULL;
+			char *begin = SCE_NULL;
+			char *end = SCE_NULL;
+			SceBool adrRelative = SCE_FALSE;
+
+			fres = LocalFile::Open(GetPath().c_str(), SCE_O_RDONLY, 0, &res);
+			if (res < 0)
 			{
-				BEAVPlayer::SupportType beavType = BEAVPlayer::IsSupported(dentry.name.c_str());
-
-				if (beavType != BEAVPlayer::SupportType_NotSupported)
-				{
-					LocalServerBrowser::Entry *entry = new LocalServerBrowser::Entry();
-					entry->ref = dentry.name.c_str();
-					entry->type = LocalServerBrowser::Entry::Type_UnsupportedFile;
-
-					if (beavType == BEAVPlayer::SupportType_MaybeSupported)
-					{
-						entry->ref += "/";
-						entry->type = LocalServerBrowser::Entry::Type_Folder;
-					}
-					else if (beavType == BEAVPlayer::SupportType_Supported)
-					{
-						entry->type = LocalServerBrowser::Entry::Type_SupportedFile;
-					}
-
-					ret->push_back(entry);
-				}
+				*result = res;
+				goto error_return;
 			}
 
-			dir.Close();
+			fsz = fres->GetFileSize();
+			fbuf = (char *)sce_paf_malloc(fsz + 1);
+			if (!fbuf)
+			{
+				*result = SCE_ERROR_ERRNO_ENOMEM;
+				fres.reset();
+				goto error_return;
+			}
 
-			*result = SCE_OK;
+			fbuf[fsz] = 0;
+			fres->Read(fbuf, fsz);
+			fres->Close();
+			fres.reset();
+
+			begin = sce_paf_strtok(fbuf, "#");
+			while (begin)
+			{
+				begin = sce_paf_strchr(begin, '\n');
+				if (begin && sce_paf_strlen(begin) > 3)
+				{
+					begin++;
+					if (*begin == '#')
+					{
+						begin = sce_paf_strtok(SCE_NULL, "#");
+						continue;
+					}
+
+					end = sce_paf_strchr(begin, '\r');
+					if (end)
+					{
+						*end = 0;
+					}
+					end = sce_paf_strchr(begin, '\n');
+					if (end)
+					{
+						*end = 0;
+					}
+
+					if (!sce_paf_strncmp(begin, "http", 4))
+					{
+						LocalServerBrowser::Entry *entry = new LocalServerBrowser::Entry();
+						entry->ref = begin;
+						entry->type = LocalServerBrowser::Entry::Type_SupportedFile;
+						ret->push_back(entry);
+					}
+					else
+					{
+						LocalServerBrowser::Entry *entry = new LocalServerBrowser::Entry();
+						entry->ref = prefix;
+						entry->ref += begin;
+						entry->type = LocalServerBrowser::Entry::Type_SupportedFile;
+						ret->push_back(entry);
+					}
+				}
+
+				begin = sce_paf_strtok(SCE_NULL, "#");
+			}
+
+			sce_paf_free(fbuf);
 		}
 		else
 		{
-			*result = SCE_ERROR_ERRNO_ENOENT;
+			Dir dir;
+			Dir::Entry dentry;
+
+			if (dir.Open(path.c_str()) >= 0)
+			{
+				while (dir.Read(&dentry) >= 0)
+				{
+					BEAVPlayer::SupportType beavType = BEAVPlayer::IsSupported(dentry.name.c_str());
+
+					if (beavType != BEAVPlayer::SupportType_NotSupported)
+					{
+						LocalServerBrowser::Entry *entry = new LocalServerBrowser::Entry();
+						entry->ref = dentry.name.c_str();
+						entry->type = LocalServerBrowser::Entry::Type_UnsupportedFile;
+
+						if (beavType == BEAVPlayer::SupportType_MaybeSupported)
+						{
+							entry->ref += "/";
+							entry->type = LocalServerBrowser::Entry::Type_Folder;
+						}
+						else if (beavType == BEAVPlayer::SupportType_Supported)
+						{
+							if (sce_paf_strstr(entry->ref.c_str(), ".m3u8"))
+							{
+								entry->ref += "/";
+								entry->type = LocalServerBrowser::Entry::Type_Folder;
+							}
+							else
+							{
+								entry->type = LocalServerBrowser::Entry::Type_SupportedFile;
+							}
+						}
+
+						ret->push_back(entry);
+					}
+				}
+
+				dir.Close();
+
+				*result = SCE_OK;
+			}
+			else
+			{
+				*result = SCE_ERROR_ERRNO_ENOENT;
+			}
 		}
 	}
 	else
@@ -204,6 +252,8 @@ vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, S
 
 		*result = SCE_OK;
 	}
+
+error_return:
 
 	return ret;
 }

@@ -18,11 +18,12 @@ public:
 		{
 			Type_UnsupportedFile,
 			Type_SupportedFile,
+			Type_PlaylistFile,
 			Type_Folder
 		};
 
 		string ref;
-		Type type;
+		SceUInt32 type;
 	};
 
 	GenericServerBrowser()
