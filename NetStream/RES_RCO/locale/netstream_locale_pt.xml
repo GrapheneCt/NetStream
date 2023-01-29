@@ -39,7 +39,7 @@
   <string src="Usar NLST" id="msg_ftp_nlst" />
   <string src="Activar esta opção fará com que o NetStream envie o comando NLST para o servidor FTP em vez do comando LIST. Esta opção torna a operação mais rápida mas pode não ser suportado por alguns servidores FTP." id="msg_ftp_nlst_hint" />
 
-  <string src="Prefix For Relative .m3u8 Playlists" id="msg_local_playlist_prefix" />
+  <string src="Prefixo para listas de reprodução .m3u8 relativas" id="msg_local_playlist_prefix" />
 
   <string src="Qualidade de video preferencial" id="msg_youtube_quality" />
   <string src="Qualidade de stream preferencial" id="msg_youtube_hls_quality" />
