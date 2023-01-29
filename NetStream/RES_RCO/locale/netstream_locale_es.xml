@@ -10,7 +10,7 @@
   <string src="Historial" id="msg_youtube_history" />
   <string src="Descripción" id="msg_youtube_description" />
   <string src="Cargar más comentarios..." id="msg_youtube_comment_more" />
-  <string src="Comentarios" id="msg_youtube_comment_detail" />
+  <string src="Detalles del comentario" id="msg_youtube_comment_detail" />
   <string src="Respuestas" id="msg_youtube_comment_reply" />
   <string src=" me gusta" id="msg_youtube_comment_like_count" />
 
@@ -39,7 +39,7 @@
   <string src="Utilizar NLST" id="msg_ftp_nlst" />
   <string src="Si activas esta opción, NetStream enviará el comando NLST al servidor FTP en lugar del comando LIST. Esta opción agiliza el funcionamiento, pero algunos servidores FTP podrían no admitirla." id="msg_ftp_nlst_hint" />
 
-  <string src="Prefix For Relative .m3u8 Playlists" id="msg_local_playlist_prefix" />
+  <string src="Prefijo para listas de reproducción .m3u8 relativas" id="msg_local_playlist_prefix" />
 
   <string src="Calidad preferida de videos" id="msg_youtube_quality" />
   <string src="Calidad preferida de directos" id="msg_youtube_hls_quality" />
@@ -54,7 +54,7 @@
   <string src="Fecha" id="msg_option_search_sort_2" />
   <string src="Vistas" id="msg_option_search_sort_3" />
   
-  <string src="Hora" id="msg_option_search_date_0" />
+  <string src="Última hora" id="msg_option_search_date_0" />
   <string src="Hoy" id="msg_option_search_date_1" />
   <string src="Semana" id="msg_option_search_date_2" />
   <string src="Mes" id="msg_option_search_date_3" />
