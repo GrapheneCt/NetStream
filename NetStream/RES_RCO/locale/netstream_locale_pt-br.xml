@@ -37,9 +37,9 @@
   <string src="Usuário" id="msg_ftp_user" />
   <string src="Senha" id="msg_ftp_password" />
   <string src="Usar NLST" id="msg_ftp_nlst" />
-  <string src="Habilitar essa opção vai fazer o NetStream enviar comandos NLST para o servidor FTP ao invés do comenado LIST. Essa opção acaba sendo mais rápida, contudo não é suportada por alguns servidores FTP." id="msg_ftp_nlst_hint" />
+  <string src="Habilitar essa opção vai fazer o NetStream enviar comandos NLST para o servidor FTP ao invés do comando LIST. Essa opção acaba sendo mais rápida, contudo não é suportada por alguns servidores FTP." id="msg_ftp_nlst_hint" />
 
-  <string src="Prefix For Relative .m3u8 Playlists" id="msg_local_playlist_prefix" />
+  <string src="Prefixo para Playlists .m3u8 Relativas" id="msg_local_playlist_prefix" />
 
   <string src="Qualidade de Vídeo Favorita" id="msg_youtube_quality" />
   <string src="Qualidade de Live Favorita" id="msg_youtube_hls_quality" />
@@ -79,7 +79,7 @@
   <string src="Limpar Favoritos" id="msg_settings_youtube_clean_fav" />
   <string src="O Histórico foi limpo." id="msg_settings_youtube_clean_history_done" />
   <string src="Os Favoritos foram limpos." id="msg_settings_youtube_clean_fav_done" />
-  <string src="Todo o histórico de vídeo vai ser apagado! Deseja continuar?" id="msg_settings_youtube_clean_history_confirm" />
+  <string src="Todo o histórico de vídeos vai ser apagado! Deseja continuar?" id="msg_settings_youtube_clean_history_confirm" />
   <string src="Todos os favoritos vão ser apagados! Deseja continuar?" id="msg_settings_youtube_clean_fav_confirm" />
   <string src="Download" id="msg_settings_youtube_download" />
   <string src="O vídeo foi adicionado a fila de Downloads." id="msg_settings_youtube_download_begin" />
