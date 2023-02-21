@@ -20,6 +20,16 @@ SceVoid menu::SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a
 	}
 }
 
+SceVoid menu::GenericMenu::DeactivatorFwCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+{
+	if (self->animationStatus == 0)
+	{
+		ui::Widget *oldMenuRoot = (ui::Widget *)pUserData;
+		oldMenuRoot->SetGraphicsState(ui::GraphicsState_Disabled);
+		self->UnregisterFwEventCallback(0x200FB2B);
+	}
+}
+
 menu::GenericMenu::GenericMenu(const char *name, MenuOpenParam oparam, MenuCloseParam cparam)
 {
 	rco::Element searchParam;
@@ -39,6 +49,7 @@ menu::GenericMenu::GenericMenu(const char *name, MenuOpenParam oparam, MenuClose
 	{
 		menu::GenericMenu *oldMenu = s_menuStack.back();
 		ui::Widget::SetControlFlags(oldMenu->root, 0);
+		root->RegisterFwEventCallback(0x200FB2B, new utils::SimpleEventCallback(DeactivatorFwCbFun, oldMenu->root));
 	}
 
 	s_menuStack.push_back(this);
@@ -52,24 +63,45 @@ menu::GenericMenu::~GenericMenu()
 
 	if (!s_menuStack.empty())
 	{
-		menu::GenericMenu *oldMenu = s_menuStack.back();
-		ui::Widget::SetControlFlags(oldMenu->root, 1);
+		s_menuStack.back()->Activate();
 	}
 }
 
-SceVoid menu::HideAll(SceUInt32 endMargin)
+SceVoid menu::GenericMenu::Deactivate()
+{
+	ui::Widget::SetControlFlags(root, 0);
+	root->SetGraphicsState(ui::GraphicsState_Disabled);
+}
+
+SceVoid menu::GenericMenu::Activate()
+{
+	ui::Widget::SetControlFlags(root, 1);
+	root->SetGraphicsState(ui::GraphicsState_Normal);
+}
+
+SceVoid menu::GenericMenu::DisableInput()
+{
+	ui::Widget::SetControlFlags(root, 0);
+}
+
+SceVoid menu::GenericMenu::EnableInput()
+{
+	ui::Widget::SetControlFlags(root, 1);
+}
+
+SceVoid menu::DeactivateAll(SceUInt32 endMargin)
 {
 	for (int i = 0; i < s_menuStack.size() - endMargin; i++)
 	{
-		s_menuStack.at(i)->root->SetGraphicsDisabled(true);
+		s_menuStack.at(i)->Deactivate();
 	}
 }
 
-SceVoid menu::ShowAll()
+SceVoid menu::ActivateAll()
 {
 	for (int i = 0; i < s_menuStack.size(); i++)
 	{
-		s_menuStack.at(i)->root->SetGraphicsDisabled(false);
+		s_menuStack.at(i)->Activate();
 	}
 }
 

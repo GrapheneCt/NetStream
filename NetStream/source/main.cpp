@@ -69,7 +69,8 @@ SceVoid menu::main::NetcheckJob::Run()
 	if (sceAppMgrGetIdByName(&shellPid, "NPXS19999") == SCE_OK &&
 		_vshKernelSearchModuleByName("taihen", sarg) > 0)
 	{
-		string pluginPath = ccc::Sprintf("ux0:app/%s/module/download_enabler_netstream.suprx", titleid);
+		string pluginPath;
+		common::string_util::setf(pluginPath, "ux0:app/%s/module/download_enabler_netstream.suprx", titleid);
 		taiLoadStartModuleForPid(shellPid, pluginPath.c_str(), 0, SCE_NULL, 0);
 	}
 
@@ -92,8 +93,8 @@ SceVoid pluginLoadCB(Plugin *plugin)
 	dialog::OpenPleaseWait(g_appPlugin, SCE_NULL, utils::GetString("msg_wait"));
 
 	menu::main::NetcheckJob *ncJob = new menu::main::NetcheckJob("NS::NetcheckJob");
-	SharedPtr<job::JobItem> itemParam(ncJob);
-	job::s_defaultJobQueue->Enqueue(&itemParam);
+	common::SharedPtr<job::JobItem> itemParam(ncJob);
+	job::s_defaultJobQueue->Enqueue(itemParam);
 
 	//menu::InitMenuSystem();
 	menu::Settings::Init();
@@ -167,11 +168,11 @@ int main()
 #endif
 	pluginParam.pluginStartCB = pluginLoadCB;
 
-	fw->LoadPluginAsync(&pluginParam);
+	fw->LoadPluginAsync(pluginParam);
 
 	BEAVPlayer::PreInit();
 
-	fw->EnterRenderingLoop();
+	fw->Run();
 
 	sceKernelExitProcess(0);
 

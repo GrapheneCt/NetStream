@@ -60,7 +60,7 @@ SceVoid menu::GenericServerMenu::SettingsButtonCbFun(SceInt32 eventId, ui::Widge
 	bt.label = utils::GetString(msg_settings);
 	buttons.push_back(bt);
 
-	new OptionMenu(g_appPlugin, workObj->root, &buttons, OptionButtonCb, SCE_NULL);
+	new OptionMenu(g_appPlugin, workObj->root, &buttons, OptionButtonCb, SCE_NULL, SCE_NULL);
 }
 
 SceVoid menu::GenericServerMenu::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)
@@ -76,6 +76,11 @@ ui::ListItem *menu::GenericServerMenu::ListViewCb::Create(Param *info)
 	graph::Surface *tex = SCE_NULL;
 	wstring text16;
 
+	if (!info->list->elem.hash)
+	{
+		return new ui::ListItem(info->parent, 0);
+	}
+
 	BrowserPage *workPage = workObj->pageList.back();
 
 	GenericServerBrowser::Entry *entry = workPage->itemList->at(info->cellIndex);
@@ -88,7 +93,7 @@ ui::ListItem *menu::GenericServerMenu::ListViewCb::Create(Param *info)
 	ui::Widget *button = utils::GetChild(item, image_button_list_item);
 	button->elem.hash = info->cellIndex;
 
-	ccc::UTF8toUTF16(&entry->ref, &text16);
+	common::Utf8ToUtf16(entry->ref, &text16);
 	button->SetLabel(&text16);
 	button->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(ListButtonCbFun, workObj));
 
@@ -105,7 +110,7 @@ ui::ListItem *menu::GenericServerMenu::ListViewCb::Create(Param *info)
 		tex = utils::GetTexture(tex_file_icon_folder);
 		break;
 	case GenericServerBrowser::Entry::Type_PlaylistFile:
-		tex = utils::GetTexture(tex_file_icon_video);
+		tex = utils::GetTexture(tex_file_icon_playlist);
 		break;
 	}
 
@@ -126,7 +131,7 @@ SceVoid menu::GenericServerMenu::GoToJob::ConnectionFailedDialogHandler(dialog::
 	}
 	menu::GenericMenu *topMenu = menu::GetTopMenu();
 	if (topMenu) {
-		ui::Widget::SetControlFlags(topMenu->root, 0);
+		topMenu->DisableInput();
 	}
 }
 
@@ -171,7 +176,7 @@ SceVoid menu::GenericServerMenu::GoToJob::Run()
 	}
 
 	currentPath = workObj->browser->GetPath();
-	ccc::UTF8toUTF16(&currentPath, &text16);
+	common::Utf8ToUtf16(currentPath, &text16);
 
 	thread::s_mainThreadMutex.Lock();
 	workObj->loaderIndicator->Stop();
@@ -254,8 +259,8 @@ SceBool menu::GenericServerMenu::PushBrowserPage(string *ref)
 	{
 		job->targetRef = *ref;
 	}
-	SharedPtr<job::JobItem> itemParam(job);
-	utils::GetJobQueue()->Enqueue(&itemParam);
+	common::SharedPtr<job::JobItem> itemParam(job);
+	utils::GetJobQueue()->Enqueue(itemParam);
 
 	return SCE_TRUE;
 }
@@ -279,6 +284,8 @@ SceBool menu::GenericServerMenu::PopBrowserPage()
 	{
 		thread::Sleep(10);
 	}
+
+	pageToPop->list->elem.hash = 0;
 
 	if (!isLastPage)
 	{
@@ -317,7 +324,7 @@ SceBool menu::GenericServerMenu::PopBrowserPage()
 		browser->SetPath("..");
 		string currentPath = browser->GetPath();
 		wstring text16;
-		ccc::UTF8toUTF16(&currentPath, &text16);
+		common::Utf8ToUtf16(currentPath, &text16);
 		topText->SetLabel(&text16);
 	}
 

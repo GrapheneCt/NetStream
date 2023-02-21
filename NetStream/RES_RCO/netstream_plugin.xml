@@ -231,6 +231,9 @@
       <textobj font_size="28" bold="1" align_y="1" align_x="3" id="label_obj1" />
       <planeobj texture0="_common_texture_option_menu_button_middle_glow" blend="2" id="plane_obj2" />
     </style_button>
+    <style_text textobj="text_obj1" id="style_text_option_menu_ruler">
+      <textobj font_size="28" bold="1" align_y="1" align_x="3" font_color="0, 0, 0, 0" id="text_obj1" />
+    </style_text>
     
     <!-- common stuff -->
     <style_plane color="0, 0, 0, 1" id="style_plane_black" />
@@ -379,7 +382,10 @@
         <layout_hint size="960, 544" />
         <focus_hint enable="0" />
         <plane style="_common_default_style_plane" texture="_common_texture_option_menu_base_down" id="plane_option_menu_base">
-          <layout_hint anchor="0, 1" align="0, 1" size="214, 12" pos="264, 43" />
+          <layout_hint anchor="0, 1" align="0, 1" size="214, 12" pos="1920, 1080" />
+          <text style="style_text_option_menu_ruler" id="text_option_menu_ruler">
+            <layout_hint size="0, 0" adjust="2, 2" pos="1920, 1080" />
+          </text>
           <box id="box_option_menu">
             <layout_box anchor="1, 2" align="1, 2" layout_type="1" bottom_margin="6" top_margin="6" right_margin="6" left_margin="6" />
           </box>
@@ -599,6 +605,7 @@
     <texture src="texture\tex_fpmenu_icon_local.png" type="texture/png" id="tex_fpmenu_icon_local" />
     <texture src="texture\tex_file_icon_video.png" type="texture/png" id="tex_file_icon_video" />
     <texture src="texture\tex_file_icon_folder.png" type="texture/png" id="tex_file_icon_folder" />
+    <texture src="texture\tex_file_icon_playlist.png" type="texture/png" id="tex_file_icon_playlist" />
     <texture src="texture\tex_file_icon_unsupported.png" type="texture/png" id="tex_file_icon_unsupported" />
     <texture src="texture\tex_black.dds" type="texture/dds" id="tex_black" />
     <texture src="texture\tex_button_expand.png" type="texture/png" id="tex_button_expand" />

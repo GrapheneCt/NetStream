@@ -34,6 +34,7 @@ SceVoid  menu::PlayerSimple::VideoPlaneCbFun(SceInt32 eventId, ui::Widget *self,
 			workObj->progressPlane->PlayEffectReverse(0.0f, effect::EffectType_SlideFromBottom1);
 		}
 		workObj->backButton->PlayEffectReverse(0.0f, effect::EffectType_Reset);
+		sceAppMgrSetInfobarState(SCE_APPMGR_INFOBAR_VISIBILITY_INVISIBLE, SCE_APPMGR_INFOBAR_COLOR_BLACK, SCE_APPMGR_INFOBAR_TRANSPARENCY_TRANSLUCENT);
 		workObj->progressPlaneShown = SCE_FALSE;
 	}
 	else
@@ -47,6 +48,7 @@ SceVoid  menu::PlayerSimple::VideoPlaneCbFun(SceInt32 eventId, ui::Widget *self,
 			workObj->backButton->PlayEffect(0.0f, effect::EffectType_Reset);
 		}
 		workObj->progressPlaneShownTime = sceKernelGetProcessTimeLow();
+		sceAppMgrSetInfobarState(SCE_APPMGR_INFOBAR_VISIBILITY_VISIBLE, SCE_APPMGR_INFOBAR_COLOR_BLACK, SCE_APPMGR_INFOBAR_TRANSPARENCY_TRANSLUCENT);
 		workObj->progressPlaneShown = SCE_TRUE;
 	}
 }
@@ -93,7 +95,7 @@ SceVoid menu::PlayerSimple::WholeRepeatButtonCbFun(SceInt32 eventId, ui::Widget 
 	PlayerSimple *workObj = (PlayerSimple *)pUserData;
 	workObj->player->JumpToTimeMs(0);
 	Rgba col(1.0f, 1.0f, 1.0f, 1.0f);
-	workObj->videoPlane->SetFilterColor(&col, 0.0f);
+	workObj->videoPlane->SetColor(col);
 	workObj->wholeRepeatButton->PlayEffectReverse(0.0f, effect::EffectType_Fadein1);
 }
 
@@ -141,7 +143,7 @@ SceVoid menu::PlayerSimple::DirectInputCallback(input::GamePad::GamePadData *pDa
 		!s_instance->isLS)
 	{
 		Rgba col(0.4f, 0.4f, 0.4f, 1.0f);
-		s_instance->videoPlane->SetFilterColor(&col, 0.0f);
+		s_instance->videoPlane->SetColor(col);
 
 		if ((pData->buttons & SCE_PAF_CTRL_RIGHT) && !(s_instance->oldButtons & SCE_PAF_CTRL_RIGHT))
 		{
@@ -162,8 +164,8 @@ SceVoid menu::PlayerSimple::DirectInputCallback(input::GamePad::GamePadData *pDa
 
 		string text8;
 		wstring text16;
-		utils::ConvertSecondsToString(&text8, (SceUInt32)(sce_paf_abs(s_instance->accJumpTime) / 1000), SCE_FALSE);
-		ccc::UTF8toUTF16(&text8, &text16);
+		utils::ConvertSecondsToString(text8, (SceUInt32)(sce_paf_abs(s_instance->accJumpTime) / 1000), SCE_FALSE);
+		common::Utf8ToUtf16(text8, &text16);
 		if (s_instance->accJumpTime < 0)
 		{
 			s_instance->leftAccText->SetLabel(&text16);
@@ -213,8 +215,8 @@ SceVoid menu::PlayerSimple::UpdateTask(ScePVoid pArgBlock)
 			SceUInt32 currTime = workObj->player->GetCurrentTimeMs() / 1000;
 			if (currTime != workObj->oldCurrTime)
 			{
-				utils::ConvertSecondsToString(&text8, currTime, SCE_FALSE);
-				ccc::UTF8toUTF16(&text8, &text16);
+				utils::ConvertSecondsToString(text8, currTime, SCE_FALSE);
+				common::Utf8ToUtf16(text8, &text16);
 				workObj->elapsedTimeText->SetLabel(&text16);
 				SceFloat32 progress = (SceFloat32)currTime * 100000.0f / (SceFloat32)workObj->player->GetTotalTimeMs();
 				workObj->progressBar->SetProgress(progress, 0, 0);
@@ -224,15 +226,15 @@ SceVoid menu::PlayerSimple::UpdateTask(ScePVoid pArgBlock)
 		else
 		{
 			SceUInt32 val = (SceUInt32)(workObj->progressBar->currentValue / 100000.0f * (SceFloat32)workObj->player->GetTotalTimeMs());
-			utils::ConvertSecondsToString(&text8, val, SCE_FALSE);
-			ccc::UTF8toUTF16(&text8, &text16);
+			utils::ConvertSecondsToString(text8, val, SCE_FALSE);
+			common::Utf8ToUtf16(text8, &text16);
 			workObj->elapsedTimeText->SetLabel(&text16);
 		}
 
 		if (workObj->accJumpState == AccJumpState_Perform)
 		{
 			Rgba col(1.0f, 1.0f, 1.0f, 1.0f);
-			s_instance->videoPlane->SetFilterColor(&col, 0.0f);
+			s_instance->videoPlane->SetColor(col);
 			text16 = L"";
 			s_instance->leftAccText->SetLabel(&text16);
 			s_instance->rightAccText->SetLabel(&text16);
@@ -262,6 +264,7 @@ SceVoid menu::PlayerSimple::UpdateTask(ScePVoid pArgBlock)
 				workObj->progressPlane->PlayEffectReverse(0.0f, effect::EffectType_SlideFromBottom1);
 			}
 			workObj->backButton->PlayEffectReverse(0.0f, effect::EffectType_Reset);
+			sceAppMgrSetInfobarState(SCE_APPMGR_INFOBAR_VISIBILITY_INVISIBLE, SCE_APPMGR_INFOBAR_COLOR_BLACK, SCE_APPMGR_INFOBAR_TRANSPARENCY_TRANSLUCENT);
 			workObj->progressPlaneShown = SCE_FALSE;
 		}
 	}
@@ -270,7 +273,7 @@ SceVoid menu::PlayerSimple::UpdateTask(ScePVoid pArgBlock)
 	if (!workObj->isLS && state == SCE_BEAV_CORE_PLAYER_STATE_EOF)
 	{
 		Rgba col(0.4f, 0.4f, 0.4f, 1.0f);
-		workObj->videoPlane->SetFilterColor(&col, 0.0f);
+		workObj->videoPlane->SetColor(col);
 		workObj->wholeRepeatButton->PlayEffect(0.0f, effect::EffectType_Fadein1);
 	}
 }
@@ -285,15 +288,15 @@ SceVoid menu::PlayerSimple::StateCheckTask(ScePVoid pArgBlock)
 
 	if (state == BEAVPlayer::InitState_InitOk)
 	{
-		task::Unregister(StateCheckTask, pArgBlock);
+		common::MainThreadCallList::Unregister(StateCheckTask, pArgBlock);
 		workObj->loadIndicator->Stop();
 
 		SceUInt32 totalTime = workObj->player->GetTotalTimeMs();
 		ui::Widget *totalTimeText = utils::GetChild(workObj->root, text_video_control_panel_progressbar_label_total);
 		if (totalTime > 0)
 		{
-			utils::ConvertSecondsToString(&text8, totalTime / 1000, SCE_FALSE);
-			ccc::UTF8toUTF16(&text8, &text16);
+			utils::ConvertSecondsToString(text8, totalTime / 1000, SCE_FALSE);
+			common::Utf8ToUtf16(text8, &text16);
 			totalTimeText->SetLabel(&text16);
 
 			workObj->progressBar->RegisterEventCallback(ui::EventMain_Tapped, new utils::SimpleEventCallback(ProgressBarCbFun, pArgBlock));
@@ -311,7 +314,7 @@ SceVoid menu::PlayerSimple::StateCheckTask(ScePVoid pArgBlock)
 		videoPlane->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(VideoPlaneCbFun, pArgBlock));
 		videoPlane->SetDirectKey(SCE_PAF_CTRL_TRIANGLE);
 
-		task::Register(UpdateTask, pArgBlock);
+		common::MainThreadCallList::Register(UpdateTask, pArgBlock);
 
 		if (workObj->initOkCb)
 		{
@@ -320,7 +323,7 @@ SceVoid menu::PlayerSimple::StateCheckTask(ScePVoid pArgBlock)
 	}
 	else if (state == BEAVPlayer::InitState_InitFail)
 	{
-		task::Unregister(StateCheckTask, pArgBlock);
+		common::MainThreadCallList::Unregister(StateCheckTask, pArgBlock);
 
 		if (workObj->initFailCb)
 		{
@@ -384,28 +387,30 @@ menu::PlayerSimple::PlayerSimple(const char *url, PlayerSimpleCallback okCb, Pla
 	videoPlane = utils::GetChild(root, plane_video_page_player_simple);
 	player = new BEAVPlayer(videoPlane, url);
 	player->InitAsync();
-	task::Register(StateCheckTask, this);
+	common::MainThreadCallList::Register(StateCheckTask, this);
 
 	pwCbId = sceKernelCreateCallback("PowerCallback", 0, PowerCallback, this);
 	scePowerRegisterCallback(pwCbId);
 
 	sceAppMgrSetInfobarState(SCE_APPMGR_INFOBAR_VISIBILITY_INVISIBLE, SCE_APPMGR_INFOBAR_COLOR_BLACK, SCE_APPMGR_INFOBAR_TRANSPARENCY_TRANSLUCENT);
 	utils::SetPowerTickTask(utils::PowerTick_All);
-	menu::HideAll(1);
+	menu::GetMenuAt(menu::GetMenuCount() - 2)->Deactivate();
+
+	root->SetGraphicsState(ui::GraphicsState_DebugHighlightAndMove);
 
 	s_instance = this;
 }
 
 menu::PlayerSimple::~PlayerSimple()
 {
-	task::Unregister(UpdateTask, this);
+	common::MainThreadCallList::Unregister(UpdateTask, this);
 	scePowerUnregisterCallback(pwCbId);
 	sceKernelDeleteCallback(pwCbId);
 	input::GamePad::RegisterCallback(SCE_NULL);
 	delete player;
 	sceAppMgrSetInfobarState(SCE_APPMGR_INFOBAR_VISIBILITY_VISIBLE, SCE_APPMGR_INFOBAR_COLOR_BLACK, SCE_APPMGR_INFOBAR_TRANSPARENCY_TRANSLUCENT);
 	utils::SetPowerTickTask(utils::PowerTick_None);
-	menu::ShowAll();
+	menu::GetTopMenu()->Activate();
 	s_instance = SCE_NULL;
 }
 
@@ -431,84 +436,84 @@ SceVoid menu::PlayerSimple::SetScale(SceFloat32 scale)
 	{
 		sz.x = 1920.0f * scale;
 		sz.y = 1088.0f * scale;
-		videoPlane->SetSize(&sz);
+		videoPlane->SetSize(sz);
 		sz.x = 150.0f * scale;
 		sz.y = 150.0f * scale;
-		loadIndicator->SetSize(&sz);
+		loadIndicator->SetSize(sz);
 		loadIndicator->SetBallSize(32.0f * scale);
 		sz.x = 180.0f * scale;
 		sz.y = 180.0f * scale;
-		wholeRepeatButton->SetSize(&sz);
+		wholeRepeatButton->SetSize(sz);
 		if (scale == 1.0f)
 		{
 			sz.x = 1700.0f;
 			sz.y = 112.0f;
-			progressPlane->SetSize(&sz);
+			progressPlane->SetSize(sz);
 			pos.x = 0.0f;
 			pos.y = 56.0f;
-			progressPlane->SetPosition(&pos);
+			progressPlane->SetPosition(pos);
 		}
 		else
 		{
 			sz.x = 1920.0f * scale;
 			sz.y = 112.0f * scale;
-			progressPlane->SetSize(&sz);
+			progressPlane->SetSize(sz);
 			pos.x = 0.0f;
 			pos.y = 56.0f * scale;
-			progressPlane->SetPosition(&pos);
+			progressPlane->SetPosition(pos);
 		}
 		sz.x = 1400.0f * scale;
 		sz.y = 20.0f * scale;
-		progressBar->SetSize(&sz);
+		progressBar->SetSize(sz);
 		sz.x = 90.0f * scale;
 		sz.y = 80.0f * scale;
-		playButton->SetSize(&sz);
+		playButton->SetSize(sz);
 		pos.x = 30.0f * scale;
 		pos.y = 0.0f;
-		playButton->SetPosition(&pos);
+		playButton->SetPosition(pos);
 		pos.x = -20.0f * scale;
 		if (scale != 1.0f)
 		{
 			pos.x -= 20.0f * scale;
 		}
 		pos.y = 20.0f * scale;
-		elapsedTimeText->SetPosition(&pos);
+		elapsedTimeText->SetPosition(pos);
 		pos.y = -pos.y;
-		totalTimeText->SetPosition(&pos);
+		totalTimeText->SetPosition(pos);
 	}
 	else
 	{
 		sz.x = 960.0f * scale;
 		sz.y = 544.0f * scale;
-		videoPlane->SetSize(&sz);
+		videoPlane->SetSize(sz);
 		sz.x = 75.0f * scale;
 		sz.y = 75.0f * scale;
-		loadIndicator->SetSize(&sz);
+		loadIndicator->SetSize(sz);
 		loadIndicator->SetBallSize(16.0f * scale);
 		sz.x = 90.0f * scale;
 		sz.y = 90.0f * scale;
-		wholeRepeatButton->SetSize(&sz);
+		wholeRepeatButton->SetSize(sz);
 		if (scale == 1.0f)
 		{
 			sz.x = 790.0f;
 			sz.y = 56.0f;
-			progressPlane->SetSize(&sz);
+			progressPlane->SetSize(sz);
 			pos.x = 0.0f;
 			pos.y = 28.0f;
-			progressPlane->SetPosition(&pos);
+			progressPlane->SetPosition(pos);
 		}
 		else
 		{
 			sz.x = 960.0f * scale;
 			sz.y = 112.0f * scale;
-			progressPlane->SetSize(&sz);
+			progressPlane->SetSize(sz);
 			pos.x = 0.0f;
 			pos.y = 56.0f * scale;
-			progressPlane->SetPosition(&pos);
+			progressPlane->SetPosition(pos);
 		}
 		sz.x = 538.0f * scale;
 		sz.y = 10.0f * scale;
-		progressBar->SetSize(&sz);
+		progressBar->SetSize(sz);
 		/*
 		pos.y = 0.0f;
 		pos.x = 14.0f * scale;
@@ -516,10 +521,10 @@ SceVoid menu::PlayerSimple::SetScale(SceFloat32 scale)
 		*/
 		sz.x = 48.0f * scale;
 		sz.y = 80.0f * scale;
-		playButton->SetSize(&sz);
+		playButton->SetSize(sz);
 		pos.x = 32.0f * scale;
 		pos.y = 0.0f;
-		playButton->SetPosition(&pos);
+		playButton->SetPosition(pos);
 		pos.x = -20.0f * scale;
 		if (scale != 1.0f)
 		{
@@ -533,9 +538,9 @@ SceVoid menu::PlayerSimple::SetScale(SceFloat32 scale)
 		{
 			pos.y = 12.0f * scale;
 		}
-		elapsedTimeText->SetPosition(&pos);
+		elapsedTimeText->SetPosition(pos);
 		pos.y = -pos.y;
-		totalTimeText->SetPosition(&pos);
+		totalTimeText->SetPosition(pos);
 	}
 
 	if (scale != 1.0f)
@@ -557,9 +562,7 @@ SceVoid menu::PlayerSimple::SetScale(SceFloat32 scale)
 		sceAppMgrSetInfobarState(SCE_APPMGR_INFOBAR_VISIBILITY_INVISIBLE, SCE_APPMGR_INFOBAR_COLOR_BLACK, SCE_APPMGR_INFOBAR_TRANSPARENCY_TRANSLUCENT);
 		backButton->PlayEffect(0.0f, effect::EffectType_Reset);
 		triggerPlane->PlayEffect(0.0f, effect::EffectType_Fadein1);
-		menu::GenericMenu *baseMenu = menu::GetMenuAt(menu::GetMenuCount() - 2);
-		ui::Widget::SetControlFlags(baseMenu->root, 0);
-		baseMenu->root->SetGraphicsDisabled(true);
+		menu::GetMenuAt(menu::GetMenuCount() - 2)->Deactivate();
 	}
 	else
 	{
@@ -572,9 +575,7 @@ SceVoid menu::PlayerSimple::SetScale(SceFloat32 scale)
 			progressPlane->PlayEffect(0.0f, effect::EffectType_Fadein1);
 		}
 		progressPlaneShown = SCE_TRUE;
-		menu::GenericMenu *baseMenu = menu::GetMenuAt(menu::GetMenuCount() - 2);
-		baseMenu->root->SetGraphicsDisabled(false);
-		ui::Widget::SetControlFlags(baseMenu->root, 1);
+		menu::GetMenuAt(menu::GetMenuCount() - 2)->Activate();
 	}
 
 	currentScale = scale;
@@ -583,7 +584,7 @@ SceVoid menu::PlayerSimple::SetScale(SceFloat32 scale)
 SceVoid menu::PlayerSimple::SetPosition(SceFloat32 x, SceFloat32 y)
 {
 	Vector4 pos(x, y);
-	videoPlane->SetPosition(&pos);
+	videoPlane->SetPosition(pos);
 }
 
 SceVoid menu::PlayerSimple::SetSettingsOverride(SettingsOverride override)

@@ -6,6 +6,8 @@
 
 using namespace paf;
 
+#define OPTION_MENU_BUTTON_MAGIC 0xa5448baf
+
 class OptionMenu
 {
 public:
@@ -19,7 +21,7 @@ public:
 		wstring label;
 	};
 
-	OptionMenu(Plugin *workPlugin, ui::Widget *root, vector<Button> *buttons, ButtonCallback eventCallback, ScePVoid userArg);
+	OptionMenu(Plugin *workPlugin, ui::Widget *root, vector<Button> *buttons, ButtonCallback eventCallback, ButtonCallback closeCallback, ScePVoid userArg);
 
 	~OptionMenu();
 
@@ -47,25 +49,7 @@ private:
 		ButtonCallback cb;
 	};
 
-	class CloseButtonEventCallback : public ui::EventCallback
-	{
-	public:
-
-		static SceVoid CloseButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-
-		CloseButtonEventCallback(ScePVoid userArg)
-		{
-			eventHandler = CloseButtonCbFun;
-			pUserData = userArg;
-		};
-
-		virtual ~CloseButtonEventCallback()
-		{
-
-		};
-	};
-
-	SceFloat32 EstimateStringLength(wstring *s);
+	static SceVoid SizeAdjustEventHandler(SceInt32 eventId, paf::ui::Widget *self, SceInt32, ScePVoid pUserData);
 
 	Plugin *plugin;
 	ui::Scene *rootScene;

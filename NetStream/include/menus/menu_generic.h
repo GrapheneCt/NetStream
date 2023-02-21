@@ -111,6 +111,14 @@ namespace menu {
 
 		virtual ~GenericMenu();
 
+		virtual SceVoid Activate();
+
+		virtual SceVoid Deactivate();
+
+		virtual SceVoid DisableInput();
+
+		virtual SceVoid EnableInput();
+
 		virtual MenuType GetMenuType() = 0;
 
 		virtual const SceUInt32 *GetSupportedSettingsItems(SceInt32 *count) = 0;
@@ -118,6 +126,8 @@ namespace menu {
 		ui::Scene *root;
 
 	private:
+
+		static SceVoid DeactivatorFwCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
 
 		Plugin::PageCloseParam closeParam;
 	};
@@ -132,9 +142,9 @@ namespace menu {
 
 	menu::GenericMenu *GetMenuAt(SceUInt32 idx);
 
-	SceVoid HideAll(SceUInt32 endMargin = 0);
+	SceVoid DeactivateAll(SceUInt32 endMargin = 0);
 
-	SceVoid ShowAll();
+	SceVoid ActivateAll();
 }
 
 

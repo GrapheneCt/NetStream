@@ -109,8 +109,8 @@ SceVoid twutils::Log::AddAsync(const char *data)
 	AddAsyncJob *job = new AddAsyncJob("utils::AddAsyncJob");
 	job->workObj = this;
 	job->data = data;
-	SharedPtr<job::JobItem> itemParam(job);
-	job::s_defaultJobQueue->Enqueue(&itemParam);
+	common::SharedPtr<job::JobItem> itemParam(job);
+	job::s_defaultJobQueue->Enqueue(itemParam);
 }
 
 SceVoid twutils::Log::Remove(const char *data)

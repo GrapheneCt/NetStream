@@ -10,7 +10,7 @@
 #include "menus/menu_youtube.h"
 #include "menus/menu_settings.h"
 
-#include "curl_file.h"
+#include <paf_file_ext.h>
 
 using namespace paf;
 
@@ -42,6 +42,11 @@ ui::ListItem *menu::First::ListViewCb::Create(Param *info)
 	Plugin::TemplateOpenParam tmpParam;
 	ui::Widget *item = SCE_NULL;
 	graph::Surface *tex = SCE_NULL;
+
+	if (!info->list->elem.hash)
+	{
+		return new ui::ListItem(info->parent, 0);
+	}
 
 	ui::Widget *targetRoot = info->parent;
 
@@ -98,5 +103,6 @@ menu::First::First() : GenericMenu("page_first", MenuOpenParam(true), MenuCloseP
 
 menu::First::~First()
 {
-
+	ui::ListView *listView = (ui::ListView *)utils::GetChild(root, list_view_generic);
+	listView->elem.hash = 0;
 }

@@ -40,6 +40,12 @@
   <string src="Si activas esta opción, NetStream enviará el comando NLST al servidor FTP en lugar del comando LIST. Esta opción agiliza el funcionamiento, pero algunos servidores FTP podrían no admitirla." id="msg_ftp_nlst_hint" />
 
   <string src="Prefijo para listas de reproducción .m3u8 relativas" id="msg_local_playlist_prefix" />
+  <string src="Sort By Name" id="msg_local_sort_name" />
+  <string src="Sort By Type" id="msg_local_sort_type" />
+  <string src="Ascending" id="msg_option_local_sort_name_0" />
+  <string src="Descending" id="msg_option_local_sort_name_1" />
+  <string src="Folders First" id="msg_option_local_sort_type_0" />
+  <string src="Files First" id="msg_option_local_sort_type_1" />
 
   <string src="Calidad preferida de videos" id="msg_youtube_quality" />
   <string src="Calidad preferida de directos" id="msg_youtube_hls_quality" />

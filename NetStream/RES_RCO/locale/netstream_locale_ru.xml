@@ -40,6 +40,12 @@
   <string src="Включение этой опции позволяет NetStream отправлять на FTP-сервер команду NLST вместо команды LIST. Эта опция ускоряет работу приложения, но может не поддерживаться некоторыми FTP-серверами." id="msg_ftp_nlst_hint" />
 
   <string src="Префикс для относительных плейлистов .m3u8" id="msg_local_playlist_prefix" />
+  <string src="Сортировка по имени" id="msg_local_sort_name" />
+  <string src="Сортировка по типу" id="msg_local_sort_type" />
+  <string src="Возрастающая" id="msg_option_local_sort_name_0" />
+  <string src="Нисходящая" id="msg_option_local_sort_name_1" />
+  <string src="Сначала папки" id="msg_option_local_sort_type_0" />
+  <string src="Сначала файлы" id="msg_option_local_sort_type_1" />
   
   <string src="Предпочитаемое качество видео" id="msg_youtube_quality" />
   <string src="Предпочитаемое качество прямой трансляции" id="msg_youtube_hls_quality" />

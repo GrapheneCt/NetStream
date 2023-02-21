@@ -40,6 +40,12 @@
   <string src="启用这个选项将使NetStream向FTP服务器发送NLST命令而不是LIST命令。这个选项使操作更快，但可能不被某些FTP服务器支持。" id="msg_ftp_nlst_hint" />
 
   <string src="Prefix For Relative .m3u8 Playlists" id="msg_local_playlist_prefix" />
+  <string src="Sort By Name" id="msg_local_sort_name" />
+  <string src="Sort By Type" id="msg_local_sort_type" />
+  <string src="Ascending" id="msg_option_local_sort_name_0" />
+  <string src="Descending" id="msg_option_local_sort_name_1" />
+  <string src="Folders First" id="msg_option_local_sort_type_0" />
+  <string src="Files First" id="msg_option_local_sort_type_1" />
   
   <string src="首选视频质量" id="msg_youtube_quality" />
   <string src="首选直播质量" id="msg_youtube_hls_quality" />

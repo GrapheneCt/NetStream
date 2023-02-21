@@ -99,6 +99,68 @@ SceVoid LocalServerBrowser::SetPath(const char *ref)
 	}
 }
 
+bool LocalServerBrowser::DefaultFsSort(const LocalServerBrowser::Entry *a, const LocalServerBrowser::Entry *b)
+{
+	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
+
+	SceInt32 nameSort = 0;
+	SceInt32 typeSort = 0;
+	SceBool isFolderA = a->type == LocalServerBrowser::Entry::Type_Folder;
+	SceBool isFolderB = b->type == LocalServerBrowser::Entry::Type_Folder;
+	settings->GetInt("local_sort_name", (SceInt32 *)&nameSort, 0);
+	settings->GetInt("local_sort_type", (SceInt32 *)&typeSort, 0);
+
+	switch (typeSort)
+	{
+	case 0:
+		if (isFolderA && !isFolderB)
+		{
+			return true;
+		}
+		else if (!isFolderA && isFolderB)
+		{
+			return false;
+		}
+		break;
+	case 1:
+		if (isFolderA && !isFolderB)
+		{
+			return false;
+		}
+		else if (!isFolderA && isFolderB)
+		{
+			return true;
+		}
+		break;
+	}
+
+	SceInt32 ret = sce_paf_strcasecmp(a->ref.c_str(), b->ref.c_str());
+
+	switch (nameSort)
+	{
+	case 0:
+		if (ret <= 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	case 1:
+		if (ret <= 0)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, SceInt32 *result)
 {
 	char prefix[256];
@@ -113,13 +175,12 @@ vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, S
 	{
 		if (sce_paf_strstr(ref, ".m3u8"))
 		{
-			SharedPtr<LocalFile> fres;
+			common::SharedPtr<LocalFile> fres;
 			SceInt32 res = -1;
 			SceSize fsz = 0;
 			char *fbuf = SCE_NULL;
 			char *begin = SCE_NULL;
 			char *end = SCE_NULL;
-			SceBool adrRelative = SCE_FALSE;
 
 			fres = LocalFile::Open(GetPath().c_str(), SCE_O_RDONLY, 0, &res);
 			if (res < 0)
@@ -191,7 +252,7 @@ vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, S
 		else
 		{
 			Dir dir;
-			Dir::Entry dentry;
+			DirEnt dentry;
 
 			if (dir.Open(path.c_str()) >= 0)
 			{
@@ -215,7 +276,7 @@ vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, S
 							if (sce_paf_strstr(entry->ref.c_str(), ".m3u8"))
 							{
 								entry->ref += "/";
-								entry->type = LocalServerBrowser::Entry::Type_Folder;
+								entry->type = LocalServerBrowser::Entry::Type_PlaylistFile;
 							}
 							else
 							{
@@ -252,6 +313,8 @@ vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, S
 
 		*result = SCE_OK;
 	}
+
+	paf::sort(ret->begin(), ret->end(), DefaultFsSort);
 
 error_return:
 

@@ -14,8 +14,16 @@
       <text_field id="ftp_password" title="msg_ftp_password" max_length="255" min_length="0" keyboard_type="alphabet" key="ftp_password" default_value=""/>
       <toggle_switch id="ftp_nlst" title="msg_ftp_nlst" hint="msg_ftp_nlst_hint" key="ftp_nlst" default_value="0" />
     </setting_list>
-    <setting_list id="local_setting" title="msg_settings_local" style="edit" icon="tex_spanner">
+    <setting_list id="local_setting" title="msg_settings_local" icon="tex_spanner">
       <text_field id="local_playlist_prefix" title="msg_local_playlist_prefix" max_length="255" min_length="0" keyboard_type="url" key="local_playlist_prefix" default_value=""/>
+      <list id="list_local_sort_name" title="msg_local_sort_name" key="local_sort_name" default_value="0">
+        <list_item id="list_local_sort_name_00" title="msg_option_local_sort_name_0" value="0" />
+        <list_item id="list_local_sort_name_01" title="msg_option_local_sort_name_1" value="1" />
+      </list>
+      <list id="list_local_sort_type" title="msg_local_sort_type" key="local_sort_type" default_value="0">
+        <list_item id="list_local_sort_type_00" title="msg_option_local_sort_type_0" value="0" />
+        <list_item id="list_local_sort_type_01" title="msg_option_local_sort_type_1" value="1" />
+      </list>
     </setting_list>
     <setting_list id="youtube_search_setting" title="msg_settings_search" icon="tex_spanner">
       <text_field id="youtube_inv_instance" title="msg_youtube_inv_instance" max_length="255" min_length="0" keyboard_type="url" key="inv_instance" default_value="https://invidious.namazso.eu"/>

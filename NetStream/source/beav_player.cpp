@@ -380,7 +380,7 @@ SceVoid BEAVPlayer::BEAVVideoThread::SurfaceUpdateTask(void *pArgBlock)
 			}
 			else
 			{
-				if (s_frameworkInstance->GetApplicationMode() == Framework::Mode_Game)
+				if (s_frameworkInstance->GetMode() == Framework::Mode_Game)
 				{
 					dst = vthread->drawSurf[currIdx]->Lock();
 					sceGxmTransferCopy(
@@ -450,14 +450,14 @@ SceVoid BEAVPlayer::BEAVVideoThread::EntryFunction()
 		drawSurf[i]->AddRef();
 	}
 
-	task::Register(SurfaceUpdateTask, this);
+	common::MainThreadCallList::Register(SurfaceUpdateTask, this);
 
 	while (!IsCanceled())
 	{
 		thread::Sleep(100);
 	}
 
-	task::Unregister(SurfaceUpdateTask, this);
+	common::MainThreadCallList::Unregister(SurfaceUpdateTask, this);
 
 	target->SetSurfaceBase(&g_texTransparent);
 
@@ -559,8 +559,8 @@ SceVoid BEAVPlayer::InitAsync()
 {
 	BootJob *job = new BootJob("BEAVPlayer::BootJob");
 	job->workObj = this;
-	SharedPtr<job::JobItem> itemParam(job);
-	utils::GetJobQueue()->Enqueue(&itemParam);
+	common::SharedPtr<job::JobItem> itemParam(job);
+	utils::GetJobQueue()->Enqueue(itemParam);
 	initState = InitState_InProgress;
 }
 

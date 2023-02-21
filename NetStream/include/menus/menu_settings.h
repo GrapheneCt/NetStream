@@ -40,27 +40,27 @@ namespace menu {
 
 	private:
 
-		static SceVoid CBListChange(const char *elementId);
+		static SceVoid CBOnStartPageTransition(const char *elementId, SceInt32 type);
 
-		static SceVoid CBListForwardChange(const char *elementId);
+		static SceVoid CBOnPageActivate(const char *elementId, SceInt32 type);
 
-		static SceVoid CBListBackChange(const char *elementId);
+		static SceVoid CBOnPageDeactivate(const char *elementId, SceInt32 type);
 
-		static SceInt32 CBIsVisible(const char *elementId, SceBool *pIsVisible);
+		static SceInt32 CBOnCheckVisible(const char *elementId, SceBool *pIsVisible);
 
-		static SceInt32 CBElemInit(const char *elementId);
+		static SceInt32 CBOnPreCreate(const char *elementId, sce::AppSettings::Element *element);
 
-		static SceInt32 CBElemAdd(const char *elementId, paf::ui::Widget *widget);
+		static SceInt32 CBOnPostCreate(const char *elementId, paf::ui::Widget *widget);
 
-		static SceInt32 CBValueChange(const char *elementId, const char *newValue);
+		static SceInt32 CBOnPress(const char *elementId, const char *newValue);
 
-		static SceInt32 CBValueChange2(const char *elementId, const char *newValue);
+		static SceInt32 CBOnPress2(const char *elementId, const char *newValue);
 
-		static SceVoid CBTerm();
+		static SceVoid CBOnTerm(SceInt32 result);
 
-		static wchar_t *CBGetString(const char *elementId);
+		static wchar_t *CBOnGetString(const char *elementId);
 
-		static SceInt32 CBGetTex(graph::Surface **tex, const char *elementId);
+		static SceInt32 CBOnGetSurface(graph::Surface **surf, const char *elementId);
 
 		CloseCallback closeCb;
 		ScePVoid closeCbUserArg;

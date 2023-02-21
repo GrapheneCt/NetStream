@@ -23,7 +23,7 @@ using namespace paf;
 using namespace sce;
 
 const SceUInt32 k_safeMemIniLimit = 0x400;
-const SceInt32 k_settingsVersion = 2;
+const SceInt32 k_settingsVersion = 3;
 
 static sce::AppSettings *s_appSet = SCE_NULL;
 static menu::Settings *s_instance = SCE_NULL;
@@ -52,7 +52,7 @@ SceVoid menu::Settings::Init()
 	pluginParam.pluginPath = "vs0:vsh/common/app_settings.suprx";
 	pluginParam.unk_58 = 0x96;
 
-	s_frameworkInstance->LoadPlugin(&pluginParam);
+	Plugin::LoadSync(pluginParam);
 
 	sparam.xmlFile = g_appPlugin->resource->GetFile(file_netstream_settings, &fsize, &fmime);
 	sparam.allocCB = sce_paf_malloc;
@@ -78,7 +78,7 @@ SceVoid menu::Settings::Init()
 	*verinfo = L"RELEASE ";
 #endif
 	*verinfo += WIDE(__DATE__);
-	*verinfo += L" v 2.01";
+	*verinfo += L" v 2.04";
 	s_verinfo = (wchar_t *)verinfo->c_str();
 }
 
@@ -86,7 +86,7 @@ menu::Settings::~Settings()
 {
 	menu::GenericMenu *topMenu = menu::GetTopMenu();
 	if (topMenu) {
-		ui::Widget::SetControlFlags(topMenu->root, 1);
+		topMenu->Activate();
 	}
 
 	if (closeCb) {
@@ -109,25 +109,25 @@ menu::Settings::Settings()
 
 	menu::GenericMenu *topMenu = menu::GetTopMenu();
 	if (topMenu) {
-		ui::Widget::SetControlFlags(topMenu->root, 0);
+		topMenu->DisableInput();
 	}
 
 	AppSettings::InterfaceCallbacks ifCb;
 
-	ifCb.listChangeCb = CBListChange;
-	ifCb.listForwardChangeCb = CBListForwardChange;
-	ifCb.listBackChangeCb = CBListBackChange;
-	ifCb.isVisibleCb = CBIsVisible;
-	ifCb.elemInitCb = CBElemInit;
-	ifCb.elemAddCb = CBElemAdd;
-	ifCb.valueChangeCb = CBValueChange;
-	ifCb.valueChangeCb2 = CBValueChange2;
-	ifCb.termCb = CBTerm;
-	ifCb.getStringCb = CBGetString;
-	ifCb.getTexCb = CBGetTex;
+	ifCb.onStartPageTransitionCb = CBOnStartPageTransition;
+	ifCb.onPageActivateCb = CBOnPageActivate;
+	ifCb.onPageDeactivateCb = CBOnPageDeactivate;
+	ifCb.onCheckVisible = CBOnCheckVisible;
+	ifCb.onPreCreateCb = CBOnPreCreate;
+	ifCb.onPostCreateCb = CBOnPostCreate;
+	ifCb.onPressCb = CBOnPress;
+	ifCb.onPressCb2 = CBOnPress2;
+	ifCb.onTermCb = CBOnTerm;
+	ifCb.onGetStringCb = CBOnGetString;
+	ifCb.onGetSurfaceCb = CBOnGetSurface;
 
 	Plugin *appSetPlug = paf::Plugin::Find("app_settings_plugin");
-	AppSettings::Interface *appSetIf = (sce::AppSettings::Interface *)appSetPlug->GetInterface(1);
+	const AppSettings::Interface *appSetIf = (const sce::AppSettings::Interface *)appSetPlug->GetInterface(1);
 	appSetIf->Show(&ifCb);
 
 	s_instance = this;
@@ -145,22 +145,22 @@ SceVoid menu::Settings::SetValueChangeCallback(ValueChangeCallback cb, ScePVoid 
 	s_valChangeCbUserArg = uarg;
 }
 
-SceVoid menu::Settings::CBListChange(const char *elementId)
+SceVoid menu::Settings::CBOnStartPageTransition(const char *elementId, SceInt32 type)
 {
 
 }
 
-SceVoid menu::Settings::CBListForwardChange(const char *elementId)
+SceVoid menu::Settings::CBOnPageActivate(const char *elementId, SceInt32 type)
 {
 
 }
 
-SceVoid menu::Settings::CBListBackChange(const char *elementId)
+SceVoid menu::Settings::CBOnPageDeactivate(const char *elementId, SceInt32 type)
 {
 
 }
 
-SceInt32 menu::Settings::CBIsVisible(const char *elementId, SceBool *pIsVisible)
+SceInt32 menu::Settings::CBOnCheckVisible(const char *elementId, SceBool *pIsVisible)
 {
 	*pIsVisible = SCE_FALSE;
 
@@ -193,17 +193,17 @@ SceInt32 menu::Settings::CBIsVisible(const char *elementId, SceBool *pIsVisible)
 	return SCE_OK;
 }
 
-SceInt32 menu::Settings::CBElemInit(const char *elementId)
+SceInt32 menu::Settings::CBOnPreCreate(const char *elementId, sce::AppSettings::Element *element)
 {
 	return SCE_OK;
 }
 
-SceInt32 menu::Settings::CBElemAdd(const char *elementId, paf::ui::Widget *widget)
+SceInt32 menu::Settings::CBOnPostCreate(const char *elementId, paf::ui::Widget *widget)
 {
 	return SCE_OK;
 }
 
-SceInt32 menu::Settings::CBValueChange(const char *elementId, const char *newValue)
+SceInt32 menu::Settings::CBOnPress(const char *elementId, const char *newValue)
 {
 	SceInt32 ret = SCE_OK;
 
@@ -215,17 +215,17 @@ SceInt32 menu::Settings::CBValueChange(const char *elementId, const char *newVal
 	return ret;
 }
 
-SceInt32 menu::Settings::CBValueChange2(const char *elementId, const char *newValue)
+SceInt32 menu::Settings::CBOnPress2(const char *elementId, const char *newValue)
 {
 	return SCE_OK;
 }
 
-SceVoid menu::Settings::CBTerm()
+SceVoid menu::Settings::CBOnTerm(SceInt32 result)
 {
 	delete s_instance;
 }
 
-wchar_t *menu::Settings::CBGetString(const char *elementId)
+wchar_t *menu::Settings::CBOnGetString(const char *elementId)
 {
 	rco::Element searchParam;
 	wchar_t *res = SCE_NULL;
@@ -245,7 +245,7 @@ wchar_t *menu::Settings::CBGetString(const char *elementId)
 	return res;
 }
 
-SceInt32 menu::Settings::CBGetTex(graph::Surface **tex, const char *elementId)
+SceInt32 menu::Settings::CBOnGetSurface(graph::Surface **surf, const char *elementId)
 {
 	return SCE_OK;
 }

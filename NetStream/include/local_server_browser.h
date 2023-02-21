@@ -13,6 +13,8 @@ class LocalServerBrowser : public GenericServerBrowser
 {
 public:
 
+	static bool DefaultFsSort(const LocalServerBrowser::Entry* a, const LocalServerBrowser::Entry* b);
+
 	LocalServerBrowser();
 
 	~LocalServerBrowser();

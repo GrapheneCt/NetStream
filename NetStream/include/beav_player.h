@@ -6,7 +6,7 @@
 #include <scebeavplayer.h>
 
 #include "common.h"
-#include "curl_file.h"
+#include <paf_file_ext.h>
 
 using namespace paf;
 

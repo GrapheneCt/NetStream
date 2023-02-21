@@ -1,6 +1,6 @@
 @echo off
 SET PLUGIN=netstream_plugin
-SET PYTHON=%SCE_PSP2_SDK_DIR%/host_tools/build/rco/Python27/python.exe
+SET PYTHON=python.exe
 SET Z=%SCE_PSP2_SDK_DIR%/host_tools/build/rco/bin\zdrop.exe
 SET D=%SCE_PSP2_SDK_DIR%/host_tools/build/rco/bin\psp2rcd.exe
 SET RCS=%SCE_PSP2_SDK_DIR%/host_tools/build/rco/cxml/appinfo/rcs_compiler.py

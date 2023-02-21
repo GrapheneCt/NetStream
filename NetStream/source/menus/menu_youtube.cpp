@@ -10,7 +10,7 @@
 #include "yt_utils.h"
 #include "dialog.h"
 #include "invidious.h"
-#include "curl_file.h"
+#include <paf_file_ext.h>
 #include "option_menu.h"
 #include "menus/menu_generic.h"
 #include "menus/menu_youtube.h"
@@ -29,6 +29,7 @@ menu::YouTube::Submenu::Submenu(YouTube *parentObj)
 
 menu::YouTube::Submenu::~Submenu()
 {
+	list->elem.hash = 0;
 	ReleaseCurrentPage();
 	effect::Play(0.0f, submenuRoot, effect::EffectType_Fadein1, true, false);
 }
@@ -71,6 +72,11 @@ ui::ListItem *menu::YouTube::Submenu::ListViewCb::Create(Param *info)
 	graph::Surface *tex = SCE_NULL;
 	wstring text16;
 	wchar_t numPageText[32];
+
+	if (!info->list->elem.hash)
+	{
+		return new ui::ListItem(info->parent, 0);
+	}
 
 	ui::Widget *targetRoot = info->parent;
 	Item *workItem = &workObj->results.at(info->cellIndex);
@@ -129,7 +135,7 @@ ui::ListItem *menu::YouTube::Submenu::ListViewCb::Create(Param *info)
 
 	timeText = (ui::Text *)utils::GetChild(button, text_list_item_youtube_time);
 	subText = utils::GetChild(button, text_list_item_youtube_subtext);
-	if (!sce_paf_wcscmp(workItem->time.c_str(), L"LIVE"))
+	if (workItem->time == L"LIVE")
 	{
 		Rgba col(1.0f, 0.0f, 0.0f, 1.0f);
 		timeText->SetColor(ui::Text::ColorType_Background, 0, 0, &col);
@@ -203,7 +209,7 @@ SceVoid menu::YouTube::SearchSubmenu::SearchJob::Run()
 			item.id = items[i].videoItem->id;
 			text8 = "\n";
 			text8 += items[i].videoItem->title;
-			ccc::UTF8toUTF16(&text8, &item.name);
+			common::Utf8ToUtf16(text8, &item.name);
 			item.surfacePath = items[i].videoItem->thmbUrl;
 			if (items[i].videoItem->isLive || items[i].videoItem->lengthSec == 0)
 			{
@@ -211,14 +217,14 @@ SceVoid menu::YouTube::SearchSubmenu::SearchJob::Run()
 			}
 			else
 			{
-				utils::ConvertSecondsToString(&text8, items[i].videoItem->lengthSec, SCE_FALSE);
+				utils::ConvertSecondsToString(text8, items[i].videoItem->lengthSec, SCE_FALSE);
 			}
-			ccc::UTF8toUTF16(&text8, &item.time);
+			common::Utf8ToUtf16(text8, &item.time);
 			text8 = "by ";
 			text8 += items[i].videoItem->author;
 			text8 += "\n";
 			text8 += items[i].videoItem->published;
-			ccc::UTF8toUTF16(&text8, &item.stat);
+			common::Utf8ToUtf16(text8, &item.stat);
 			break;
 		}
 
@@ -269,7 +275,7 @@ SceVoid menu::YouTube::SearchSubmenu::SearchButtonCbFun(SceInt32 eventId, ui::Wi
 
 	workObj->request.clear();
 	workObj->searchBox->GetLabel(&text16);
-	ccc::UTF16toUTF8(&text16, &workObj->request);
+	common::Utf16ToUtf8(text16, &workObj->request);
 
 	if (workObj->request.empty())
 	{
@@ -285,9 +291,9 @@ SceVoid menu::YouTube::SearchSubmenu::SearchButtonCbFun(SceInt32 eventId, ui::Wi
 	SearchJob *job = new SearchJob("YouTube::SearchJob");
 	job->workObj = workObj;
 	job->isId = isId;
-	SharedPtr<job::JobItem> itemParam(job);
+	common::SharedPtr<job::JobItem> itemParam(job);
 	workObj->allJobsComplete = SCE_FALSE;
-	utils::GetJobQueue()->Enqueue(&itemParam);
+	utils::GetJobQueue()->Enqueue(itemParam);
 }
 
 SceVoid menu::YouTube::SearchSubmenu::GoToNextPage()
@@ -298,9 +304,9 @@ SceVoid menu::YouTube::SearchSubmenu::GoToNextPage()
 	SearchJob *job = new SearchJob("YouTube::SearchJob");
 	job->workObj = this;
 	job->isId = SCE_FALSE;
-	SharedPtr<job::JobItem> itemParam(job);
+	common::SharedPtr<job::JobItem> itemParam(job);
 	allJobsComplete = SCE_FALSE;
-	utils::GetJobQueue()->Enqueue(&itemParam);
+	utils::GetJobQueue()->Enqueue(itemParam);
 }
 
 SceVoid menu::YouTube::SearchSubmenu::GoToPrevPage()
@@ -311,9 +317,9 @@ SceVoid menu::YouTube::SearchSubmenu::GoToPrevPage()
 	SearchJob *job = new SearchJob("YouTube::SearchJob");
 	job->workObj = this;
 	job->isId = SCE_FALSE;
-	SharedPtr<job::JobItem> itemParam(job);
+	common::SharedPtr<job::JobItem> itemParam(job);
 	allJobsComplete = SCE_FALSE;
-	utils::GetJobQueue()->Enqueue(&itemParam);
+	utils::GetJobQueue()->Enqueue(itemParam);
 }
 
 menu::YouTube::SearchSubmenu::SearchSubmenu(YouTube *parentObj) : Submenu(parentObj)
@@ -394,7 +400,7 @@ SceVoid menu::YouTube::HistorySubmenu::HistoryJob::Run()
 				item.id = invItem->id;
 				text8 = "\n";
 				text8 += invItem->title;
-				ccc::UTF8toUTF16(&text8, &item.name);
+				common::Utf8ToUtf16(text8, &item.name);
 				item.surfacePath = invItem->thmbUrl;
 				if (invItem->isLive || invItem->lengthSec == 0)
 				{
@@ -402,14 +408,14 @@ SceVoid menu::YouTube::HistorySubmenu::HistoryJob::Run()
 				}
 				else
 				{
-					utils::ConvertSecondsToString(&text8, invItem->lengthSec, SCE_FALSE);
+					utils::ConvertSecondsToString(text8, invItem->lengthSec, SCE_FALSE);
 				}
-				ccc::UTF8toUTF16(&text8, &item.time);
+				common::Utf8ToUtf16(text8, &item.time);
 				text8 = "by ";
 				text8 += invItem->author;
 				text8 += "\n";
 				text8 += invItem->published;
-				ccc::UTF8toUTF16(&text8, &item.stat);
+				common::Utf8ToUtf16(text8, &item.stat);
 
 				workObj->results.push_back(item);
 			}
@@ -467,9 +473,9 @@ menu::YouTube::HistorySubmenu::HistorySubmenu(YouTube *parentObj) : Submenu(pare
 	{
 		HistoryJob *job = new HistoryJob("YouTube::HistoryJob");
 		job->workObj = this;
-		SharedPtr<job::JobItem> itemParam(job);
+		common::SharedPtr<job::JobItem> itemParam(job);
 		allJobsComplete = SCE_FALSE;
-		utils::GetJobQueue()->Enqueue(&itemParam);
+		utils::GetJobQueue()->Enqueue(itemParam);
 	}
 }
 
@@ -517,7 +523,7 @@ SceVoid menu::YouTube::FavouriteSubmenu::FavouriteJob::Run()
 					item.id = invItem->id;
 					text8 = "\n";
 					text8 += invItem->title;
-					ccc::UTF8toUTF16(&text8, &item.name);
+					common::Utf8ToUtf16(text8, &item.name);
 					item.surfacePath = invItem->thmbUrl;
 					if (invItem->isLive || invItem->lengthSec == 0)
 					{
@@ -525,14 +531,14 @@ SceVoid menu::YouTube::FavouriteSubmenu::FavouriteJob::Run()
 					}
 					else
 					{
-						utils::ConvertSecondsToString(&text8, invItem->lengthSec, SCE_FALSE);
+						utils::ConvertSecondsToString(text8, invItem->lengthSec, SCE_FALSE);
 					}
-					ccc::UTF8toUTF16(&text8, &item.time);
+					common::Utf8ToUtf16(text8, &item.time);
 					text8 = "by ";
 					text8 += invItem->author;
 					text8 += "\n";
 					text8 += invItem->published;
-					ccc::UTF8toUTF16(&text8, &item.stat);
+					common::Utf8ToUtf16(text8, &item.stat);
 
 					workObj->results.push_back(item);
 				}
@@ -581,7 +587,7 @@ SceVoid menu::YouTube::FavouriteSubmenu::FavouriteJob::Run()
 					item.id = invItem->id;
 					text8 = "\n";
 					text8 += invItem->title;
-					ccc::UTF8toUTF16(&text8, &item.name);
+					common::Utf8ToUtf16(text8, &item.name);
 					item.surfacePath = invItem->thmbUrl;
 					if (invItem->isLive || invItem->lengthSec == 0)
 					{
@@ -589,14 +595,14 @@ SceVoid menu::YouTube::FavouriteSubmenu::FavouriteJob::Run()
 					}
 					else
 					{
-						utils::ConvertSecondsToString(&text8, invItem->lengthSec, SCE_FALSE);
+						utils::ConvertSecondsToString(text8, invItem->lengthSec, SCE_FALSE);
 					}
-					ccc::UTF8toUTF16(&text8, &item.time);
+					common::Utf8ToUtf16(text8, &item.time);
 					text8 = "by ";
 					text8 += invItem->author;
 					text8 += "\n";
 					text8 += invItem->published;
-					ccc::UTF8toUTF16(&text8, &item.stat);
+					common::Utf8ToUtf16(text8, &item.stat);
 					workObj->results.push_back(item);
 				}
 
@@ -649,7 +655,7 @@ SceVoid menu::YouTube::FavouriteSubmenu::SearchButtonCbFun(SceInt32 eventId, ui:
 
 	workObj->request.clear();
 	workObj->searchBox->GetLabel(&text16);
-	ccc::UTF16toUTF8(&text16, &workObj->request);
+	common::Utf16ToUtf8(text16, &workObj->request);
 
 	if (workObj->request.empty() || ytutils::GetFavLog()->GetSize() == 0)
 	{
@@ -658,9 +664,9 @@ SceVoid menu::YouTube::FavouriteSubmenu::SearchButtonCbFun(SceInt32 eventId, ui:
 
 	FavouriteJob *job = new FavouriteJob("YouTube::FavouriteJob");
 	job->workObj = workObj;
-	SharedPtr<job::JobItem> itemParam(job);
+	common::SharedPtr<job::JobItem> itemParam(job);
 	workObj->allJobsComplete = SCE_FALSE;
-	utils::GetJobQueue()->Enqueue(&itemParam);
+	utils::GetJobQueue()->Enqueue(itemParam);
 }
 
 SceVoid menu::YouTube::FavouriteSubmenu::GoToNextPage()
@@ -670,9 +676,9 @@ SceVoid menu::YouTube::FavouriteSubmenu::GoToNextPage()
 
 	FavouriteJob *job = new FavouriteJob("YouTube::FavouriteJob");
 	job->workObj = this;
-	SharedPtr<job::JobItem> itemParam(job);
+	common::SharedPtr<job::JobItem> itemParam(job);
 	allJobsComplete = SCE_FALSE;
-	utils::GetJobQueue()->Enqueue(&itemParam);
+	utils::GetJobQueue()->Enqueue(itemParam);
 }
 
 SceVoid menu::YouTube::FavouriteSubmenu::GoToPrevPage()
@@ -682,9 +688,9 @@ SceVoid menu::YouTube::FavouriteSubmenu::GoToPrevPage()
 
 	FavouriteJob *job = new FavouriteJob("YouTube::FavouriteJob");
 	job->workObj = this;
-	SharedPtr<job::JobItem> itemParam(job);
+	common::SharedPtr<job::JobItem> itemParam(job);
 	allJobsComplete = SCE_FALSE;
-	utils::GetJobQueue()->Enqueue(&itemParam);
+	utils::GetJobQueue()->Enqueue(itemParam);
 }
 
 menu::YouTube::FavouriteSubmenu::FavouriteSubmenu(YouTube *parentObj) : Submenu(parentObj)
@@ -716,9 +722,9 @@ menu::YouTube::FavouriteSubmenu::FavouriteSubmenu(YouTube *parentObj) : Submenu(
 	{
 		FavouriteJob *job = new FavouriteJob("YouTube::FavouriteJob");
 		job->workObj = this;
-		SharedPtr<job::JobItem> itemParam(job);
+		common::SharedPtr<job::JobItem> itemParam(job);
 		allJobsComplete = SCE_FALSE;
-		utils::GetJobQueue()->Enqueue(&itemParam);
+		utils::GetJobQueue()->Enqueue(itemParam);
 	}
 }
 
@@ -787,7 +793,7 @@ SceVoid menu::YouTube::SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, S
 	bt.label = utils::GetString(msg_settings_youtube_clean_fav);
 	buttons.push_back(bt);
 
-	new OptionMenu(g_appPlugin, workObj->root, &buttons, OptionButtonCb, SCE_NULL);
+	new OptionMenu(g_appPlugin, workObj->root, &buttons, OptionButtonCb, SCE_NULL, SCE_NULL);
 }
 
 SceVoid menu::YouTube::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)

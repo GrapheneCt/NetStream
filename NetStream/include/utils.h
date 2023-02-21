@@ -102,7 +102,7 @@ namespace utils
 
 	SceVoid SetPowerTickTask(PowerTick mode);
 
-	SceVoid ConvertSecondsToString(string *string, SceUInt64 seconds, SceBool needSeparator);
+	SceVoid ConvertSecondsToString(string& string, SceUInt64 seconds, SceBool needSeparator);
 
 	SceVoid Lock(SceUInt32 flag);
 

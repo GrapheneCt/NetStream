@@ -75,6 +75,7 @@ int module_start(SceSize args, const void * argp)
 		case 0xF476E785: // 3.71 retail
 		case 0x939FFBE9: // 3.72 retail
 		case 0x734D476A: // 3.73 retail
+		case 0x51CB6207: // 3.74 retail
 		{
 			hooks[0] = taiHookFunctionOffset(&GetFileTypeRef, info.modid, 0, 0x11B63C, 1, GetFileTypePatched);
 			break;

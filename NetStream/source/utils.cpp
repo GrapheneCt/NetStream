@@ -6,7 +6,7 @@
 
 #include "utils.h"
 #include "yt_utils.h"
-#include "curl_file.h"
+#include <paf_file_ext.h>
 #include "common.h"
 
 static SceUID s_lock = SCE_UID_INVALID_UID;
@@ -116,12 +116,12 @@ ui::Widget *utils::GetChild(ui::Widget *parent, SceUInt32 hash)
 
 SceVoid utils::SetPowerTickTask(PowerTick mode)
 {
-	task::Unregister(utils::PowerTickTask, SCE_NULL);
+	common::MainThreadCallList::Unregister(utils::PowerTickTask, SCE_NULL);
 	if (mode == PowerTick_None)
 		return;
 
 	s_powerTickMode = mode;
-	task::Register(utils::PowerTickTask, SCE_NULL);
+	common::MainThreadCallList::Register(utils::PowerTickTask, SCE_NULL);
 }
 
 SceVoid utils::Lock(SceUInt32 flag)
@@ -139,31 +139,29 @@ SceVoid utils::Wait(SceUInt32 flag)
 	sceKernelWaitEventFlag(s_lock, flag, SCE_KERNEL_EVF_WAITMODE_OR, SCE_NULL, SCE_NULL);
 }
 
-SceVoid utils::ConvertSecondsToString(string *string, SceUInt64 seconds, SceBool needSeparator)
+SceVoid utils::ConvertSecondsToString(string& string, SceUInt64 seconds, SceBool needSeparator)
 {
 	SceInt32 h = 0, m = 0, s = 0;
 	h = (seconds / 3600);
 	m = (seconds - (3600 * h)) / 60;
 	s = (seconds - (3600 * h) - (m * 60));
 
+	string.clear();
+
 	if (needSeparator) {
 		if (h > 0) {
-			string->clear();
-			*string = ccc::Sprintf("%02d:%02d:%02d / ", h, m, s);
+			common::string_util::setf(string, "%02d:%02d:%02d / ", h, m, s);
 		}
 		else {
-			string->clear();
-			*string = ccc::Sprintf("%02d:%02d / ", m, s);
+			common::string_util::setf(string, "%02d:%02d / ", m, s);
 		}
 	}
 	else {
 		if (h > 0) {
-			string->clear();
-			*string = ccc::Sprintf("%02d:%02d:%02d", h, m, s);
+			common::string_util::setf(string, "%02d:%02d:%02d", h, m, s);
 		}
 		else {
-			string->clear();
-			*string = ccc::Sprintf("%02d:%02d", m, s);
+			common::string_util::setf(string, "%02d:%02d", m, s);
 		}
 	}
 }
@@ -192,7 +190,7 @@ job::JobQueue *utils::GetJobQueue()
 SceBool utils::LoadNetworkSurface(const char *url, graph::Surface **surface)
 {
 	graph::Surface *tex = SCE_NULL;
-	SharedPtr<CurlFile> fres;
+	common::SharedPtr<CurlFile> fres;
 	SceInt32 res = -1;
 
 	fres = CurlFile::Open(url, &res, 0, s_curlShare);
@@ -202,7 +200,7 @@ SceBool utils::LoadNetworkSurface(const char *url, graph::Surface **surface)
 		return SCE_FALSE;
 	}
 
-	graph::Surface::Create(&tex, g_appPlugin->memoryPool, (SharedPtr<File>*)&fres);
+	graph::Surface::Create(&tex, g_appPlugin->memoryPool, (common::SharedPtr<File>&)fres);
 	if (tex == SCE_NULL)
 	{
 		*surface = SCE_NULL;
@@ -232,8 +230,7 @@ utils::AsyncNetworkSurfaceLoader::AsyncNetworkSurfaceLoader(const char *url, ui:
 
 	if (autoLoad)
 	{
-		SharedPtr<job::JobItem> itemParam(item);
-		utils::GetJobQueue()->Enqueue(&itemParam);
+		Load();
 	}
 }
 
@@ -249,8 +246,8 @@ utils::AsyncNetworkSurfaceLoader::~AsyncNetworkSurfaceLoader()
 
 SceVoid utils::AsyncNetworkSurfaceLoader::Load()
 {
-	SharedPtr<job::JobItem> itemParam(item);
-	utils::GetJobQueue()->Enqueue(&itemParam);
+	common::SharedPtr<job::JobItem> itemParam(item);
+	utils::GetJobQueue()->Enqueue(itemParam);
 }
 
 SceVoid utils::AsyncNetworkSurfaceLoader::Abort()
@@ -287,7 +284,7 @@ SceVoid utils::AsyncNetworkSurfaceLoader::Job::Run()
 		return;
 	}
 
-	SharedPtr<CurlFile> fres(file);
+	common::SharedPtr<CurlFile> fres(file);
 
 	if (IsCanceled())
 	{
@@ -296,7 +293,7 @@ SceVoid utils::AsyncNetworkSurfaceLoader::Job::Run()
 		return;
 	}
 
-	graph::Surface::Create(&tex, g_appPlugin->memoryPool, (SharedPtr<File>*)&fres);
+	graph::Surface::Create(&tex, g_appPlugin->memoryPool, (common::SharedPtr<File>&)fres);
 	fres.reset();
 	if (tex == SCE_NULL)
 	{

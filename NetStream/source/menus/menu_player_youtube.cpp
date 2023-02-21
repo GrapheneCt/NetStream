@@ -10,7 +10,7 @@
 #include "yt_utils.h"
 #include "dialog.h"
 #include "invidious.h"
-#include "curl_file.h"
+#include <paf_file_ext.h>
 #include "option_menu.h"
 #include "menus/menu_generic.h"
 #include "menus/menu_player_youtube.h"
@@ -40,21 +40,21 @@ SceVoid menu::PlayerYoutube::LoadJob::Run()
 				DescButtonCbFun(0, workObj->descButton, 0, workObj);
 
 				text8 = invItem->title;
-				ccc::UTF8toUTF16(&text8, &text16);
+				common::Utf8ToUtf16(text8, &text16);
 				workObj->title->SetLabel(&text16);
 
 				text8 = "Uploaded by ";
 				text8 += invItem->author;
-				ccc::UTF8toUTF16(&text8, &text16);
+				common::Utf8ToUtf16(text8, &text16);
 				workObj->stat0->SetLabel(&text16);
 
 				text8 = invItem->subCount;
 				text8 += " subscribers";
-				ccc::UTF8toUTF16(&text8, &text16);
+				common::Utf8ToUtf16(text8, &text16);
 				workObj->stat1->SetLabel(&text16);
 
 				text8 = invItem->published;
-				ccc::UTF8toUTF16(&text8, &text16);
+				common::Utf8ToUtf16(text8, &text16);
 				workObj->stat2->SetLabel(&text16);
 
 				thread::s_mainThreadMutex.Unlock();
@@ -109,11 +109,9 @@ SceVoid menu::PlayerYoutube::LoadJob::Run()
 				settings->GetInt("yt_quality", (SceInt32 *)&quality, 0);
 				if (workObj->lastAttempt)
 				{
-					sceClibPrintf("using last resort...\n");
 					char lastResort[256];
 					lastResort[0] = 0;
 					ret = invGetProxyUrl(workObj->videoId.c_str(), (InvVideoQuality)quality, lastResort, sizeof(lastResort));
-					sceClibPrintf("last resort url: %s\n", lastResort);
 					workObj->videoLink = lastResort;
 				}
 				else
@@ -155,7 +153,7 @@ releaseLocks:
 		workObj->videoLink = "";
 	}
 
-	task::Register(menu::PlayerYoutube::TaskLoadSecondStage, workObj);
+	common::MainThreadCallList::Register(menu::PlayerYoutube::TaskLoadSecondStage, workObj);
 }
 
 ui::ListItem *menu::PlayerYoutube::HlsCommentListViewCb::Create(Param *info)
@@ -183,6 +181,11 @@ ui::ListItem *menu::PlayerYoutube::CommentListViewCb::Create(Param *info)
 	Plugin::TemplateOpenParam tmpParam;
 	ui::Widget *item = SCE_NULL;
 	wstring text16;
+
+	if (!info->list->elem.hash)
+	{
+		return new ui::ListItem(info->parent, 0);
+	}
 
 	ui::Widget *targetRoot = info->parent;
 
@@ -266,9 +269,9 @@ SceVoid menu::PlayerYoutube::HlsCommentParseThread::EntryFunction()
 		for (int i = 0; i < realCommentNum; i++)
 		{
 			text8 = startComment[i].author;
-			ccc::UTF8toUTF16(&text8, &text16);
+			common::Utf8ToUtf16(text8, &text16);
 			text8 = startComment[i].content;
-			ccc::UTF8toUTF16(&text8, &tmpText16);
+			common::Utf8ToUtf16(text8, &tmpText16);
 			text16 += L"\n";
 			text16 += tmpText16;
 
@@ -323,11 +326,11 @@ SceVoid menu::PlayerYoutube::CommentParseJob::Run()
 	{
 		CommentItem item;
 		text8 = comments[i].author;
-		ccc::UTF8toUTF16(&text8, &item.author);
+		common::Utf8ToUtf16(text8, &item.author);
 		text8 = comments[i].content;
-		ccc::UTF8toUTF16(&text8, &item.content);
+		common::Utf8ToUtf16(text8, &item.content);
 		text8 = comments[i].published;
-		ccc::UTF8toUTF16(&text8, &item.date);
+		common::Utf8ToUtf16(text8, &item.date);
 		item.likeCount = comments[i].likeCount;
 		item.likedByOwner = comments[i].likedByOwner;
 		if (comments[i].replyContinuation)
@@ -370,8 +373,8 @@ SceVoid menu::PlayerYoutube::CommentBodyButtonCbFun(SceInt32 eventId, ui::Widget
 
 		CommentParseJob *job = new CommentParseJob("YouTube::CommentParseJob");
 		job->workObj = workObj;
-		SharedPtr<job::JobItem> itemParam(job);
-		utils::GetJobQueue()->Enqueue(&itemParam);
+		common::SharedPtr<job::JobItem> itemParam(job);
+		utils::GetJobQueue()->Enqueue(itemParam);
 	}
 	else
 	{
@@ -385,8 +388,9 @@ SceVoid menu::PlayerYoutube::CommentBodyButtonCbFun(SceInt32 eventId, ui::Widget
 		ui::Widget *detailText = utils::GetChild(commentView, text_youtube_comment_detail);
 		text16 = entry.author + L"\n" + entry.date + L"\n";
 		wstring likeText16;
-		string likeText8 = ccc::Sprintf("%d", entry.likeCount);
-		ccc::UTF8toUTF16(&likeText8, &likeText16);
+		string likeText8;
+		common::string_util::setf(likeText8, "%d", entry.likeCount);
+		common::Utf8ToUtf16(likeText8, &likeText16);
 		text16 += likeText16 + utils::GetString(msg_youtube_comment_like_count);
 		detailText->SetLabel(&text16);
 
@@ -472,8 +476,8 @@ SceVoid menu::PlayerYoutube::CommentButtonCbFun(SceInt32 eventId, ui::Widget *se
 
 		CommentParseJob *job = new CommentParseJob("YouTube::CommentParseJob");
 		job->workObj = workObj;
-		SharedPtr<job::JobItem> itemParam(job);
-		utils::GetJobQueue()->Enqueue(&itemParam);
+		common::SharedPtr<job::JobItem> itemParam(job);
+		utils::GetJobQueue()->Enqueue(itemParam);
 	}
 }
 
@@ -515,7 +519,7 @@ SceVoid menu::PlayerYoutube::DescButtonCbFun(SceInt32 eventId, ui::Widget *self,
 	searchParam.hash = text_youtube_companel;
 	ui::Widget *descText = workObj->companelRoot->GetChild(&searchParam, 0);
 
-	ccc::UTF8toUTF16(&workObj->description, &text16);
+	common::Utf8ToUtf16(workObj->description, &text16);
 	text16 += L"\n\n";
 	descText->SetLabel(&text16);
 }
@@ -548,10 +552,13 @@ SceVoid menu::PlayerYoutube::SettingsButtonCbFun(SceInt32 eventId, ui::Widget *s
 	OptionMenu::Button bt;
 	bt.label = utils::GetString(msg_settings);
 	buttons.push_back(bt);
-	bt.label = utils::GetString(msg_settings_youtube_download);
-	buttons.push_back(bt);
+	if (!workObj->isHls)
+	{
+		bt.label = utils::GetString(msg_settings_youtube_download);
+		buttons.push_back(bt);
+	}
 
-	new OptionMenu(g_appPlugin, workObj->root, &buttons, OptionButtonCb, pUserData);
+	new OptionMenu(g_appPlugin, workObj->root, &buttons, OptionButtonCb, SCE_NULL, pUserData);
 }
 
 SceVoid menu::PlayerYoutube::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)
@@ -561,8 +568,7 @@ SceVoid menu::PlayerYoutube::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)
 	switch (index)
 	{
 	case 0:
-		menu::GenericMenu *baseMenu = menu::GetMenuAt(menu::GetMenuCount() - 2);
-		ui::Widget::SetControlFlags(baseMenu->root, 0);
+		menu::GetMenuAt(menu::GetMenuCount() - 2)->DisableInput();
 		SceUInt32 clCbArg[2];
 		clCbArg[0] = (SceUInt32)SettingsCloseCbFun;
 		clCbArg[1] = (SceUInt32)pUserData;
@@ -572,7 +578,7 @@ SceVoid menu::PlayerYoutube::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)
 		wstring title16;
 		string title8;
 		player->title->GetLabel(&title16);
-		ccc::UTF16toUTF8(&title16, &title8);
+		common::Utf16ToUtf8(title16, &title8);
 		title8 += ".mp4";
 
 		SceInt32 res = ytutils::EnqueueDownloadAsync(player->videoLink.c_str(), title8.c_str(), DwAddCompleteCb);
@@ -590,8 +596,7 @@ SceVoid menu::PlayerYoutube::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)
 
 SceVoid menu::PlayerYoutube::SettingsCloseCbFun(ScePVoid pUserData)
 {
-	menu::GenericMenu *baseMenu = menu::GetMenuAt(menu::GetMenuCount() - 2);
-	ui::Widget::SetControlFlags(baseMenu->root, 1);
+	menu::GetMenuAt(menu::GetMenuCount() - 2)->EnableInput();
 }
 
 SceVoid menu::PlayerYoutube::PlayerBackCb(PlayerSimple *player, ScePVoid pUserArg)
@@ -625,7 +630,7 @@ SceVoid menu::PlayerYoutube::PlayerOkCb(PlayerSimple *player, ScePVoid pUserArg)
 	thread::s_mainThreadMutex.Lock();
 	loaderIndicator->Stop();
 	effect::Play(0.0f, loaderPlane, effect::EffectType_Fadein1, true, false);
-	ui::Widget::SetControlFlags(workObj->root, 1);
+	workObj->EnableInput();
 	thread::s_mainThreadMutex.Unlock();
 
 	menu::Settings::GetAppSetInstance()->GetInt("yt_min", &min, 0);
@@ -644,7 +649,7 @@ SceVoid menu::PlayerYoutube::PlayerOkCb(PlayerSimple *player, ScePVoid pUserArg)
 	else
 	{
 		workObj->player->SetPosition(0.0f, 0.0f);
-		workObj->root->SetGraphicsDisabled(true);
+		workObj->root->SetGraphicsState(ui::GraphicsState_Disabled);
 	}
 }
 
@@ -665,7 +670,7 @@ SceVoid menu::PlayerYoutube::PlayerFailCb(PlayerSimple *player, ScePVoid pUserAr
 		thread::s_mainThreadMutex.Lock();
 		loaderIndicator->Stop();
 		effect::Play(0.0f, loaderPlane, effect::EffectType_Fadein1, true, false);
-		ui::Widget::SetControlFlags(workObj->root, 1);
+		workObj->EnableInput();
 		thread::s_mainThreadMutex.Unlock();
 
 		dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_EUNSUP, utils::GetString("msg_error_connect_server_peer"));
@@ -675,8 +680,8 @@ SceVoid menu::PlayerYoutube::PlayerFailCb(PlayerSimple *player, ScePVoid pUserAr
 		workObj->lastAttempt = SCE_TRUE;
 		LoadJob *job = new LoadJob("YouTube::LoadJob");
 		job->workObj = workObj;
-		SharedPtr<job::JobItem> itemParam(job);
-		utils::GetJobQueue()->Enqueue(&itemParam);
+		common::SharedPtr<job::JobItem> itemParam(job);
+		utils::GetJobQueue()->Enqueue(itemParam);
 	}
 }
 
@@ -686,14 +691,14 @@ SceVoid menu::PlayerYoutube::TaskLoadSecondStage(void *pArgBlock)
 
 	workObj->player = new menu::PlayerSimple(workObj->videoLink.c_str(), PlayerOkCb, PlayerFailCb, PlayerBackCb, pArgBlock);
 	workObj->player->SetPosition(-1920.0f, -1080.0f);
-	workObj->root->SetGraphicsDisabled(false);
+	workObj->root->SetGraphicsState(ui::GraphicsState_Normal);
 	if (workObj->isHighHls)
 	{
 		workObj->player->player->LimitFPS(SCE_TRUE);
 	}
 	workObj->player->SetSettingsOverride(menu::PlayerSimple::SettingsOverride_YouTube);
 
-	task::Unregister(TaskLoadSecondStage, pArgBlock);
+	common::MainThreadCallList::Unregister(TaskLoadSecondStage, pArgBlock);
 }
 
 menu::PlayerYoutube::PlayerYoutube(const char *id, SceBool isFavourite) :
@@ -740,12 +745,12 @@ menu::PlayerYoutube::PlayerYoutube(const char *id, SceBool isFavourite) :
 	descButton = utils::GetChild(root, button_yt_companel_description);
 	descButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(DescButtonCbFun, this));
 
-	ui::Widget::SetControlFlags(root, 0);
+	DisableInput();
 
 	LoadJob *job = new LoadJob("YouTube::LoadJob");
 	job->workObj = this;
-	SharedPtr<job::JobItem> itemParam(job);
-	utils::GetJobQueue()->Enqueue(&itemParam);
+	common::SharedPtr<job::JobItem> itemParam(job);
+	utils::GetJobQueue()->Enqueue(itemParam);
 }
 
 menu::PlayerYoutube::~PlayerYoutube()
@@ -755,5 +760,10 @@ menu::PlayerYoutube::~PlayerYoutube()
 		hlsCommentThread->Cancel();
 		hlsCommentThread->Join();
 		delete hlsCommentThread;
+	}
+
+	if (companelRoot)
+	{
+		companelRoot->elem.hash = 0;
 	}
 }

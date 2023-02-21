@@ -16,32 +16,31 @@ SceVoid leakTestTask(ScePVoid pUserData)
 {
 	SceInt32 sz = 0;
 	SceInt32 delta = 0;
-	string *str;
+	string str;
 
 #ifdef DEBUG_MEM_HEAP
 	memory::HeapAllocator *glAlloc = memory::HeapAllocator::GetGlobalHeapAllocator();
 	sz = glAlloc->GetFreeSize();
 
-	str = new string();
+	str.clear();
+	common::string_util::SizeToString(str, sz);
+	sceClibPrintf("[NS_DEBUG] Free heap memory: %s\n", str.c_str());
 
-	*str = ccc::MemsizeFormat(sz);
-	sceClibPrintf("[NS_DEBUG] Free heap memory: %s\n", str->c_str());
 	delta = s_oldMemSize - sz;
 	delta = -delta;
 	if (delta) {
 		sceClibPrintf("[NS_DEBUG] Memory delta: %d bytes\n", delta);
 	}
 	s_oldMemSize = sz;
-	delete str;
 #endif
 
 #ifdef DEBUG_SURFACE_HEAP
-	str = new string();
 
 	sz = s_frameworkInstance->GetDefaultSurfaceMemoryPool()->GetFreeSize();
-	*str = ccc::MemsizeFormat(sz);
 
-	sceClibPrintf("[NS_DEBUG] Free graphics pool: %s\n", str->c_str());
+	str.clear();
+	common::string_util::SizeToString(str, sz);
+	sceClibPrintf("[NS_DEBUG] Free graphics pool: %s\n", str.c_str());
 
 	delta = s_oldGraphMemSize - sz;
 	delta = -delta;
@@ -49,7 +48,6 @@ SceVoid leakTestTask(ScePVoid pUserData)
 		sceClibPrintf("[NS_DEBUG] Graphics pool delta: %d bytes\n", delta);
 	}
 	s_oldGraphMemSize = sz;
-	delete str;
 #endif
 }
 
@@ -65,7 +63,7 @@ void InitDebug()
 	SCE_PAF_AUTO_TEST_DUMP("\n\n-----PAF EXTRA TTY DEBUG MODE ON-----\n\n");
 #endif
 
-	task::Register(leakTestTask, SCE_NULL);
+	common::MainThreadCallList::Register(leakTestTask, SCE_NULL);
 #ifdef DEBUG_JOB_QUEUE
 	task::Register(JobQueueTestTask, SCE_NULL);
 #endif
