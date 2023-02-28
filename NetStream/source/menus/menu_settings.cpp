@@ -23,7 +23,7 @@ using namespace paf;
 using namespace sce;
 
 const SceUInt32 k_safeMemIniLimit = 0x400;
-const SceInt32 k_settingsVersion = 3;
+const SceInt32 k_settingsVersion = 4;
 
 static sce::AppSettings *s_appSet = SCE_NULL;
 static menu::Settings *s_instance = SCE_NULL;

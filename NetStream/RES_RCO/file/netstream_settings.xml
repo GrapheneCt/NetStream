@@ -26,7 +26,7 @@
       </list>
     </setting_list>
     <setting_list id="youtube_search_setting" title="msg_settings_search" icon="tex_spanner">
-      <text_field id="youtube_inv_instance" title="msg_youtube_inv_instance" max_length="255" min_length="0" keyboard_type="url" key="inv_instance" default_value="https://invidious.namazso.eu"/>
+      <text_field id="youtube_inv_instance" title="msg_youtube_inv_instance" max_length="255" min_length="0" keyboard_type="url" key="inv_instance" default_value="https://yt.artemislena.eu"/>
       <list id="list_youtube_search_sort" title="msg_youtube_search_sort" key="yt_search_sort" default_value="0">
         <list_item id="list_youtube_search_sort_00" title="msg_option_search_sort_0" value="0" />
         <list_item id="list_youtube_search_sort_01" title="msg_option_search_sort_1" value="1" />
