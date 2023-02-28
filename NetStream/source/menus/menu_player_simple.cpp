@@ -396,8 +396,6 @@ menu::PlayerSimple::PlayerSimple(const char *url, PlayerSimpleCallback okCb, Pla
 	utils::SetPowerTickTask(utils::PowerTick_All);
 	menu::GetMenuAt(menu::GetMenuCount() - 2)->Deactivate();
 
-	root->SetGraphicsState(ui::GraphicsState_DebugHighlightAndMove);
-
 	s_instance = this;
 }
 
