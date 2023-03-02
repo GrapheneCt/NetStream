@@ -81,12 +81,12 @@
 
   <string src="Inicio minimizado" id="msg_toggle_youtube_min" />
 
-  <string src="Eliminar historial" id="msg_settings_youtube_clean_history" />
-  <string src="Eliminar favoritos" id="msg_settings_youtube_clean_fav" />
-  <string src="Se ha eliminado el historial." id="msg_settings_youtube_clean_history_done" />
-  <string src="Se han eliminado los favoritos." id="msg_settings_youtube_clean_fav_done" />
-  <string src="Se eliminará todo de historial. ¿Continuar?" id="msg_settings_youtube_clean_history_confirm" />
-  <string src="Se eliminarán todos los favoritos. ¿Continuar?" id="msg_settings_youtube_clean_fav_confirm" />
+  <string src="Borrar historial" id="msg_settings_youtube_clean_history" />
+  <string src="Borrar favoritos" id="msg_settings_youtube_clean_fav" />
+  <string src="Se ha borrado el historial." id="msg_settings_youtube_clean_history_done" />
+  <string src="Se han borrado los favoritos." id="msg_settings_youtube_clean_fav_done" />
+  <string src="Se borrará todo de historial. ¿Continuar?" id="msg_settings_youtube_clean_history_confirm" />
+  <string src="Se borrarán todos los favoritos. ¿Continuar?" id="msg_settings_youtube_clean_fav_confirm" />
   <string src="Descargar" id="msg_settings_youtube_download" />
   <string src="La descarga se ha añadido a la cola." id="msg_settings_youtube_download_begin" />
 
