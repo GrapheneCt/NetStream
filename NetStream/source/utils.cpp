@@ -10,138 +10,61 @@
 #include "common.h"
 
 static SceUID s_lock = SCE_UID_INVALID_UID;
-static job::JobQueue *s_utilsJobQueue = SCE_NULL;
-static CurlFile::Share *s_curlShare = SCE_NULL;
+static job::JobQueue *s_utilsJobQueue = NULL;
+static CurlFile::Share *s_curlShare = NULL;
 static utils::PowerTick s_powerTickMode = utils::PowerTick_None;
 
-namespace utils {
-	SceVoid PowerTickTask(ScePVoid pUserData)
-	{
-		if (s_powerTickMode == PowerTick_All)
-			sceKernelPowerTick(SCE_KERNEL_POWER_TICK_DEFAULT);
-		else if (s_powerTickMode == PowerTick_Suspend)
-			sceKernelPowerTick(SCE_KERNEL_POWER_TICK_DISABLE_AUTO_SUSPEND);
-	}
+static void PowerTickTask(void *pUserData)
+{
+	if (s_powerTickMode == utils::PowerTick_All)
+		sceKernelPowerTick(SCE_KERNEL_POWER_TICK_DEFAULT);
+	else if (s_powerTickMode == utils::PowerTick_Suspend)
+		sceKernelPowerTick(SCE_KERNEL_POWER_TICK_DISABLE_AUTO_SUSPEND);
 }
 
-SceUInt32 utils::GetHash(const char *name)
+uint32_t utils::GetHash(const char *name)
 {
-	rco::Element searchResult;
-
-	searchResult.id = name;
-	searchResult.hash = searchResult.GetHash(&searchResult.id);
-
-	return searchResult.hash;
+	IDParam param(name);
+	return param.GetIDHash();
 }
 
-rco::Element utils::CreateElement(const char *name)
+wchar_t *utils::GetStringWithNum(const char *name, uint32_t num)
 {
-	rco::Element ret;
-	ret.id = name;
-	ret.hash = ret.GetHash(&ret.id);
-
-	return ret;
-}
-
-wchar_t *utils::GetStringWithNum(const char *name, SceUInt32 num)
-{
-	rco::Element searchRequest;
+	IDParam searchRequest;
 	char fullName[128];
-
 	sce_paf_snprintf(fullName, sizeof(fullName), "%s%u", name, num);
-
-	searchRequest.hash = utils::GetHash(fullName);
-	wchar_t *res = (wchar_t *)g_appPlugin->GetWString(&searchRequest);
-
-	return res;
+	searchRequest.SetID(fullName);
+	return g_appPlugin->GetString(searchRequest);
 }
 
-wchar_t *utils::GetString(const char *name)
+void utils::SetPowerTickTask(PowerTick mode)
 {
-	rco::Element searchRequest;
-
-	searchRequest.hash = utils::GetHash(name);
-	wchar_t *res = (wchar_t *)g_appPlugin->GetWString(&searchRequest);
-
-	return res;
-}
-
-wchar_t *utils::GetString(SceUInt32 hash)
-{
-	rco::Element searchRequest;
-
-	searchRequest.hash = hash;
-	wchar_t *res = (wchar_t *)g_appPlugin->GetWString(&searchRequest);
-
-	return res;
-}
-
-graph::Surface *utils::GetTexture(const char *name)
-{
-	graph::Surface *tex = SCE_NULL;
-	rco::Element searchParam;
-
-	searchParam.hash = utils::GetHash(name);
-	Plugin::GetTexture(&tex, g_appPlugin, &searchParam);
-
-	return tex;
-}
-
-graph::Surface *utils::GetTexture(SceUInt32 hash)
-{
-	graph::Surface *tex = SCE_NULL;
-	rco::Element searchParam;
-
-	searchParam.hash = hash;
-	Plugin::GetTexture(&tex, g_appPlugin, &searchParam);
-
-	return tex;
-}
-
-ui::Widget *utils::GetChild(ui::Widget *parent, const char *id)
-{
-	rco::Element searchRequest;
-
-	searchRequest.hash = utils::GetHash(id);
-	return parent->GetChild(&searchRequest, 0);
-}
-
-ui::Widget *utils::GetChild(ui::Widget *parent, SceUInt32 hash)
-{
-	rco::Element searchRequest;
-
-	searchRequest.hash = hash;
-	return parent->GetChild(&searchRequest, 0);
-}
-
-SceVoid utils::SetPowerTickTask(PowerTick mode)
-{
-	common::MainThreadCallList::Unregister(utils::PowerTickTask, SCE_NULL);
+	common::MainThreadCallList::Unregister(PowerTickTask, NULL);
 	if (mode == PowerTick_None)
 		return;
 
 	s_powerTickMode = mode;
-	common::MainThreadCallList::Register(utils::PowerTickTask, SCE_NULL);
+	common::MainThreadCallList::Register(PowerTickTask, NULL);
 }
 
-SceVoid utils::Lock(SceUInt32 flag)
+void utils::Lock(uint32_t flag)
 {
 	sceKernelClearEventFlag(s_lock, ~flag);
 }
 
-SceVoid utils::Unlock(SceUInt32 flag)
+void utils::Unlock(uint32_t flag)
 {
 	sceKernelSetEventFlag(s_lock, flag);
 }
 
-SceVoid utils::Wait(SceUInt32 flag)
+void utils::Wait(uint32_t flag)
 {
-	sceKernelWaitEventFlag(s_lock, flag, SCE_KERNEL_EVF_WAITMODE_OR, SCE_NULL, SCE_NULL);
+	sceKernelWaitEventFlag(s_lock, flag, SCE_KERNEL_EVF_WAITMODE_OR, NULL, NULL);
 }
 
-SceVoid utils::ConvertSecondsToString(string& string, SceUInt64 seconds, SceBool needSeparator)
+void utils::ConvertSecondsToString(string& string, uint64_t seconds, bool needSeparator)
 {
-	SceInt32 h = 0, m = 0, s = 0;
+	int32_t h = 0, m = 0, s = 0;
 	h = (seconds / 3600);
 	m = (seconds - (3600 * h)) / 60;
 	s = (seconds - (3600 * h) - (m * 60));
@@ -150,29 +73,29 @@ SceVoid utils::ConvertSecondsToString(string& string, SceUInt64 seconds, SceBool
 
 	if (needSeparator) {
 		if (h > 0) {
-			common::string_util::setf(string, "%02d:%02d:%02d / ", h, m, s);
+			string = common::FormatString("%02d:%02d:%02d / ", h, m, s);
 		}
 		else {
-			common::string_util::setf(string, "%02d:%02d / ", m, s);
+			string = common::FormatString("%02d:%02d / ", m, s);
 		}
 	}
 	else {
 		if (h > 0) {
-			common::string_util::setf(string, "%02d:%02d:%02d", h, m, s);
+			string = common::FormatString("%02d:%02d:%02d", h, m, s);
 		}
 		else {
-			common::string_util::setf(string, "%02d:%02d", m, s);
+			string = common::FormatString("%02d:%02d", m, s);
 		}
 	}
 }
 
-SceVoid utils::Init()
+void utils::Init()
 {
-	s_lock = sceKernelCreateEventFlag("utils::Lock", SCE_KERNEL_ATTR_MULTI, 0, SCE_NULL);
+	s_lock = sceKernelCreateEventFlag("utils::Lock", SCE_KERNEL_ATTR_MULTI, 0, NULL);
 
 	job::JobQueue::Option queueOpt;
 	queueOpt.workerNum = 1;
-	queueOpt.workerOpt = SCE_NULL;
+	queueOpt.workerOpt = NULL;
 	queueOpt.workerPriority = SCE_KERNEL_HIGHEST_PRIORITY_USER + 30;
 	queueOpt.workerStackSize = SCE_KERNEL_256KiB;
 
@@ -187,135 +110,15 @@ job::JobQueue *utils::GetJobQueue()
 	return s_utilsJobQueue;
 }
 
-SceBool utils::LoadNetworkSurface(const char *url, graph::Surface **surface)
+CurlFile::Share *utils::GetShare()
 {
-	graph::Surface *tex = SCE_NULL;
-	common::SharedPtr<CurlFile> fres;
-	SceInt32 res = -1;
-
-	fres = CurlFile::Open(url, &res, 0, s_curlShare);
-	if (res < 0)
-	{
-		*surface = SCE_NULL;
-		return SCE_FALSE;
-	}
-
-	graph::Surface::Create(&tex, g_appPlugin->memoryPool, (common::SharedPtr<File>&)fres);
-	if (tex == SCE_NULL)
-	{
-		*surface = SCE_NULL;
-		return SCE_FALSE;
-	}
-
-	fres.reset();
-
-	*surface = tex;
-
-	return SCE_TRUE;
+	return s_curlShare;
 }
 
-utils::AsyncNetworkSurfaceLoader::TargetDeleteEventCallback::~TargetDeleteEventCallback()
+void utils::SetTimeout(TimeoutFunc func, float timeoutMs, void *userdata1, void *userdata2)
 {
-	delete workObj;
-}
-
-utils::AsyncNetworkSurfaceLoader::AsyncNetworkSurfaceLoader(const char *url, ui::Widget *target, graph::Surface **surf, SceBool autoLoad)
-{
-	item = new Job("AsyncNetworkSurfaceLoader");
-	item->target = target;
-	item->url = url;
-	item->loadedSurface = surf;
-	item->workObj = this;
-	target->RegisterEventCallback(0x10000000, new TargetDeleteEventCallback(this));
-
-	if (autoLoad)
-	{
-		Load();
-	}
-}
-
-utils::AsyncNetworkSurfaceLoader::~AsyncNetworkSurfaceLoader()
-{
-	if (item)
-	{
-		item->workObj = SCE_NULL;
-		item->Cancel();
-		item = SCE_NULL;
-	}
-}
-
-SceVoid utils::AsyncNetworkSurfaceLoader::Load()
-{
-	common::SharedPtr<job::JobItem> itemParam(item);
-	utils::GetJobQueue()->Enqueue(itemParam);
-}
-
-SceVoid utils::AsyncNetworkSurfaceLoader::Abort()
-{
-	if (item)
-	{
-		item->workObj = SCE_NULL;
-		item->Cancel();
-		item = SCE_NULL;
-	}
-}
-
-SceVoid utils::AsyncNetworkSurfaceLoader::Job::Finish()
-{
-	if (workObj)
-		workObj->item = SCE_NULL;
-}
-
-SceVoid utils::AsyncNetworkSurfaceLoader::Job::Run()
-{
-	graph::Surface *tex = SCE_NULL;
-	SceInt32 res = -1;
-	CurlFile::OpenArg oarg;
-	oarg.SetUrl(url.c_str());
-	oarg.SetShare(s_curlShare);
-	oarg.SetOpt(3000, CurlFile::OpenArg::Opt_ConnectTimeOut);
-	oarg.SetOpt(5000, CurlFile::OpenArg::Opt_RecvTimeOut);
-
-	CurlFile *file = new CurlFile();
-	res = file->Open(&oarg);
-	if (res != 0)
-	{
-		delete file;
-		return;
-	}
-
-	common::SharedPtr<CurlFile> fres(file);
-
-	if (IsCanceled())
-	{
-		fres->Close();
-		fres.reset();
-		return;
-	}
-
-	graph::Surface::Create(&tex, g_appPlugin->memoryPool, (common::SharedPtr<File>&)fres);
-	fres.reset();
-	if (tex == SCE_NULL)
-	{
-		return;
-	}
-
-	if (IsCanceled())
-	{
-		tex->Release();
-		return;
-	}
-
-	thread::s_mainThreadMutex.Lock();
-	target->SetSurfaceBase(&tex);
-	thread::s_mainThreadMutex.Unlock();
-
-	if (loadedSurface)
-	{
-		*loadedSurface = tex;
-	}
-	else
-	{
-		tex->Release();
-	}
+	Timer *t = new Timer(timeoutMs);
+	TimeoutListener *listener = new TimeoutListener(t, func);
+	TimerListenerList::ListenerParam lparam(listener, true, userdata1, userdata2);
+	TimerListenerList::s_default_list->Register(lparam);
 }

@@ -19,19 +19,19 @@ public:
 
 	~LocalServerBrowser();
 
-	SceBool Probe();
+	bool Probe();
 
-	SceBool IsAtRoot(string *current);
+	bool IsAtRoot(string *current);
 
-	SceBool IsAtRoot();
+	bool IsAtRoot();
 
-	SceVoid SetPath(const char *ref);
+	void SetPath(const char *ref);
 
 	string GetPath();
 
 	string GetBEAVUrl(string *in);
 
-	vector<LocalServerBrowser::Entry *> *GoTo(const char *ref, SceInt32 *result);
+	vector<LocalServerBrowser::Entry *> *GoTo(const char *ref, int32_t *result);
 
 private:
 

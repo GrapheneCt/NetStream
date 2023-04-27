@@ -3,6 +3,8 @@
 #include <paf.h>
 #include <common_gui_dialog.h>
 
+#include "common.h"
+#include "event.h"
 #include "dialog.h"
 
 #define CURRENT_DIALOG_NONE -1
@@ -10,252 +12,243 @@
 using namespace paf;
 using namespace sce;
 
-static SceInt32 s_currentDialog = CURRENT_DIALOG_NONE;
-static dialog::EventHandler s_currentEventHandler = SCE_NULL;
+static int32_t s_currentDialog = CURRENT_DIALOG_NONE;
+static Plugin *s_currentPlugin = NULL;
 
-static SceUInt32 s_twoButtonContTable[12];
-static SceUInt32 s_threeButtonContTable[16];
+static uint32_t s_twoButtonContTable[12];
+static uint32_t s_threeButtonContTable[16];
 
 namespace dialog {
-	SceVoid CommonGuiEventHandler(SceInt32 instanceSlot, CommonGuiDialog::ButtonCode buttonCode, ScePVoid pUserArg)
+	void CommonGuiEventHandler(int32_t instanceSlot, CommonGuiDialog::DIALOG_CB buttonCode, void *pUserArg)
 	{
 		CommonGuiDialog::Dialog::Close(instanceSlot);
 		s_currentDialog = CURRENT_DIALOG_NONE;
-
-		if (s_currentEventHandler) {
-			s_currentEventHandler((dialog::ButtonCode)buttonCode, pUserArg);
-			s_currentEventHandler = SCE_NULL;
-		}
+		event::BroadcastGlobalEvent(s_currentPlugin, DialogEvent, buttonCode);
+		s_currentPlugin = NULL;
 	}
 }
 
-SceVoid dialog::OpenPleaseWait(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageText, SceBool withCancel, EventHandler eventHandler, ScePVoid userArg)
+void dialog::OpenPleaseWait(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageText, bool withCancel)
 {
 	if (s_currentDialog != CURRENT_DIALOG_NONE)
 		return;
 
-	SceBool isMainThread = thread::IsMainThread();
+	bool isMainThread = thread::ThreadIDCache::Check();
 
-	wstring title = titleText;
-	wstring message = messageText;
-
-	s_currentEventHandler = eventHandler;
+	paf::wstring title = titleText;
+	paf::wstring message = messageText;
 
 	if (!isMainThread)
-		thread::s_mainThreadMutex.Lock();
+		thread::RMutex::main_thread_mutex.Lock();
 
 	if (withCancel)
-		s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &CommonGuiDialog::Param::s_dialogCancelBusy, CommonGuiEventHandler, userArg);
+		s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &CommonGuiDialog::Param::s_dialogCancelBusy, CommonGuiEventHandler, NULL);
 	else
-		s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &CommonGuiDialog::Param::s_dialogTextSmallBusy, CommonGuiEventHandler, userArg);
+		s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &CommonGuiDialog::Param::s_dialogTextSmallBusy, CommonGuiEventHandler, NULL);
+
+	s_currentPlugin = workPlugin;
+
 	if (!isMainThread)
-		thread::s_mainThreadMutex.Unlock();
+		thread::RMutex::main_thread_mutex.Unlock();
 }
 
-SceVoid dialog::OpenYesNo(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageText, EventHandler eventHandler, ScePVoid userArg)
+void dialog::OpenYesNo(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageText)
 {
 	if (s_currentDialog != CURRENT_DIALOG_NONE)
 		return;
 
-	SceBool isMainThread = thread::IsMainThread();
+	bool isMainThread = thread::ThreadIDCache::Check();
 
-	wstring title = titleText;
-	wstring message = messageText;
-
-	s_currentEventHandler = eventHandler;
+	paf::wstring title = titleText;
+	paf::wstring message = messageText;
 
 	if (!isMainThread)
-		thread::s_mainThreadMutex.Lock();
-	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &CommonGuiDialog::Param::s_dialogYesNo, CommonGuiEventHandler, userArg);
+		thread::RMutex::main_thread_mutex.Lock();
+
+	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &CommonGuiDialog::Param::s_dialogYesNo, CommonGuiEventHandler, NULL);
+	s_currentPlugin = workPlugin;
+
 	if (!isMainThread)
-		thread::s_mainThreadMutex.Unlock();
+		thread::RMutex::main_thread_mutex.Unlock();
 }
 
-SceVoid dialog::OpenOk(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageText, EventHandler eventHandler, ScePVoid userArg)
+void dialog::OpenOk(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageText)
 {
 	if (s_currentDialog != CURRENT_DIALOG_NONE)
 		return;
 
-	SceBool isMainThread = thread::IsMainThread();
+	bool isMainThread = thread::ThreadIDCache::Check();
 
-	wstring title = titleText;
-	wstring message = messageText;
-
-	s_currentEventHandler = eventHandler;
+	paf::wstring title = titleText;
+	paf::wstring message = messageText;
 
 	if (!isMainThread)
-		thread::s_mainThreadMutex.Lock();
-	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &CommonGuiDialog::Param::s_dialogOk, CommonGuiEventHandler, userArg);
+		thread::RMutex::main_thread_mutex.Lock();
+
+	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &CommonGuiDialog::Param::s_dialogOk, CommonGuiEventHandler, NULL);
+	s_currentPlugin = workPlugin;
+
 	if (!isMainThread)
-		thread::s_mainThreadMutex.Unlock();
+		thread::RMutex::main_thread_mutex.Unlock();
 }
 
-SceVoid dialog::OpenError(Plugin *workPlugin, SceInt32 errorCode, const wchar_t *messageText, EventHandler eventHandler, ScePVoid userArg)
+void dialog::OpenError(Plugin *workPlugin, int32_t errorCode, const wchar_t *messageText)
 {
 	if (s_currentDialog != CURRENT_DIALOG_NONE)
 		return;
 
-	SceBool isMainThread = thread::IsMainThread();
+	bool isMainThread = thread::ThreadIDCache::Check();
 
 	CommonGuiDialog::ErrorDialog dialog;
 
-	auto cb = new CommonGuiDialog::EventCallback();
-	cb->eventHandler = CommonGuiEventHandler;
-	cb->pUserData = userArg;
+	auto cb = new CommonGuiDialog::EventCBListener(CommonGuiEventHandler, NULL);
 
-	dialog.workPlugin = workPlugin;
-	dialog.errorCode = errorCode;
-	dialog.eventHandler = cb;
+	dialog.work_plugin = workPlugin;
+	dialog.error = errorCode;
+	dialog.listener = cb;
 	if (messageText)
 		dialog.message = messageText;
 
-	s_currentEventHandler = eventHandler;
+	if (!isMainThread)
+		thread::RMutex::main_thread_mutex.Lock();
+
+	s_currentDialog = dialog.Show();
+	s_currentPlugin = workPlugin;
 
 	if (!isMainThread)
-		thread::s_mainThreadMutex.Lock();
-	s_currentDialog = dialog.Show();
-	if (!isMainThread)
-		thread::s_mainThreadMutex.Unlock();
+		thread::RMutex::main_thread_mutex.Unlock();
 }
 
-SceVoid dialog::OpenThreeButton(
+void dialog::OpenThreeButton(
 	Plugin *workPlugin,
 	const wchar_t *titleText,
 	const wchar_t *messageText,
-	SceUInt32 button1TextHashref,
-	SceUInt32 button2TextHashref,
-	SceUInt32 button3TextHashref,
-	EventHandler eventHandler,
-	ScePVoid userArg)
+	uint32_t button1TextHashref,
+	uint32_t button2TextHashref,
+	uint32_t button3TextHashref)
 {
 	if (s_currentDialog != CURRENT_DIALOG_NONE)
 		return;
 
-	SceBool isMainThread = thread::IsMainThread();
+	bool isMainThread = thread::ThreadIDCache::Check();
 
 	CommonGuiDialog::Param dparam;
 
 	dparam = CommonGuiDialog::Param::s_dialogYesNoCancel;
-	sce_paf_memcpy(s_threeButtonContTable, CommonGuiDialog::Param::s_dialogYesNoCancel.contentsList, sizeof(s_threeButtonContTable));
+	sce_paf_memcpy(s_threeButtonContTable, CommonGuiDialog::Param::s_dialogYesNoCancel.contents_list, sizeof(s_threeButtonContTable));
 	s_threeButtonContTable[1] = button1TextHashref;
 	s_threeButtonContTable[5] = button2TextHashref;
 	s_threeButtonContTable[9] = button3TextHashref;
 	s_threeButtonContTable[7] = 0x20413274;
 	s_threeButtonContTable[11] = 0x20413274;
-	dparam.contentsList = (CommonGuiDialog::ContentsHashTable *)s_threeButtonContTable;
+	dparam.contents_list = (CommonGuiDialog::ContentsHashTable *)s_threeButtonContTable;
 
-	wstring title = titleText;
-	wstring message = messageText;
-
-	s_currentEventHandler = eventHandler;
+	paf::wstring title = titleText;
+	paf::wstring message = messageText;
 
 	if (!isMainThread)
-		thread::s_mainThreadMutex.Lock();
-	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &dparam, CommonGuiEventHandler, userArg);
+		thread::RMutex::main_thread_mutex.Lock();
+
+	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &dparam, CommonGuiEventHandler, NULL);
+	s_currentPlugin = workPlugin;
+
 	if (!isMainThread)
-		thread::s_mainThreadMutex.Unlock();
+		thread::RMutex::main_thread_mutex.Unlock();
 }
 
-SceVoid dialog::OpenTwoButton(
+void dialog::OpenTwoButton(
 	Plugin *workPlugin,
 	const wchar_t *titleText,
 	const wchar_t *messageText,
-	SceUInt32 button1TextHashref,
-	SceUInt32 button2TextHashref,
-	EventHandler eventHandler,
-	ScePVoid userArg)
+	uint32_t button1TextHashref,
+	uint32_t button2TextHashref)
 {
 	if (s_currentDialog != CURRENT_DIALOG_NONE)
 		return;
 
-	SceBool isMainThread = thread::IsMainThread();
+	bool isMainThread = thread::ThreadIDCache::Check();
 
 	CommonGuiDialog::Param dparam;
 
 	dparam = CommonGuiDialog::Param::s_dialogYesNo;
-	sce_paf_memcpy(s_twoButtonContTable, CommonGuiDialog::Param::s_dialogYesNo.contentsList, sizeof(s_twoButtonContTable));
+	sce_paf_memcpy(s_twoButtonContTable, CommonGuiDialog::Param::s_dialogYesNo.contents_list, sizeof(s_twoButtonContTable));
 	s_twoButtonContTable[1] = button2TextHashref;
 	s_twoButtonContTable[5] = button1TextHashref;
 	s_twoButtonContTable[3] = 0x20413274;
-	dparam.contentsList = (CommonGuiDialog::ContentsHashTable *)s_twoButtonContTable;
+	dparam.contents_list = (CommonGuiDialog::ContentsHashTable *)s_twoButtonContTable;
 
-	wstring title = titleText;
-	wstring message = messageText;
-
-	s_currentEventHandler = eventHandler;
+	paf::wstring title = titleText;
+	paf::wstring message = messageText;
 
 	if (!isMainThread)
-		thread::s_mainThreadMutex.Lock();
-	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &dparam, CommonGuiEventHandler, userArg);
+		thread::RMutex::main_thread_mutex.Lock();
+
+	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &dparam, CommonGuiEventHandler, NULL);
+	s_currentPlugin = workPlugin;
+
 	if (!isMainThread)
-		thread::s_mainThreadMutex.Unlock();
+		thread::RMutex::main_thread_mutex.Unlock();
 }
 
 ui::ListView *dialog::OpenListView(
 	Plugin *workPlugin,
-	const wchar_t *titleText,
-	EventHandler eventHandler,
-	ScePVoid userArg)
+	const wchar_t *titleText)
 {
 	if (s_currentDialog != CURRENT_DIALOG_NONE)
-		return SCE_NULL;
+		return NULL;
 
-	SceBool isMainThread = thread::IsMainThread();
+	bool isMainThread = thread::ThreadIDCache::Check();
 
-	wstring title = titleText;
-
-	s_currentEventHandler = eventHandler;
+	paf::wstring title = titleText;
 
 	if (!isMainThread)
-		thread::s_mainThreadMutex.Lock();
+		thread::RMutex::main_thread_mutex.Lock();
 
-	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, SCE_NULL, &CommonGuiDialog::Param::s_dialogXLView, CommonGuiEventHandler, userArg);
-	ui::Widget *ret = CommonGuiDialog::Dialog::GetWidget(s_currentDialog, CommonGuiDialog::WidgetType_ListView);
+	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, NULL, &CommonGuiDialog::Param::s_dialogXLView, CommonGuiEventHandler, NULL);
+	ui::Widget *ret = CommonGuiDialog::Dialog::GetWidget(s_currentDialog, CommonGuiDialog::REGISTER_ID_LIST_VIEW);
+	s_currentPlugin = workPlugin;
 
 	if (!isMainThread)
-		thread::s_mainThreadMutex.Unlock();
+		thread::RMutex::main_thread_mutex.Unlock();
 
 	return (ui::ListView *)ret;
 }
 
 ui::ScrollView *dialog::OpenScrollView(
 	Plugin *workPlugin,
-	const wchar_t *titleText,
-	EventHandler eventHandler,
-	ScePVoid userArg)
+	const wchar_t *titleText)
 {
 	if (s_currentDialog != CURRENT_DIALOG_NONE)
-		return SCE_NULL;
+		return NULL;
 
-	SceBool isMainThread = thread::IsMainThread();
+	bool isMainThread = thread::ThreadIDCache::Check();
 
-	wstring title = titleText;
-
-	s_currentEventHandler = eventHandler;
+	paf::wstring title = titleText;
 
 	if (!isMainThread)
-		thread::s_mainThreadMutex.Lock();
+		thread::RMutex::main_thread_mutex.Lock();
 
-	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, SCE_NULL, &CommonGuiDialog::Param::s_dialogXView, CommonGuiEventHandler, userArg);
-	ui::Widget *ret = CommonGuiDialog::Dialog::GetWidget(s_currentDialog, CommonGuiDialog::WidgetType_ScrollView);
+	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, NULL, &CommonGuiDialog::Param::s_dialogXView, CommonGuiEventHandler, NULL);
+	ui::Widget *ret = CommonGuiDialog::Dialog::GetWidget(s_currentDialog, CommonGuiDialog::REGISTER_ID_SCROLL_VIEW);
+	s_currentPlugin = workPlugin;
 
 	if (!isMainThread)
-		thread::s_mainThreadMutex.Unlock();
+		thread::RMutex::main_thread_mutex.Unlock();
 
 	return (ui::ScrollView *)ret;
 }
 
-SceVoid dialog::Close()
+void dialog::Close()
 {
 	if (s_currentDialog == CURRENT_DIALOG_NONE)
 		return;
 
 	CommonGuiDialog::Dialog::Close(s_currentDialog);
 	s_currentDialog = CURRENT_DIALOG_NONE;
-	s_currentEventHandler = SCE_NULL;
+	s_currentPlugin = NULL;
 }
 
-SceVoid dialog::WaitEnd()
+void dialog::WaitEnd()
 {
 	if (s_currentDialog == CURRENT_DIALOG_NONE)
 		return;

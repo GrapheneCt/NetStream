@@ -51,12 +51,12 @@ key:f185100a(0) id:page_player_simple
 key:79d84d3d(0) id:plane_video_page_player_simple
 key:0a2f2cd9(0) id:landscape
 key:4dbf9bdc(0) id:full_hd
-key:efc09f9b(0) id:plane_dummy
 key:b6f59ab8(0) id:busyindicator_video_page_player_simple
 key:9b2f5135(0) id:text_video_page_player_simple_acc_left
 key:e77b3c6f(0) id:text_video_page_player_simple_acc_right
 key:0996c400(0) id:button_video_page_control_trigger
 key:a6a71a6b(0) id:button_video_page_whole_repeat
+key:f1b32eba(0) id:plane_statindicator
 key:3c3c2c43(0) id:plane_video_control_panel_bg
 key:2e5febc7(0) id:progressbar_touch_video_control_panel
 key:64c584eb(0) id:text_video_control_panel_progressbar_label_elapsed
@@ -133,7 +133,7 @@ key:d461521e(0) id:box_top
 key:fab814ca(0) id:text_top
 key:939510d6(0) id:plane_top_separator
 key:929d094f(0) id:template_list_item_generic
-key:63678fee(0) id:list_item
+key:ce92de48(0) id:list_item_generic
 key:efeb27e8(0) id:image_button_list_item
 key:af8dc058(0) id:template_list_view_generic
 key:a176265a(0) id:list_view_generic

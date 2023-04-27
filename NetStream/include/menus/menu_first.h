@@ -14,18 +14,18 @@ namespace menu {
 	{
 	public:
 
-		static SceVoid ListButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
+		static void ListButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 
-		class ListViewCb : public ui::ListView::ItemCallback
+		class ListViewFactory : public ui::listview::ItemFactory
 		{
 		public:
 
-			~ListViewCb()
+			~ListViewFactory()
 			{
 
 			}
 
-			ui::ListItem *Create(Param *info);
+			ui::ListItem* Create(CreateParam& param);
 		};
 
 		First();
@@ -37,10 +37,10 @@ namespace menu {
 			return MenuType_First;
 		}
 
-		const SceUInt32 *GetSupportedSettingsItems(SceInt32 *count)
+		const uint32_t *GetSupportedSettingsItems(int32_t *count)
 		{
 			*count = 0;
-			return SCE_NULL;
+			return NULL;
 		}
 	};
 }

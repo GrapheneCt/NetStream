@@ -56,7 +56,7 @@ FtpServerBrowser::~FtpServerBrowser()
 	curl_easy_cleanup(curl);
 }
 
-SceBool FtpServerBrowser::Probe()
+bool FtpServerBrowser::Probe()
 {
 	curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
 
@@ -66,18 +66,18 @@ SceBool FtpServerBrowser::Probe()
 
 	if (ret != CURLE_OK)
 	{
-		return SCE_FALSE;
+		return false;
 	}
 
-	return SCE_TRUE;
+	return true;
 }
 
-SceBool FtpServerBrowser::IsAtRoot(string *current)
+bool FtpServerBrowser::IsAtRoot(string *current)
 {
 	return (root == *current);
 }
 
-SceBool FtpServerBrowser::IsAtRoot()
+bool FtpServerBrowser::IsAtRoot()
 {
 	return (root == GetPath());
 }
@@ -89,7 +89,7 @@ string FtpServerBrowser::GetPath()
 	curl_url_get(url, CURLUPART_URL, &path, 0);
 	if (path)
 	{
-		char *decoded = curl_easy_unescape(curl, path, 0, SCE_NULL);
+		char *decoded = curl_easy_unescape(curl, path, 0, NULL);
 		ret = decoded;
 		curl_free(decoded);
 		curl_free(path);
@@ -112,7 +112,7 @@ string FtpServerBrowser::GetBEAVUrl(string *in)
 	return ret;
 }
 
-SceVoid FtpServerBrowser::SetPath(const char *ref)
+void FtpServerBrowser::SetPath(const char *ref)
 {
 	if (ref)
 	{
@@ -128,7 +128,7 @@ SceVoid FtpServerBrowser::SetPath(const char *ref)
 	}
 }
 
-vector<FtpServerBrowser::Entry *> *FtpServerBrowser::GoTo(const char *ref, SceInt32 *result)
+vector<FtpServerBrowser::Entry *> *FtpServerBrowser::GoTo(const char *ref, int32_t *result)
 {
 	vector<FtpServerBrowser::Entry *> *ret = new vector<FtpServerBrowser::Entry *>;
 	CURLcode cret;
@@ -141,7 +141,7 @@ vector<FtpServerBrowser::Entry *> *FtpServerBrowser::GoTo(const char *ref, SceIn
 	curl_easy_setopt(curl, CURLOPT_URL, addr);
 	curl_free(addr);
 
-	buffer = SCE_NULL;
+	buffer = NULL;
 	posInBuf = 0;
 
 	cret = curl_easy_perform(curl);
@@ -156,7 +156,7 @@ vector<FtpServerBrowser::Entry *> *FtpServerBrowser::GoTo(const char *ref, SceIn
 		buffer[posInBuf - 1] = 0;
 
 		char *tok = sce_paf_strtok(buffer, "\n");
-		while (tok != SCE_NULL) {
+		while (tok != NULL) {
 			if (!useNlst)
 			{
 				struct ftpparse ftpe;
@@ -173,7 +173,7 @@ vector<FtpServerBrowser::Entry *> *FtpServerBrowser::GoTo(const char *ref, SceIn
 			BEAVPlayer::SupportType beavType = BEAVPlayer::IsSupported(tok);
 			if (beavType != BEAVPlayer::SupportType_NotSupported)
 			{
-				char *decoded = curl_easy_unescape(curl, tok, 0, SCE_NULL);
+				char *decoded = curl_easy_unescape(curl, tok, 0, NULL);
 				FtpServerBrowser::Entry *entry = new FtpServerBrowser::Entry();
 				entry->ref = decoded;
 				entry->type = FtpServerBrowser::Entry::Type_UnsupportedFile;
@@ -190,7 +190,7 @@ vector<FtpServerBrowser::Entry *> *FtpServerBrowser::GoTo(const char *ref, SceIn
 
 				ret->push_back(entry);
 			}
-			tok = sce_paf_strtok(SCE_NULL, "\n");
+			tok = sce_paf_strtok(NULL, "\n");
 		}
 
 		*result = SCE_OK;
@@ -206,10 +206,10 @@ vector<FtpServerBrowser::Entry *> *FtpServerBrowser::GoTo(const char *ref, SceIn
 	return ret;
 }
 
-SceSize FtpServerBrowser::DownloadCore(char *buffer, SceSize size, SceSize nitems, ScePVoid userdata)
+size_t FtpServerBrowser::DownloadCore(char *buffer, size_t size, size_t nitems, void *userdata)
 {
 	FtpServerBrowser *obj = (FtpServerBrowser *)userdata;
-	SceSize toCopy = size * nitems;
+	size_t toCopy = size * nitems;
 
 	if (toCopy != 0)
 	{

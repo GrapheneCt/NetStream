@@ -35,7 +35,7 @@ HttpServerBrowser::HttpServerBrowser(const char *host, const char *port, const c
 	}
 
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, USER_AGENT);
-	curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, SCE_NULL);
+	curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, NULL);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
@@ -54,7 +54,7 @@ HttpServerBrowser::~HttpServerBrowser()
 	curl_easy_cleanup(curl);
 }
 
-SceBool HttpServerBrowser::Probe()
+bool HttpServerBrowser::Probe()
 {
 	curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
 
@@ -64,18 +64,18 @@ SceBool HttpServerBrowser::Probe()
 
 	if (ret != CURLE_OK)
 	{
-		return SCE_FALSE;
+		return false;
 	}
 
-	return SCE_TRUE;
+	return true;
 }
 
-SceBool HttpServerBrowser::IsAtRoot(string *current)
+bool HttpServerBrowser::IsAtRoot(string *current)
 {
 	return (root == *current);
 }
 
-SceBool HttpServerBrowser::IsAtRoot()
+bool HttpServerBrowser::IsAtRoot()
 {
 	return (root == GetPath());
 }
@@ -87,7 +87,7 @@ string HttpServerBrowser::GetPath()
 	curl_url_get(url, CURLUPART_URL, &path, 0);
 	if (path)
 	{
-		char *decoded = curl_easy_unescape(curl, path, 0, SCE_NULL);
+		char *decoded = curl_easy_unescape(curl, path, 0, NULL);
 		ret = decoded;
 		curl_free(decoded);
 		curl_free(path);
@@ -110,7 +110,7 @@ string HttpServerBrowser::GetBEAVUrl(string *in)
 	return ret;
 }
 
-SceVoid HttpServerBrowser::SetPath(const char *ref)
+void HttpServerBrowser::SetPath(const char *ref)
 {
 	if (ref)
 	{
@@ -126,7 +126,7 @@ SceVoid HttpServerBrowser::SetPath(const char *ref)
 	}
 }
 
-vector<HttpServerBrowser::Entry *> *HttpServerBrowser::GoTo(const char *ref, SceInt32 *result)
+vector<HttpServerBrowser::Entry *> *HttpServerBrowser::GoTo(const char *ref, int32_t *result)
 {
 	vector<HttpServerBrowser::Entry *> *ret = new vector<HttpServerBrowser::Entry *>;
 	CURLcode cret;
@@ -139,7 +139,7 @@ vector<HttpServerBrowser::Entry *> *HttpServerBrowser::GoTo(const char *ref, Sce
 	curl_easy_setopt(curl, CURLOPT_URL, addr);
 	curl_free(addr);
 
-	buffer = SCE_NULL;
+	buffer = NULL;
 	posInBuf = 0;
 
 	cret = curl_easy_perform(curl);
@@ -153,7 +153,7 @@ vector<HttpServerBrowser::Entry *> *HttpServerBrowser::GoTo(const char *ref, Sce
 	{
 		buffer[posInBuf - 1] = 0;
 
-		char *href = SCE_NULL;
+		char *href = NULL;
 		char *refEnd = buffer;
 		while (1)
 		{
@@ -169,7 +169,7 @@ vector<HttpServerBrowser::Entry *> *HttpServerBrowser::GoTo(const char *ref, Sce
 
 			if (beavType != BEAVPlayer::SupportType_NotSupported)
 			{
-				char *decoded = curl_easy_unescape(curl, href, 0, SCE_NULL);
+				char *decoded = curl_easy_unescape(curl, href, 0, NULL);
 				HttpServerBrowser::Entry *entry = new HttpServerBrowser::Entry();
 				entry->ref = decoded;
 				entry->type = HttpServerBrowser::Entry::Type_UnsupportedFile;
@@ -201,10 +201,10 @@ vector<HttpServerBrowser::Entry *> *HttpServerBrowser::GoTo(const char *ref, Sce
 	return ret;
 }
 
-SceSize HttpServerBrowser::DownloadCore(char *buffer, SceSize size, SceSize nitems, ScePVoid userdata)
+size_t HttpServerBrowser::DownloadCore(char *buffer, size_t size, size_t nitems, void *userdata)
 {
 	HttpServerBrowser *obj = (HttpServerBrowser *)userdata;
-	SceSize toCopy = size * nitems;
+	size_t toCopy = size * nitems;
 
 	if (toCopy != 0)
 	{

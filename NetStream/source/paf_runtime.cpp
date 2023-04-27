@@ -10,7 +10,7 @@ extern "C" {
 	} SceSysmoduleOpt;
 
 	typedef struct ScePafInit {
-		SceSize global_heap_size;
+		size_t global_heap_size;
 		int a2;
 		int a3;
 		int cdlg_mode;
@@ -38,7 +38,7 @@ extern "C" {
 
 __attribute__((constructor(101))) void preloadPaf()
 {
-	SceInt32 ret = -1, load_res;
+	int32_t ret = -1, load_res;
 	void* pRet = 0;
 
 	ScePafInit init_param;

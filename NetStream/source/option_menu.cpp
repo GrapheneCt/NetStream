@@ -1,9 +1,8 @@
 #include <kernel.h>
 #include <libdbg.h>
 #include <paf.h>
-#include <system_param.h>
 
-#include "utils.h"
+#include "event.h"
 #include "option_menu.h"
 
 #define template_option_menu_base (0xed36b1c7)
@@ -23,111 +22,96 @@
 
 using namespace paf;
 
-const SceFloat32 k_minBtLen = 202.0f;
+const float k_minBtLen = 202.0f;
 
-SceInt32 OptionMenu::ButtonEventCallback::HandleEvent(SceInt32 eventId, paf::ui::Widget *self, SceInt32 a3)
+void OptionMenu::ButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	SceInt32 ret;
+	ui::Widget *wdg = (ui::Widget*)self;
+	uint32_t hash = wdg->GetName().GetIDHash();
+	OptionMenu *workObj = (OptionMenu *)userdata;
+	Plugin *plugin = workObj->plugin;
+	delete workObj;
 
-	if ((this->state & 1) == 0) {
-		delete this->workObj;
-		if (this->cb != 0) {
-			if (self->elem.hash == button_option_menu_close)
-			{
-				this->cb(OPTION_MENU_BUTTON_MAGIC, this->pUserData);
-			}
-			else
-			{
-				this->cb(self->elem.hash - OPTION_MENU_BUTTON_MAGIC, this->pUserData);
-			}
-		}
-		ret = SCE_OK;
+	if (hash == button_option_menu_close)
+	{
+		event::BroadcastGlobalEvent(plugin, OptionMenuEvent, OptionMenuEvent_Close);
 	}
-	else {
-		ret = 0x80AF4101;
+	else
+	{
+		event::BroadcastGlobalEvent(plugin, OptionMenuEvent, OptionMenuEvent_Button, hash - OPTION_MENU_BUTTON_MAGIC);
 	}
+}
 
-	return ret;
-};
-
-SceVoid OptionMenu::SizeAdjustEventHandler(SceInt32 eventId, paf::ui::Widget *self, SceInt32, ScePVoid pUserData)
+void OptionMenu::SizeAdjustEventHandler(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	rco::Element element;
-	ui::Widget *button = SCE_NULL;
-	SceFloat32 len = 0.0f;
-	OptionMenu *workObj = (OptionMenu *)pUserData;
+	ui::Widget *button = NULL;
+	float len = 0.0f;
+	ui::Text *wdg = (ui::Text*)self;
+	OptionMenu *workObj = (OptionMenu *)userdata;
 
-	len = self->GetDrawObj()->size.GetX() + 40.0f;
+	len = wdg->GetDrawObj(ui::Text::OBJ_ROOT)->GetSize().extract_x() + 40.0f;
 
 	if (len < k_minBtLen)
 	{
 		len = k_minBtLen;
 	}
 
-	Vector4 btSz(len, 60.0f);
-	Vector4 plSz(len + 12.0f, 12.0f + 60.0f * workObj->buttonCount);
-	Vector4 plPos(264.0f + ((202.0f - plSz.x) / 2.0f), 43.0f);
+	math::v4 btSz(len, 60.0f);
+	math::v4 plSz(len + 12.0f, 12.0f + 60.0f * workObj->buttonCount);
+	math::v4 plPos(264.0f + ((202.0f - plSz.extract_x()) / 2.0f), 43.0f);
 
-	element.hash = box_option_menu;
-	ui::Widget *optRoot = workObj->optPlaneRoot->GetChild(&element, 0);
+	ui::Widget *optRoot = workObj->optPlaneRoot->FindChild(box_option_menu);
 
 	for (int i = 0; i < workObj->buttonCount; i++)
 	{
-		element.hash = OPTION_MENU_BUTTON_MAGIC + i;
-		button = optRoot->GetChild(&element, 0);
-		button->SetAdjust(ui::Adjust_None, ui::Adjust_None, ui::Adjust_None);
+		button = optRoot->FindChild(OPTION_MENU_BUTTON_MAGIC + i);
+		button->SetAdjust(ui::Widget::ADJUST_NONE, ui::Widget::ADJUST_NONE, ui::Widget::ADJUST_NONE);
 		button->SetSize(btSz);
 	}
 
 	workObj->optPlaneRoot->SetSize(plSz);
-	workObj->optPlaneRoot->SetPosition(plPos);
-	workObj->optPlaneRoot->PlayEffect(0.0f, effect::EffectType_Popup4);
+	workObj->optPlaneRoot->SetPos(plPos);
+	workObj->optPlaneRoot->Show(common::transition::Type_Popup4, 0.0f);
 
-	self->UnregisterEventCallback(ui::EventRender_RenderStateReady, 0, 0);
+	self->DeleteEventCallback(ui::Handler::CB_STATE_READY, SizeAdjustEventHandler, userdata);
 }
 
-OptionMenu::OptionMenu(Plugin *workPlugin, ui::Widget *root, vector<Button> *buttons, ButtonCallback eventCallback, ButtonCallback closeCallback, ScePVoid userArg)
+OptionMenu::OptionMenu(Plugin *workPlugin, ui::Widget *root, vector<Button> *buttons)
 {
-	rco::Element element;
 	Plugin::TemplateOpenParam tmpParam;
-	ui::Widget *closeButton = SCE_NULL;
-	ui::Widget *button = SCE_NULL;
+	ui::Widget *closeButton = NULL;
+	ui::Widget *button = NULL;
 
 	parentRoot = root;
 	plugin = workPlugin;
 	buttonCount = buttons->size();
 
 	Plugin::PageOpenParam openParam;
-	openParam.flags = 1;
-	openParam.priority = 8;
-	openParam.unk_28_pageArg_a5 = 0x80;
-	element.hash = page_option_menu;
-	rootScene = plugin->PageOpen(&element, &openParam);
+	openParam.option = Plugin::PageOption_Create;
+	openParam.overwrite_draw_priority = 8;
+	openParam.graphics_flag = 0x80;
+	rootScene = plugin->PageOpen(page_option_menu, openParam);
 	if (!rootScene)
 	{
 		SCE_DBG_LOG_ERROR("[OPTION_MENU] Attempt to create option menu twice!\n");
 		return;
 	}
 
-	ui::Widget::SetControlFlags(parentRoot, 0);
+	parentRoot->SetActivate(false);
 
-	element.hash = template_option_menu_base;
-	plugin->TemplateOpen(rootScene, &element, &tmpParam);
+	plugin->TemplateOpen(rootScene, template_option_menu_base, tmpParam);
 
-	element.hash = button_option_menu_close;
-	closeButton = rootScene->GetChild(&element, 0);
-	closeButton->RegisterEventCallback(ui::EventMain_Decide, new ButtonEventCallback(this, closeCallback, userArg));
-	closeButton->SetDirectKey(SCE_PAF_CTRL_CIRCLE | SCE_PAF_CTRL_TRIANGLE);
+	closeButton = rootScene->FindChild(button_option_menu_close);
+	closeButton->AddEventCallback(ui::Button::CB_BTN_DECIDE, ButtonCbFun, this);
+	closeButton->SetKeycode(inputdevice::pad::Data::PAD_ESCAPE | inputdevice::pad::Data::PAD_MENU);
 
-	element.hash = plane_option_menu_base;
-	optPlaneRoot = closeButton->GetChild(&element, 0);
+	optPlaneRoot = closeButton->FindChild(plane_option_menu_base);
+	ui::Widget *optRoot = optPlaneRoot->FindChild(box_option_menu);
 
-	element.hash = box_option_menu;
-	ui::Widget *optRoot = optPlaneRoot->GetChild(&element, 0);
-
-	SceUInt32 maxLen = 0;
-	SceUInt32 curLen = 0;
-	SceUInt32 maxLenIdx = 0;
+	uint32_t maxLen = 0;
+	uint32_t curLen = 0;
+	uint32_t maxLenIdx = 0;
+	uint32_t idhash = 0;
 
 	for (int i = 0; i < buttonCount; i++)
 	{
@@ -137,27 +121,27 @@ OptionMenu::OptionMenu(Plugin *workPlugin, ui::Widget *root, vector<Button> *but
 		{
 			if (buttonCount == 1)
 			{
-				element.hash = template_option_menu_button_single;
+				idhash = template_option_menu_button_single;
 			}
 			else
 			{
-				element.hash = template_option_menu_button_top;
+				idhash = template_option_menu_button_top;
 			}
 		}
 		else if (i == buttonCount - 1)
 		{
-			element.hash = template_option_menu_button_bottom;
+			idhash = template_option_menu_button_bottom;
 		}
 		else
 		{
-			element.hash = template_option_menu_button_middle;
+			idhash = template_option_menu_button_middle;
 		}
 
-		plugin->TemplateOpen(optRoot, &element, &tmpParam);
-		button = optRoot->GetChild(optRoot->childNum - 1);
-		button->elem.hash = OPTION_MENU_BUTTON_MAGIC + i;
-		button->SetLabel(&btItem.label);
-		button->RegisterEventCallback(ui::EventMain_Decide, new ButtonEventCallback(this, eventCallback, userArg));
+		plugin->TemplateOpen(optRoot, idhash, tmpParam);
+		button = optRoot->GetChild(optRoot->GetChildrenNum() - 1);
+		button->SetName(OPTION_MENU_BUTTON_MAGIC + i);
+		button->SetString(btItem.label);
+		button->AddEventCallback(ui::Button::CB_BTN_DECIDE, ButtonCbFun, this);
 
 		curLen = btItem.label.length();
 		if (curLen > maxLen)
@@ -167,23 +151,20 @@ OptionMenu::OptionMenu(Plugin *workPlugin, ui::Widget *root, vector<Button> *but
 		}
 	}
 
-	element.hash = text_option_menu_ruler;
-	ui::Widget *ruler = optPlaneRoot->GetChild(&element, 0);
-	ruler->SetLabel(&buttons->at(maxLenIdx).label);
-	ruler->RegisterEventCallback(ui::EventRender_RenderStateReady, new utils::SimpleEventCallback(SizeAdjustEventHandler, this));
+	ui::Widget *ruler = optPlaneRoot->FindChild(text_option_menu_ruler);
+	ruler->SetString(buttons->at(maxLenIdx).label);
+	ruler->AddEventCallback(ui::Handler::CB_STATE_READY, SizeAdjustEventHandler, this);
 }
 
 OptionMenu::~OptionMenu()
 {
-	rco::Element element;
 	Plugin::PageCloseParam closeParam;
 
-	optPlaneRoot->PlayEffectReverse(0.0f, effect::EffectType_Popup4);
+	optPlaneRoot->Hide(common::transition::Type_Popup4, 0.0f);
 
-	element.hash = page_option_menu;
-	closeParam.useFadeout = true;
-	closeParam.fadeoutTimeMs = 1000;
-	plugin->PageClose(&element, &closeParam);
+	closeParam.fade = true;
+	closeParam.fade_time_ms = 1000;
+	plugin->PageClose(page_option_menu, closeParam);
 
-	ui::Widget::SetControlFlags(parentRoot, 1);
+	parentRoot->SetActivate(true);
 }

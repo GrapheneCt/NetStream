@@ -13,20 +13,29 @@
 
 using namespace paf;
 
-SceVoid menu::GenericServerMenu::PlayerBackCb(PlayerSimple *player, ScePVoid pUserArg)
+void menu::GenericServerMenu::PlayerEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	delete player;
+	GenericServerMenu *workObj = (GenericServerMenu *)userdata;
+
+	switch (e->GetValue(0))
+	{
+	case PlayerSimple::PlayerEvent_Back:
+		delete workObj->player;
+		break;
+	case PlayerSimple::PlayerEvent_InitOk:
+
+		break;
+	case PlayerSimple::PlayerEvent_InitFail:
+		workObj->playerFailed = true;
+		dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_EUNSUP, Framework::Instance()->GetCommonString("msg_error_load_file"));
+		delete workObj->player;
+		break;
+	}
 }
 
-SceVoid menu::GenericServerMenu::PlayerFailCb(PlayerSimple *player, ScePVoid pUserArg)
+void menu::GenericServerMenu::BackButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_EUNSUP, utils::GetString("msg_error_load_file"));
-	delete player;
-}
-
-SceVoid menu::GenericServerMenu::BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
-{
-	GenericServerMenu *workObj = (GenericServerMenu *)pUserData;
+	GenericServerMenu *workObj = (GenericServerMenu *)userdata;
 
 	workObj->PopBrowserPage();
 	if (workObj->pageList.empty())
@@ -35,11 +44,19 @@ SceVoid menu::GenericServerMenu::BackButtonCbFun(SceInt32 eventId, ui::Widget *s
 	}
 }
 
-SceVoid menu::GenericServerMenu::ListButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+void menu::GenericServerMenu::PlayerCreateTimeoutFun(void *userdata1, void *userdata2)
 {
-	GenericServerMenu *workObj = (GenericServerMenu *)pUserData;
+	GenericServerMenu *workObj = (GenericServerMenu *)userdata1;
+	GenericServerBrowser::Entry *entry = (GenericServerBrowser::Entry *)userdata2;
+	workObj->player = new menu::PlayerSimple(workObj->browser->GetBEAVUrl(&entry->ref).c_str());
+}
+
+void menu::GenericServerMenu::ListButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
+{
+	GenericServerMenu *workObj = (GenericServerMenu *)userdata;
+	ui::Widget *wdg = (ui::Widget*)self;
 	BrowserPage *workPage = workObj->pageList.back();
-	GenericServerBrowser::Entry *entry = workPage->itemList->at(self->elem.hash);
+	GenericServerBrowser::Entry *entry = workPage->itemList->at(wdg->GetName().GetIDHash());
 
 	if (entry->type == GenericServerBrowser::Entry::Type_Folder || entry->type == GenericServerBrowser::Entry::Type_PlaylistFile)
 	{
@@ -47,109 +64,130 @@ SceVoid menu::GenericServerMenu::ListButtonCbFun(SceInt32 eventId, ui::Widget *s
 	}
 	else if (entry->type == GenericServerBrowser::Entry::Type_SupportedFile)
 	{
-		new menu::PlayerSimple(workObj->browser->GetBEAVUrl(&entry->ref).c_str(), SCE_NULL, PlayerFailCb, PlayerBackCb, pUserData);
+		if (SCE_PAF_IS_DOLCE)
+		{
+			Framework::Instance()->GetEnvironmentInstance()->SetResolution(1920, 1088);
+			utils::SetTimeout(PlayerCreateTimeoutFun, 10.0f, workObj, entry);
+		}
+		else
+		{
+			workObj->player = new menu::PlayerSimple(workObj->browser->GetBEAVUrl(&entry->ref).c_str());
+		}
 	}
 }
 
-SceVoid menu::GenericServerMenu::SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+void menu::GenericServerMenu::SettingsButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	GenericServerMenu *workObj = (GenericServerMenu *)pUserData;
+	GenericServerMenu *workObj = (GenericServerMenu *)userdata;
 	
 	vector<OptionMenu::Button> buttons;
 	OptionMenu::Button bt;
-	bt.label = utils::GetString(msg_settings);
+	bt.label = g_appPlugin->GetString(msg_settings);
 	buttons.push_back(bt);
 
-	new OptionMenu(g_appPlugin, workObj->root, &buttons, OptionButtonCb, SCE_NULL, SCE_NULL);
+	new OptionMenu(g_appPlugin, workObj->root, &buttons);
 }
 
-SceVoid menu::GenericServerMenu::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)
+void menu::GenericServerMenu::OptionMenuEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	menu::SettingsButtonCbFun(ui::EventMain_Decide, SCE_NULL, 0, SCE_NULL);
+	if (e->GetValue(0) == OptionMenu::OptionMenuEvent_Close)
+	{
+		return;
+	}
+
+	menu::SettingsButtonCbFun(ui::Button::CB_BTN_DECIDE, NULL, 0, NULL);
 }
 
-ui::ListItem *menu::GenericServerMenu::ListViewCb::Create(Param *info)
+ui::ListItem *menu::GenericServerMenu::ListViewCb::Create(CreateParam& param)
 {
-	rco::Element searchParam;
 	Plugin::TemplateOpenParam tmpParam;
-	ui::Widget *item = SCE_NULL;
-	graph::Surface *tex = SCE_NULL;
+	ui::Widget *item = NULL;
 	wstring text16;
 
-	if (!info->list->elem.hash)
+	if (!param.list_view->GetName().GetIDHash())
 	{
-		return new ui::ListItem(info->parent, 0);
+		return new ui::ListItem(param.parent, 0);
 	}
 
 	BrowserPage *workPage = workObj->pageList.back();
 
-	GenericServerBrowser::Entry *entry = workPage->itemList->at(info->cellIndex);
-	ui::Widget *targetRoot = info->parent;
+	GenericServerBrowser::Entry *entry = workPage->itemList->at(param.cell_index);
+	ui::Widget *targetRoot = param.parent;
 
-	searchParam.hash = template_list_item_generic;
-	g_appPlugin->TemplateOpen(targetRoot, &searchParam, &tmpParam);
-	item = targetRoot->GetChild(targetRoot->childNum - 1);
+	g_appPlugin->TemplateOpen(targetRoot, template_list_item_generic, tmpParam);
+	item = targetRoot->GetChild(targetRoot->GetChildrenNum() - 1);
 
-	ui::Widget *button = utils::GetChild(item, image_button_list_item);
-	button->elem.hash = info->cellIndex;
+	ui::Widget *button = item->FindChild(image_button_list_item);
+	button->SetName(param.cell_index);
 
 	common::Utf8ToUtf16(entry->ref, &text16);
-	button->SetLabel(&text16);
-	button->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(ListButtonCbFun, workObj));
+	button->SetString(text16);
+	button->AddEventCallback(ui::Button::CB_BTN_DECIDE, ListButtonCbFun, workObj);
 
+	uint32_t texid = 0;
 	switch (entry->type)
 	{
 	default:
 	case GenericServerBrowser::Entry::Type_UnsupportedFile:
-		tex = utils::GetTexture(tex_file_icon_unsupported);
+		texid = tex_file_icon_unsupported;
 		break;
 	case GenericServerBrowser::Entry::Type_SupportedFile:
-		tex = utils::GetTexture(tex_file_icon_video);
+		texid = tex_file_icon_video;
 		break;
 	case GenericServerBrowser::Entry::Type_Folder:
-		tex = utils::GetTexture(tex_file_icon_folder);
+		texid = tex_file_icon_folder;
 		break;
 	case GenericServerBrowser::Entry::Type_PlaylistFile:
-		tex = utils::GetTexture(tex_file_icon_playlist);
+		texid = tex_file_icon_playlist;
 		break;
 	}
 
-	button->SetSurfaceBase(&tex);
-	tex->Release();
+	intrusive_ptr<graph::Surface> tex = g_appPlugin->GetTexture(texid);
+	if (tex.get())
+	{
+		button->SetTexture(tex);
+	}
 
 	return (ui::ListItem *)item;
 }
 
-SceVoid menu::GenericServerMenu::GoToJob::ConnectionFailedDialogHandler(dialog::ButtonCode buttonCode, ScePVoid pUserArg)
+void menu::GenericServerMenu::ConnectionFailedDialogHandler(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	GenericServerMenu *workObj = (GenericServerMenu *)pUserArg;
+	GenericServerMenu *workObj = (GenericServerMenu *)userdata;
+	if (workObj->playerFailed)
+	{
+		workObj->playerFailed = false;
+		return;
+	}
+
 	workObj->PopBrowserPage();
-	menu::SettingsButtonCbFun(ui::EventMain_Decide, SCE_NULL, 0, SCE_NULL);
+	menu::SettingsButtonCbFun(ui::Button::CB_BTN_DECIDE, NULL, 0, NULL);
 	if (workObj->pageList.empty())
 	{
 		delete workObj;
 	}
 	menu::GenericMenu *topMenu = menu::GetTopMenu();
-	if (topMenu) {
+	if (topMenu)
+	{
 		topMenu->DisableInput();
 	}
 }
 
-SceVoid menu::GenericServerMenu::GoToJob::Run()
+void menu::GenericServerMenu::GoToJob::Run()
 {
-	SceInt32 ret = SCE_OK;
+	int32_t ret = SCE_OK;
 	string currentPath;
 	wstring text16;
 
-	thread::s_mainThreadMutex.Lock();
+	thread::RMutex::main_thread_mutex.Lock();
 	workObj->loaderIndicator->Start();
-	thread::s_mainThreadMutex.Unlock();
+	thread::RMutex::main_thread_mutex.Unlock();
 
 	BrowserPage *workPage = workObj->pageList.back();
 
 	if (targetRef.length() == 0)
 	{
-		workPage->itemList = workObj->browser->GoTo(SCE_NULL, &ret);
+		workPage->itemList = workObj->browser->GoTo(NULL, &ret);
 	}
 	else
 	{
@@ -157,56 +195,60 @@ SceVoid menu::GenericServerMenu::GoToJob::Run()
 	}
 	if (ret != SCE_OK)
 	{
-		thread::s_mainThreadMutex.Lock();
+		thread::RMutex::main_thread_mutex.Lock();
 		workObj->loaderIndicator->Stop();
-		thread::s_mainThreadMutex.Unlock();
-		workPage->isLoaded = SCE_TRUE;
-		dialog::OpenError(g_appPlugin, ret, utils::GetString("msg_error_connect_server_peer"), ConnectionFailedDialogHandler, workObj);
+		thread::RMutex::main_thread_mutex.Unlock();
+		workPage->isLoaded = true;
+		dialog::OpenError(g_appPlugin, ret, Framework::Instance()->GetCommonString("msg_error_connect_server_peer"));
 		return;
 	}
 	if (workObj->firstBoot)
 	{
-		ui::Widget *backButton = utils::GetChild(workObj->root, button_back_page_server_generic);
-		ui::Widget *settingsButton = utils::GetChild(workObj->root, button_settings_page_server_generic);
-		thread::s_mainThreadMutex.Lock();
-		backButton->PlayEffect(0.0f, effect::EffectType_Reset);
-		settingsButton->PlayEffect(0.0f, effect::EffectType_Reset);
-		thread::s_mainThreadMutex.Unlock();
-		workObj->firstBoot = SCE_FALSE;
+		ui::Widget *backButton = workObj->root->FindChild(button_back_page_server_generic);
+		ui::Widget *settingsButton = workObj->root->FindChild(button_settings_page_server_generic);
+		thread::RMutex::main_thread_mutex.Lock();
+		backButton->Show(common::transition::Type_Reset);
+		settingsButton->Show(common::transition::Type_Reset);
+		thread::RMutex::main_thread_mutex.Unlock();
+		workObj->firstBoot = false;
 	}
 
 	currentPath = workObj->browser->GetPath();
 	common::Utf8ToUtf16(currentPath, &text16);
 
-	thread::s_mainThreadMutex.Lock();
+	thread::RMutex::main_thread_mutex.Lock();
 	workObj->loaderIndicator->Stop();
-	workPage->list->AddItem(0, 0, workPage->itemList->size());
-	workObj->topText->SetLabel(&text16);
-	thread::s_mainThreadMutex.Unlock();
+	workPage->list->InsertCell(0, 0, workPage->itemList->size());
+	workObj->topText->SetString(text16);
+	thread::RMutex::main_thread_mutex.Unlock();
 
-	workPage->isLoaded = SCE_TRUE;
+	workPage->isLoaded = true;
 }
 
 menu::GenericServerMenu::GenericServerMenu() :
 	GenericMenu("page_server_generic",
-	MenuOpenParam(false, 200.0f, Plugin::PageEffectType_SlideFromBottom),
-	MenuCloseParam(false, 200.0f, Plugin::PageEffectType_SlideFromBottom))
+	MenuOpenParam(false, 200.0f, Plugin::TransitionType_SlideFromBottom),
+	MenuCloseParam(false, 200.0f, Plugin::TransitionType_SlideFromBottom))
 {
-	rco::Element searchParam;
 	Plugin::TemplateOpenParam tmpParam;
-	firstBoot = SCE_TRUE;
+	firstBoot = true;
+	playerFailed = false;
 
-	ui::Widget *settingsButton = utils::GetChild(root, button_settings_page_server_generic);
-	settingsButton->PlayEffectReverse(0.0f, effect::EffectType_Reset);
-	settingsButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(SettingsButtonCbFun, this));
+	menu::GetMenuAt(0)->GetRoot()->SetEventCallback(dialog::DialogEvent, ConnectionFailedDialogHandler, this);
+	menu::GetMenuAt(0)->GetRoot()->SetEventCallback(OptionMenu::OptionMenuEvent, OptionMenuEventCbFun, this);
+	root->AddEventCallback(PlayerSimple::PlayerSimpleEvent, PlayerEventCbFun, this);
 
-	ui::Widget *backButton = utils::GetChild(root, button_back_page_server_generic);
-	backButton->PlayEffectReverse(0.0f, effect::EffectType_Reset);
-	backButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(BackButtonCbFun, this));
+	ui::Widget *settingsButton = root->FindChild(button_settings_page_server_generic);
+	settingsButton->Hide(common::transition::Type_Reset);
+	settingsButton->AddEventCallback(ui::Button::CB_BTN_DECIDE, SettingsButtonCbFun, this);
 
-	browserRoot = utils::GetChild(root, plane_browser_root_page_server_generic);
-	loaderIndicator = (ui::BusyIndicator *)utils::GetChild(root, busyindicator_loader_page_server_generic);
-	topText = (ui::Text *)utils::GetChild(root, text_top);
+	ui::Widget *backButton = root->FindChild(button_back_page_server_generic);
+	backButton->Hide(common::transition::Type_Reset);
+	backButton->AddEventCallback(ui::Button::CB_BTN_DECIDE, BackButtonCbFun, this);
+
+	browserRoot = root->FindChild(plane_browser_root_page_server_generic);
+	loaderIndicator = (ui::BusyIndicator *)root->FindChild(busyindicator_loader_page_server_generic);
+	topText = (ui::Text *)root->FindChild(text_top);
 }
 
 menu::GenericServerMenu::~GenericServerMenu()
@@ -219,36 +261,32 @@ menu::GenericServerMenu::~GenericServerMenu()
 	delete browser;
 }
 
-SceBool menu::GenericServerMenu::PushBrowserPage(string *ref)
+bool menu::GenericServerMenu::PushBrowserPage(string *ref)
 {
-	rco::Element searchParam;
 	Plugin::TemplateOpenParam tmpParam;
 
 	BrowserPage *page = new BrowserPage();
 
-	searchParam.hash = template_list_view_generic;
-	g_appPlugin->TemplateOpen(browserRoot, &searchParam, &tmpParam);
-	page->list = (ui::ListView *)browserRoot->GetChild(browserRoot->childNum - 1);
+	g_appPlugin->TemplateOpen(browserRoot, template_list_view_generic, tmpParam);
+	page->list = (ui::ListView *)browserRoot->GetChild(browserRoot->GetChildrenNum() - 1);
 	ListViewCb *lwCb = new ListViewCb();
 	lwCb->workObj = this;
-	page->list->RegisterItemCallback(lwCb);
-	page->list->SetSegmentEnable(0, 1);
-	Vector4 sz(960.0f, 80.0f);
-	page->list->SetCellSize(0, &sz);
-	page->list->SetConfigurationType(0, ui::ListView::ConfigurationType_Simple);
+	page->list->SetItemFactory(lwCb);
+	page->list->InsertSegment(0, 1);
+	math::v4 sz(960.0f, 80.0f);
+	page->list->SetCellSizeDefault(0, sz);
+	page->list->SetSegmentLayoutType(0, ui::ListView::LAYOUT_TYPE_LIST);
 
 	BrowserPage *wp;
 	if (!pageList.empty()) {
 		if (pageList.size() > 1) {
 			wp = pageList.rbegin()[1];
-			wp->list->PlayEffectReverse(0.0f, effect::EffectType_Reset);
-			if (wp->list->animationStatus & 0x80)
-				wp->list->animationStatus &= ~0x80;
+			wp->list->Hide(common::transition::Type_Reset);
+			wp->list->SetTransitionComplete(false);
 		}
 		wp = pageList.back();
-		wp->list->PlayEffect(0.0f, effect::EffectType_3D_SlideToBack1);
-		if (wp->list->animationStatus & 0x80)
-			wp->list->animationStatus &= ~0x80;
+		wp->list->Show(common::transition::Type_3D_SlideToBack1);
+		wp->list->SetTransitionComplete(false);
 	}
 
 	pageList.push_back(page);
@@ -262,21 +300,21 @@ SceBool menu::GenericServerMenu::PushBrowserPage(string *ref)
 	common::SharedPtr<job::JobItem> itemParam(job);
 	utils::GetJobQueue()->Enqueue(itemParam);
 
-	return SCE_TRUE;
+	return true;
 }
 
-SceBool menu::GenericServerMenu::PopBrowserPage()
+bool menu::GenericServerMenu::PopBrowserPage()
 {
 	BrowserPage *pageToPop;
-	SceBool isLastPage = SCE_FALSE;
+	bool isLastPage = false;
 
 	if (pageList.empty())
 	{
-		return SCE_FALSE;
+		return false;
 	}
 	else if (pageList.size() == 1)
 	{
-		isLastPage = SCE_TRUE;
+		isLastPage = true;
 	}
 
 	pageToPop = pageList.back();
@@ -285,11 +323,11 @@ SceBool menu::GenericServerMenu::PopBrowserPage()
 		thread::Sleep(10);
 	}
 
-	pageToPop->list->elem.hash = 0;
+	pageToPop->list->SetName((uint32_t)0);
 
 	if (!isLastPage)
 	{
-		effect::Play(-100.0f, pageToPop->list, effect::EffectType_3D_SlideFromFront, true, false);
+		common::transition::DoReverse(-100.0f, pageToPop->list, common::transition::Type_3D_SlideFromFront, true, false);
 	}
 
 	for (int i = 0; i < pageToPop->itemList->size(); i++)
@@ -306,15 +344,13 @@ SceBool menu::GenericServerMenu::PopBrowserPage()
 		BrowserPage *wp;
 		if (!pageList.empty()) {
 			wp = pageList.back();
-			wp->list->PlayEffectReverse(0.0f, effect::EffectType_3D_SlideToBack1);
-			wp->list->PlayEffect(0.0f, effect::EffectType_Reset);
-			if (wp->list->animationStatus & 0x80)
-				wp->list->animationStatus &= ~0x80;
+			wp->list->Hide(common::transition::Type_3D_SlideToBack1);
+			wp->list->Show(common::transition::Type_Reset);
+			wp->list->SetTransitionComplete(false);
 			if (pageList.size() > 1) {
 				wp = pageList.rbegin()[1];
-				wp->list->PlayEffect(0.0f, effect::EffectType_Reset);
-				if (wp->list->animationStatus & 0x80)
-					wp->list->animationStatus &= ~0x80;
+				wp->list->Show(common::transition::Type_Reset);
+				wp->list->SetTransitionComplete(false);
 			}
 		}
 	}
@@ -325,8 +361,8 @@ SceBool menu::GenericServerMenu::PopBrowserPage()
 		string currentPath = browser->GetPath();
 		wstring text16;
 		common::Utf8ToUtf16(currentPath, &text16);
-		topText->SetLabel(&text16);
+		topText->SetString(text16);
 	}
 
-	return SCE_TRUE;
+	return true;
 }

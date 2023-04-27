@@ -10,12 +10,12 @@
 using namespace paf;
 using namespace sce;
 
-static twutils::HistLog *s_histLog = SCE_NULL;
-static twutils::FavLog *s_favLog = SCE_NULL;
+static twutils::HistLog *s_histLog = NULL;
+static twutils::FavLog *s_favLog = NULL;
 
-SceInt32 twutils::Log::GetNext(char *data)
+int32_t twutils::Log::GetNext(char *data)
 {
-	SceInt32 ret;
+	int32_t ret;
 	char *sptr;
 	char val[2];
 
@@ -34,7 +34,7 @@ SceInt32 twutils::Log::GetNext(char *data)
 	return ret;
 }
 
-SceInt32 twutils::Log::Get(const char *data)
+int32_t twutils::Log::Get(const char *data)
 {
 	char *sptr;
 	char dataCopy[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
@@ -53,22 +53,22 @@ SceInt32 twutils::Log::Get(const char *data)
 	return  ini->get(dataCopy, val, sizeof(val), 0);
 }
 
-SceVoid twutils::Log::Flush()
+void twutils::Log::Flush()
 {
 	ini->flush();
 }
 
-SceInt32 twutils::Log::GetSize()
+int32_t twutils::Log::GetSize()
 {
 	return ini->size();
 }
 
-SceVoid twutils::Log::Reset()
+void twutils::Log::Reset()
 {
 	ini->reset();
 }
 
-SceVoid twutils::Log::Add(const char *data)
+void twutils::Log::Add(const char *data)
 {
 	char *sptr;
 	char dataCopy[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
@@ -87,7 +87,7 @@ SceVoid twutils::Log::Add(const char *data)
 	ini->flush();
 }
 
-SceVoid twutils::Log::AddAsyncJob::Run()
+void twutils::Log::AddAsyncJob::Run()
 {
 	char *sptr;
 
@@ -104,16 +104,16 @@ SceVoid twutils::Log::AddAsyncJob::Run()
 	workObj->ini->flush();
 }
 
-SceVoid twutils::Log::AddAsync(const char *data)
+void twutils::Log::AddAsync(const char *data)
 {
 	AddAsyncJob *job = new AddAsyncJob("utils::AddAsyncJob");
 	job->workObj = this;
 	job->data = data;
 	common::SharedPtr<job::JobItem> itemParam(job);
-	job::s_defaultJobQueue->Enqueue(itemParam);
+	job::JobQueue::default_queue->Enqueue(itemParam);
 }
 
-SceVoid twutils::Log::Remove(const char *data)
+void twutils::Log::Remove(const char *data)
 {
 	char *sptr;
 	char dataCopy[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
@@ -134,7 +134,7 @@ SceVoid twutils::Log::Remove(const char *data)
 
 twutils::HistLog::HistLog()
 {
-	SceUInt32 i = 0;
+	uint32_t i = 0;
 	char val[2];
 	char data[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
 	Ini::InitParameter param;
@@ -182,39 +182,39 @@ twutils::FavLog::FavLog()
 	ini->open("savedata0:tw_fav_log.ini", "rw", 0);
 }
 
-SceVoid twutils::FavLog::Clean()
+void twutils::FavLog::Clean()
 {
 	if (s_favLog)
 	{
 		delete s_favLog;
-		sceIoRemove("savedata0:tw_fav_log.ini");
+		LocalFile::RemoveFile("savedata0:tw_fav_log.ini");
 		s_favLog = new twutils::FavLog();
 	}
 }
 
-SceVoid twutils::HistLog::Clean()
+void twutils::HistLog::Clean()
 {
 	if (s_histLog)
 	{
 		delete s_histLog;
-		sceIoRemove("savedata0:tw_hist_log.ini");
+		LocalFile::RemoveFile("savedata0:tw_hist_log.ini");
 		s_histLog = new twutils::HistLog();
 	}
 }
 
-SceVoid twutils::Init()
+void twutils::Init()
 {
 	ltkInit(sce_paf_malloc, sce_paf_free, "https://github.com/GrapheneCt/NetStream/raw/main/loot.bin");
 
 	/*
-	LtkItem *ch = SCE_NULL;
-	LtkItemVideo *vid = SCE_NULL;
-	SceInt32 ret = 0;
+	LtkItem *ch = NULL;
+	LtkItemVideo *vid = NULL;
+	int32_t ret = 0;
 	char dummy[1024];
 
-	ret = ltkParseSearch("", SCE_NULL, LTK_SEARCH_TYPE_CHANNEL, LTK_SEARCH_DIR_AFTER, &ch);
+	ret = ltkParseSearch("", NULL, LTK_SEARCH_TYPE_CHANNEL, LTK_SEARCH_DIR_AFTER, &ch);
 	sceClibPrintf("ltkParseSearch: 0x%08X\n", ret);
-	ltkParseVideo(ch[0].channelItem, LTK_VIDEO_TYPE_VOD, SCE_NULL, LTK_SEARCH_DIR_AFTER, &vid);
+	ltkParseVideo(ch[0].channelItem, LTK_VIDEO_TYPE_VOD, NULL, LTK_SEARCH_DIR_AFTER, &vid);
 	ltkGetVideoUrl(&vid[0], LTK_HLS_QUALITY_360P, dummy, sizeof(dummy));
 	sceClibPrintf("video url: %s\n", dummy);
 	*/
@@ -225,7 +225,7 @@ SceVoid twutils::Init()
 		s_favLog = new twutils::FavLog();
 }
 
-SceVoid twutils::Flush()
+void twutils::Flush()
 {
 	if (s_histLog)
 	{
@@ -237,17 +237,17 @@ SceVoid twutils::Flush()
 	}
 }
 
-SceVoid twutils::Term()
+void twutils::Term()
 {
 	if (s_histLog)
 	{
 		delete s_histLog;
-		s_histLog = SCE_NULL;
+		s_histLog = NULL;
 	}
 	if (s_favLog)
 	{
 		delete s_favLog;
-		s_favLog = SCE_NULL;
+		s_favLog = NULL;
 	}
 
 	ltkTerm();

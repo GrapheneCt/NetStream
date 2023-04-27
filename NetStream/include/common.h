@@ -15,7 +15,7 @@ using namespace paf;
 
 extern Plugin *g_appPlugin;
 
-extern graph::Surface *g_texCheckMark;
-extern graph::Surface *g_texTransparent;
+extern intrusive_ptr<graph::Surface> g_texCheckMark;
+extern intrusive_ptr<graph::Surface> g_texTransparent;
 
 #endif

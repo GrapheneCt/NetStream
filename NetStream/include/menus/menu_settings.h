@@ -13,6 +13,17 @@ namespace menu {
 	{
 	public:
 
+		enum
+		{
+			SettingsEvent = (ui::Handler::CB_STATE + 0x30000),
+		};
+
+		enum SettingsEvent
+		{
+			SettingsEvent_Close,
+			SettingsEvent_ValueChange
+		};
+
 		enum Hash
 		{
 			Hash_HttpServerHost = 0x1,
@@ -21,50 +32,42 @@ namespace menu {
 			Hash_HttpServerPassword = 0x1
 		};
 
-		typedef void(*CloseCallback)(ScePVoid pUserArg);
-		typedef SceInt32(*ValueChangeCallback)(const char *id, const char *newValue, ScePVoid pUserArg);
+		typedef void(*CloseCallback)(void *pUserArg);
+		typedef int32_t(*ValueChangeCallback)(const char *id, const char *newValue, void *pUserArg);
 
 		Settings();
 
 		~Settings();
 
-		SceVoid SetCloseCallback(CloseCallback cb, ScePVoid uarg);
-
-		static SceVoid SetValueChangeCallback(ValueChangeCallback cb, ScePVoid uarg);
-
 		static Settings *GetInstance();
 
 		static sce::AppSettings *GetAppSetInstance();
 
-		static SceVoid Init();
+		static void Init();
 
 	private:
 
-		static SceVoid CBOnStartPageTransition(const char *elementId, SceInt32 type);
+		static void CBOnStartPageTransition(const char *elementId, int32_t type);
 
-		static SceVoid CBOnPageActivate(const char *elementId, SceInt32 type);
+		static void CBOnPageActivate(const char *elementId, int32_t type);
 
-		static SceVoid CBOnPageDeactivate(const char *elementId, SceInt32 type);
+		static void CBOnPageDeactivate(const char *elementId, int32_t type);
 
-		static SceInt32 CBOnCheckVisible(const char *elementId, SceBool *pIsVisible);
+		static int32_t CBOnCheckVisible(const char *elementId, bool *pIsVisible);
 
-		static SceInt32 CBOnPreCreate(const char *elementId, sce::AppSettings::Element *element);
+		static int32_t CBOnPreCreate(const char *elementId, sce::AppSettings::Element *element);
 
-		static SceInt32 CBOnPostCreate(const char *elementId, paf::ui::Widget *widget);
+		static int32_t CBOnPostCreate(const char *elementId, paf::ui::Widget *widget);
 
-		static SceInt32 CBOnPress(const char *elementId, const char *newValue);
+		static int32_t CBOnPress(const char *elementId, const char *newValue);
 
-		static SceInt32 CBOnPress2(const char *elementId, const char *newValue);
+		static int32_t CBOnPress2(const char *elementId, const char *newValue);
 
-		static SceVoid CBOnTerm(SceInt32 result);
+		static void CBOnTerm(int32_t result);
 
 		static wchar_t *CBOnGetString(const char *elementId);
 
-		static SceInt32 CBOnGetSurface(graph::Surface **surf, const char *elementId);
-
-		CloseCallback closeCb;
-		ScePVoid closeCbUserArg;
-
+		static int32_t CBOnGetSurface(graph::Surface **surf, const char *elementId);
 	};
 }
 

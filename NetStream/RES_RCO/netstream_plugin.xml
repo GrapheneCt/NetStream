@@ -133,12 +133,6 @@
           <resolution id="landscape" size="960, 544" />
           <resolution id="full_hd" size="1920, 1088" />
         </layout_hint>
-        <plane style="style_plane_black" id="plane_dummy">
-          <layout_hint anchor="1, 2" align="1, 2">
-            <resolution id="landscape" size="1, 1" />
-            <resolution id="full_hd" size="1, 1" />
-          </layout_hint>
-        </plane>
         <busyindicator style="style_busyindicator_big" texture="_common_texture_busy" id="busyindicator_video_page_player_simple" >
           <layout_hint>
             <resolution id="landscape" size="75, 75" />
@@ -171,6 +165,12 @@
           </layout_hint>
           <focus_hint enable="0" />
         </plane_button>
+        <plane texture="_common_texture_transparent" id="plane_statindicator">
+          <layout_hint anchor="1, 2" align="1, 2">
+            <resolution id="landscape" size="1, 1" pos="10, 10" />
+            <resolution id="full_hd" size="1, 1" pos="10, 10" />
+          </layout_hint>
+        </plane>
         <plane style="style_plane_video_page_control_bg" texture="_common_texture_option_menu_button_top" id="plane_video_control_panel_bg">
           <layout_hint anchor="0, 1">
             <resolution id="landscape" size="790, 56" pos="0, 28" />
@@ -432,7 +432,7 @@
   
     <!-- generic list item template (image button) -->
     <template fast_open="1" id="template_list_item_generic">
-      <list_item style="style_list_view_item_generic" id="list_item">
+      <list_item style="style_list_view_item_generic" id="list_item_generic">
         <layout_hint size="960, 80" />
         <image_button sound="_common_sound_image_button" enable_long_press_text_auto_scroll="1" style="style_image_button_list_button" id="image_button_list_item">
           <focus_hint focus_shape="3" />

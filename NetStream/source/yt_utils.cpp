@@ -11,13 +11,13 @@
 using namespace paf;
 using namespace sce;
 
-static ytutils::HistLog *s_histLog = SCE_NULL;
-static ytutils::FavLog *s_favLog = SCE_NULL;
-static Downloader *s_downloader = SCE_NULL;
+static ytutils::HistLog *s_histLog = NULL;
+static ytutils::FavLog *s_favLog = NULL;
+static Downloader *s_downloader = NULL;
 
-SceInt32 ytutils::Log::GetNext(char *data)
+int32_t ytutils::Log::GetNext(char *data)
 {
-	SceInt32 ret;
+	int32_t ret;
 	char *sptr;
 	char val[2];
 
@@ -36,7 +36,7 @@ SceInt32 ytutils::Log::GetNext(char *data)
 	return ret;
 }
 
-SceInt32 ytutils::Log::Get(const char *data)
+int32_t ytutils::Log::Get(const char *data)
 {
 	char *sptr;
 	char dataCopy[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
@@ -55,22 +55,22 @@ SceInt32 ytutils::Log::Get(const char *data)
 	return  ini->get(dataCopy, val, sizeof(val), 0);
 }
 
-SceVoid ytutils::Log::Flush()
+void ytutils::Log::Flush()
 {
 	ini->flush();
 }
 
-SceInt32 ytutils::Log::GetSize()
+int32_t ytutils::Log::GetSize()
 {
 	return ini->size();
 }
 
-SceVoid ytutils::Log::Reset()
+void ytutils::Log::Reset()
 {
 	ini->reset();
 }
 
-SceVoid ytutils::Log::Add(const char *data)
+void ytutils::Log::Add(const char *data)
 {
 	char *sptr;
 	char dataCopy[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
@@ -89,7 +89,7 @@ SceVoid ytutils::Log::Add(const char *data)
 	ini->flush();
 }
 
-SceVoid ytutils::Log::AddAsyncJob::Run()
+void ytutils::Log::AddAsyncJob::Run()
 {
 	char *sptr;
 
@@ -106,16 +106,16 @@ SceVoid ytutils::Log::AddAsyncJob::Run()
 	workObj->ini->flush();
 }
 
-SceVoid ytutils::Log::AddAsync(const char *data)
+void ytutils::Log::AddAsync(const char *data)
 {
 	AddAsyncJob *job = new AddAsyncJob("utils::AddAsyncJob");
 	job->workObj = this;
 	job->data = data;
 	common::SharedPtr<job::JobItem> itemParam(job);
-	job::s_defaultJobQueue->Enqueue(itemParam);
+	job::JobQueue::default_queue->Enqueue(itemParam);
 }
 
-SceVoid ytutils::Log::Remove(const char *data)
+void ytutils::Log::Remove(const char *data)
 {
 	char *sptr;
 	char dataCopy[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
@@ -136,7 +136,7 @@ SceVoid ytutils::Log::Remove(const char *data)
 
 ytutils::HistLog::HistLog()
 {
-	SceUInt32 i = 0;
+	uint32_t i = 0;
 	char val[2];
 	char data[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
 	Ini::InitParameter param;
@@ -184,29 +184,29 @@ ytutils::FavLog::FavLog()
 	ini->open("savedata0:yt_fav_log.ini", "rw", 0);
 }
 
-SceVoid ytutils::FavLog::Clean()
+void ytutils::FavLog::Clean()
 {
 	if (s_favLog)
 	{
 		delete s_favLog;
-		sceIoRemove("savedata0:yt_fav_log.ini");
+		LocalFile::RemoveFile("savedata0:yt_fav_log.ini");
 		s_favLog = new ytutils::FavLog();
 	}
 }
 
-SceVoid ytutils::HistLog::Clean()
+void ytutils::HistLog::Clean()
 {
 	if (s_histLog)
 	{
 		delete s_histLog;
-		sceIoRemove("savedata0:yt_hist_log.ini");
+		LocalFile::RemoveFile("savedata0:yt_hist_log.ini");
 		s_histLog = new ytutils::HistLog();
 	}
 }
 
-SceVoid ytutils::Init()
+void ytutils::Init()
 {
-	invInit(sce_paf_malloc, sce_paf_free, SCE_NULL);
+	invInit(sce_paf_malloc, sce_paf_free, NULL);
 
 	if (!s_histLog)
 		s_histLog = new ytutils::HistLog();
@@ -216,7 +216,7 @@ SceVoid ytutils::Init()
 	s_downloader = new Downloader();
 }
 
-SceVoid ytutils::Flush()
+void ytutils::Flush()
 {
 	if (s_histLog)
 	{
@@ -228,17 +228,17 @@ SceVoid ytutils::Flush()
 	}
 }
 
-SceVoid ytutils::Term()
+void ytutils::Term()
 {
 	if (s_histLog)
 	{
 		delete s_histLog;
-		s_histLog = SCE_NULL;
+		s_histLog = NULL;
 	}
 	if (s_favLog)
 	{
 		delete s_favLog;
-		s_favLog = SCE_NULL;
+		s_favLog = NULL;
 	}
 
 	invTerm();
@@ -254,12 +254,12 @@ ytutils::FavLog *ytutils::GetFavLog()
 	return s_favLog;
 }
 
-SceInt32 ytutils::EnqueueDownload(const char *url, const char *name)
+int32_t ytutils::EnqueueDownload(const char *url, const char *name)
 {
 	return s_downloader->Enqueue(url, name);
 }
 
-SceInt32 ytutils::EnqueueDownloadAsync(const char *url, const char *name, Downloader::OnStartCallback cb)
+int32_t ytutils::EnqueueDownloadAsync(const char *url, const char *name, Downloader::OnStartCallback cb)
 {
 	return s_downloader->EnqueueAsync(url, name, cb);
 }

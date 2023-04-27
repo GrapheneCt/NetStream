@@ -15,6 +15,7 @@
     <ClCompile Include="source\debug.cpp" />
     <ClCompile Include="source\dialog.cpp" />
     <ClCompile Include="source\downloader.cpp" />
+    <ClCompile Include="source\event.cpp" />
     <ClCompile Include="source\ftpparse.c" />
     <ClCompile Include="source\ftp_server_browser.cpp" />
     <ClCompile Include="source\http_server_browser.cpp" />
@@ -29,6 +30,7 @@
     <ClCompile Include="source\menus\menu_player_youtube.cpp" />
     <ClCompile Include="source\option_menu.cpp" />
     <ClCompile Include="source\paf_runtime.cpp" />
+    <ClCompile Include="source\tex_pool.cpp" />
     <ClCompile Include="source\tw_utils.cpp" />
     <ClCompile Include="source\utils.cpp" />
     <ClCompile Include="source\yt_utils.cpp" />
@@ -39,6 +41,7 @@
     <ClInclude Include="include\debug.h" />
     <ClInclude Include="include\dialog.h" />
     <ClInclude Include="include\downloader.h" />
+    <ClInclude Include="include\event.h" />
     <ClInclude Include="include\ftpparse.h" />
     <ClInclude Include="include\ftp_server_browser.h" />
     <ClInclude Include="include\generic_server_browser.h" />
@@ -56,6 +59,7 @@
     <ClInclude Include="include\menus\menu_youtube.h" />
     <ClInclude Include="include\menus\menu_player_youtube.h" />
     <ClInclude Include="include\option_menu.h" />
+    <ClInclude Include="include\tex_pool.h" />
     <ClInclude Include="include\tw_utils.h" />
     <ClInclude Include="include\utils.h" />
     <ClInclude Include="include\yt_utils.h" />

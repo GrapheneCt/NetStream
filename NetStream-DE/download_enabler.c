@@ -25,7 +25,7 @@ SCE_MODULE_INFO(NetStream_DE, 2, 1, 1)
 static tai_hook_ref_t GetFileTypeRef;
 static SceUID hooks[1];
 
-static SceInt32 GetFileTypePatched(int unk, int *type, char **filename, char **mime_type)
+static int32_t GetFileTypePatched(int unk, int *type, char **filename, char **mime_type)
 {
 	int res = TAI_NEXT(GetFileTypePatched, GetFileTypeRef, unk, type, filename, mime_type);
 
@@ -38,7 +38,7 @@ static SceInt32 GetFileTypePatched(int unk, int *type, char **filename, char **m
 	return res;
 }
 
-int module_start(SceSize args, const void * argp)
+int module_start(size_t args, const void * argp)
 {
 	tai_module_info_t info;
 	info.size = sizeof(info);
@@ -98,7 +98,7 @@ int module_start(SceSize args, const void * argp)
 	return SCE_KERNEL_START_SUCCESS;
 }
 
-int module_stop(SceSize args, const void * argp)
+int module_stop(size_t args, const void * argp)
 {
 	if (hooks[0] >= 0)
 		taiHookRelease(hooks[0], GetFileTypeRef);

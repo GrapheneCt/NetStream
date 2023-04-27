@@ -24,17 +24,17 @@ LocalServerBrowser::~LocalServerBrowser()
 
 }
 
-SceBool LocalServerBrowser::Probe()
+bool LocalServerBrowser::Probe()
 {
-	return SCE_TRUE;
+	return true;
 }
 
-SceBool LocalServerBrowser::IsAtRoot(string *current)
+bool LocalServerBrowser::IsAtRoot(string *current)
 {
 	return current->empty();
 }
 
-SceBool LocalServerBrowser::IsAtRoot()
+bool LocalServerBrowser::IsAtRoot()
 {
 	return path.empty();
 }
@@ -62,7 +62,7 @@ string LocalServerBrowser::GetBEAVUrl(string *in)
 	return ret;
 }
 
-SceVoid LocalServerBrowser::SetPath(const char *ref)
+void LocalServerBrowser::SetPath(const char *ref)
 {
 	if (ref)
 	{
@@ -103,12 +103,12 @@ bool LocalServerBrowser::DefaultFsSort(const LocalServerBrowser::Entry *a, const
 {
 	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
 
-	SceInt32 nameSort = 0;
-	SceInt32 typeSort = 0;
-	SceBool isFolderA = a->type == LocalServerBrowser::Entry::Type_Folder;
-	SceBool isFolderB = b->type == LocalServerBrowser::Entry::Type_Folder;
-	settings->GetInt("local_sort_name", (SceInt32 *)&nameSort, 0);
-	settings->GetInt("local_sort_type", (SceInt32 *)&typeSort, 0);
+	int32_t nameSort = 0;
+	int32_t typeSort = 0;
+	bool isFolderA = a->type == LocalServerBrowser::Entry::Type_Folder;
+	bool isFolderB = b->type == LocalServerBrowser::Entry::Type_Folder;
+	settings->GetInt("local_sort_name", (int32_t *)&nameSort, 0);
+	settings->GetInt("local_sort_type", (int32_t *)&typeSort, 0);
 
 	switch (typeSort)
 	{
@@ -134,7 +134,7 @@ bool LocalServerBrowser::DefaultFsSort(const LocalServerBrowser::Entry *a, const
 		break;
 	}
 
-	SceInt32 ret = sce_paf_strcasecmp(a->ref.c_str(), b->ref.c_str());
+	int32_t ret = sce_paf_strcasecmp(a->ref.c_str(), b->ref.c_str());
 
 	switch (nameSort)
 	{
@@ -161,7 +161,7 @@ bool LocalServerBrowser::DefaultFsSort(const LocalServerBrowser::Entry *a, const
 	return false;
 }
 
-vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, SceInt32 *result)
+vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, int32_t *result)
 {
 	char prefix[256];
 	vector<LocalServerBrowser::Entry *> *ret = new vector<LocalServerBrowser::Entry *>;
@@ -176,11 +176,11 @@ vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, S
 		if (sce_paf_strstr(ref, ".m3u8"))
 		{
 			common::SharedPtr<LocalFile> fres;
-			SceInt32 res = -1;
-			SceSize fsz = 0;
-			char *fbuf = SCE_NULL;
-			char *begin = SCE_NULL;
-			char *end = SCE_NULL;
+			int32_t res = -1;
+			size_t fsz = 0;
+			char *fbuf = NULL;
+			char *begin = NULL;
+			char *end = NULL;
 
 			fres = LocalFile::Open(GetPath().c_str(), SCE_O_RDONLY, 0, &res);
 			if (res < 0)
@@ -212,7 +212,7 @@ vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, S
 					begin++;
 					if (*begin == '#')
 					{
-						begin = sce_paf_strtok(SCE_NULL, "#");
+						begin = sce_paf_strtok(NULL, "#");
 						continue;
 					}
 
@@ -244,7 +244,7 @@ vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, S
 					}
 				}
 
-				begin = sce_paf_strtok(SCE_NULL, "#");
+				begin = sce_paf_strtok(NULL, "#");
 			}
 
 			sce_paf_free(fbuf);

@@ -83,6 +83,12 @@
     <ClCompile Include="source\ftpparse.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\tex_pool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\event.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\common.h">
@@ -158,6 +164,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\ftpparse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tex_pool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -16,14 +16,16 @@ namespace menu {
 	{
 	public:
 
-		static SceVoid PlayerBackCb(PlayerSimple *player, ScePVoid pUserArg);
-		static SceVoid PlayerFailCb(PlayerSimple *player, ScePVoid pUserArg);
-		static SceVoid OptionButtonCb(SceUInt32 index, ScePVoid pUserData);
-		static SceVoid BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid ListButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
+		static void BackButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void ListButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void SettingsButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void PlayerEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void OptionMenuEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void ConnectionFailedDialogHandler(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 
-		class ListViewCb : public ui::ListView::ItemCallback
+		static void PlayerCreateTimeoutFun(void *userdata1, void *userdata2);
+
+		class ListViewCb : public ui::listview::ItemFactory
 		{
 		public:
 
@@ -32,11 +34,11 @@ namespace menu {
 
 			}
 
-			ui::ListItem *Create(Param *info);
+			ui::ListItem *Create(CreateParam& param);
 
-			SceVoid Start(Param *info)
+			void Start(StartParam& param)
 			{
-				info->parent->PlayEffect(0.0f, effect::EffectType_Popup1);
+				param.list_item->Show(common::transition::Type_Popup1);
 			}
 
 			GenericServerMenu *workObj;
@@ -50,11 +52,9 @@ namespace menu {
 
 			~GoToJob() {}
 
-			SceVoid Run();
+			void Run();
 
-			SceVoid Finish() {}
-
-			static SceVoid ConnectionFailedDialogHandler(dialog::ButtonCode buttonCode, ScePVoid pUserArg);
+			void Finish() {}
 
 			GenericServerMenu *workObj;
 			string targetRef;
@@ -64,7 +64,7 @@ namespace menu {
 		{
 		public:
 
-			BrowserPage() : isLoaded(SCE_FALSE)
+			BrowserPage() : isLoaded(false)
 			{
 
 			}
@@ -76,7 +76,7 @@ namespace menu {
 
 			vector<GenericServerBrowser::Entry *> *itemList;
 			ui::ListView *list;
-			SceBool isLoaded;
+			bool isLoaded;
 		};
 
 		GenericServerMenu();
@@ -85,18 +85,20 @@ namespace menu {
 
 		virtual MenuType GetMenuType() = 0;
 
-		virtual const SceUInt32 *GetSupportedSettingsItems(SceInt32 *count) = 0;
+		virtual const uint32_t *GetSupportedSettingsItems(int32_t *count) = 0;
 
-		SceBool PushBrowserPage(string *ref);
+		bool PushBrowserPage(string *ref);
 
-		SceBool PopBrowserPage();
+		bool PopBrowserPage();
 
 		GenericServerBrowser *browser;
 		ui::Widget *browserRoot;
 		ui::BusyIndicator *loaderIndicator;
 		ui::Text *topText;
 		vector<BrowserPage *> pageList;
-		SceBool firstBoot;
+		menu::PlayerSimple *player;
+		bool firstBoot;
+		bool playerFailed;
 	};
 }
 

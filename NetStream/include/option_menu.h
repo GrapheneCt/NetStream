@@ -12,7 +12,16 @@ class OptionMenu
 {
 public:
 
-	typedef SceVoid(*ButtonCallback)(SceUInt32 index, ScePVoid userArg);
+	enum
+	{
+		OptionMenuEvent = (ui::Handler::CB_STATE + 0x50000),
+	};
+
+	enum OptionMenuEvent
+	{
+		OptionMenuEvent_Button,
+		OptionMenuEvent_Close
+	};
 
 	class Button
 	{
@@ -21,41 +30,21 @@ public:
 		wstring label;
 	};
 
-	OptionMenu(Plugin *workPlugin, ui::Widget *root, vector<Button> *buttons, ButtonCallback eventCallback, ButtonCallback closeCallback, ScePVoid userArg);
+	OptionMenu(Plugin *workPlugin, ui::Widget *root, vector<Button> *buttons);
 
 	~OptionMenu();
 
 private:
 
-	class ButtonEventCallback : public ui::EventCallback
-	{
-	public:
+	static void ButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 
-		ButtonEventCallback(OptionMenu *obj, ButtonCallback function, ScePVoid userArg = SCE_NULL)
-		{
-			workObj = obj;
-			cb = function;
-			pUserData = userArg;
-		};
-
-		~ButtonEventCallback()
-		{
-
-		};
-
-		SceInt32 HandleEvent(SceInt32 eventId, paf::ui::Widget *self, SceInt32 a3);
-
-		OptionMenu *workObj;
-		ButtonCallback cb;
-	};
-
-	static SceVoid SizeAdjustEventHandler(SceInt32 eventId, paf::ui::Widget *self, SceInt32, ScePVoid pUserData);
+	static void SizeAdjustEventHandler(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 
 	Plugin *plugin;
 	ui::Scene *rootScene;
 	ui::Widget *parentRoot;
 	ui::Widget *optPlaneRoot;
-	SceUInt32 buttonCount;
+	uint32_t buttonCount;
 };
 
 #endif

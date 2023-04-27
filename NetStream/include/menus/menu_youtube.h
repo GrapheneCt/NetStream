@@ -5,6 +5,7 @@
 #include <paf.h>
 
 #include "dialog.h"
+#include "tex_pool.h"
 #include "invidious.h"
 #include "menu_generic.h"
 
@@ -30,28 +31,30 @@ namespace menu {
 
 			virtual ~Submenu();
 
-			virtual SceVoid ReleaseCurrentPage();
+			virtual void ReleaseCurrentPage();
 
-			virtual SceVoid GoToNextPage() = 0;
+			virtual void GoToNextPage() = 0;
 
-			virtual SceVoid GoToPrevPage() = 0;
+			virtual void GoToPrevPage() = 0;
 
 			virtual SubmenuType GetType() = 0;
 
-			class ListViewCb : public ui::ListView::ItemCallback
+			class ListViewCb : public ui::listview::ItemFactory
 			{
 			public:
+
+				static void TexPoolAddCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 
 				~ListViewCb()
 				{
 
 				}
 
-				ui::ListItem *Create(Param *info);
+				ui::ListItem *Create(CreateParam& param);
 
-				SceVoid Start(Param *info)
+				void Start(StartParam& param)
 				{
-					info->parent->PlayEffect(0.0f, effect::EffectType_Popup1);
+					param.list_item->Show(common::transition::Type_Popup1);
 				}
 
 				Submenu *workObj;
@@ -61,7 +64,7 @@ namespace menu {
 			{
 			public:
 
-				Item() : surface(SCE_NULL)
+				Item()
 				{
 
 				}
@@ -70,19 +73,18 @@ namespace menu {
 				wstring name;
 				wstring time;
 				wstring stat;
-				string id;
-				string surfacePath;
-				graph::Surface *surface;
+				string videoId;
+				IDParam texId;
+				TexPool *texPool;
 			};
 
 			YouTube *parent;
 			ui::Widget *submenuRoot;
 			ui::ListView *list;
-			SceBool interrupted;
-			SceBool allJobsComplete;
-
+			bool interrupted;
+			bool allJobsComplete;
 			vector<Item> results;
-			SceUInt32 currentPage;
+			uint32_t currentPage;
 		};
 
 		class SearchSubmenu : public Submenu
@@ -97,23 +99,23 @@ namespace menu {
 
 				~SearchJob() {}
 
-				SceVoid Run();
+				void Run();
 
-				SceVoid Finish() {}
+				void Finish() {}
 
 				SearchSubmenu *workObj;
-				SceBool isId;
+				bool isId;
 			};
 
-			static SceVoid SearchButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
+			static void SearchButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 
 			SearchSubmenu(YouTube *parentObj);
 
 			~SearchSubmenu();
 
-			SceVoid GoToNextPage();
+			void GoToNextPage();
 
-			SceVoid GoToPrevPage();
+			void GoToPrevPage();
 
 			SubmenuType GetType()
 			{
@@ -137,9 +139,9 @@ namespace menu {
 
 				~HistoryJob() {}
 
-				SceVoid Run();
+				void Run();
 
-				SceVoid Finish() {}
+				void Finish() {}
 
 				HistorySubmenu *workObj;
 			};
@@ -148,9 +150,9 @@ namespace menu {
 
 			~HistorySubmenu();
 
-			SceVoid GoToNextPage();
+			void GoToNextPage();
 
-			SceVoid GoToPrevPage();
+			void GoToPrevPage();
 
 			SubmenuType GetType()
 			{
@@ -170,22 +172,22 @@ namespace menu {
 
 				~FavouriteJob() {}
 
-				SceVoid Run();
+				void Run();
 
-				SceVoid Finish() {}
+				void Finish() {}
 
 				FavouriteSubmenu *workObj;
 			};
 
-			static SceVoid SearchButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
+			static void SearchButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 
 			FavouriteSubmenu(YouTube *parentObj);
 
 			~FavouriteSubmenu();
 
-			SceVoid GoToNextPage();
+			void GoToNextPage();
 
-			SceVoid GoToPrevPage();
+			void GoToPrevPage();
 
 			SubmenuType GetType()
 			{
@@ -197,25 +199,26 @@ namespace menu {
 			string request;
 		};
 
-		static SceVoid OptionButtonCb(SceUInt32 index, ScePVoid pUserData);
-		static SceVoid DialogEventHandler(dialog::ButtonCode buttonCode, ScePVoid pUserArg);
-		static SceVoid BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid ListButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid SubmenuButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
+		static void BackButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void ListButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void SubmenuButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void SettingsButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void OptionMenuEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void DialogHandlerCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void PlayerCreateTimeoutFun(void *userdata1, void *userdata2);
 
 		YouTube();
 
 		~YouTube();
 
-		SceVoid SwitchSubmenu(Submenu::SubmenuType type);
+		void SwitchSubmenu(Submenu::SubmenuType type);
 
 		MenuType GetMenuType()
 		{
 			return MenuType_Youtube;
 		}
 
-		const SceUInt32 *GetSupportedSettingsItems(SceInt32 *count)
+		const uint32_t *GetSupportedSettingsItems(int32_t *count)
 		{
 			*count = sizeof(k_settingsIdList) / sizeof(char*);
 			return k_settingsIdList;
@@ -229,8 +232,10 @@ namespace menu {
 		ui::Widget *histBt;
 		ui::Widget *favBt;
 		Submenu *currentSubmenu;
+		int32_t dialogIdx;
+		TexPool *texPool;
 
-		const SceUInt32 k_settingsIdList[4] = {
+		const uint32_t k_settingsIdList[4] = {
 			youtube_search_setting,
 			youtube_comment_setting,
 			youtube_quality_setting,

@@ -17,30 +17,30 @@ public:
 
 	~FtpServerBrowser();
 
-	SceBool Probe();
+	bool Probe();
 
-	SceBool IsAtRoot(string *current);
+	bool IsAtRoot(string *current);
 
-	SceBool IsAtRoot();
+	bool IsAtRoot();
 
-	SceVoid SetPath(const char *ref);
+	void SetPath(const char *ref);
 
 	string GetPath();
 
 	string GetBEAVUrl(string *in);
 
-	vector<FtpServerBrowser::Entry *> *GoTo(const char *ref, SceInt32 *result);
+	vector<FtpServerBrowser::Entry *> *GoTo(const char *ref, int32_t *result);
 
 private:
 
-	static SceSize DownloadCore(char *buffer, SceSize size, SceSize nitems, ScePVoid userdata);
+	static size_t DownloadCore(char *buffer, size_t size, size_t nitems, void *userdata);
 
 	CURLU *url;
 	CURL *curl;
 	string root;
 	char *buffer;
-	SceUInt32 posInBuf;
-	SceInt32 useNlst;
+	uint32_t posInBuf;
+	int32_t useNlst;
 };
 
 #endif

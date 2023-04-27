@@ -22,8 +22,8 @@ public:
 			Type_Folder
 		};
 
-		string ref;
-		SceUInt32 type;
+		paf::string ref;
+		uint32_t type;
 	};
 
 	GenericServerBrowser()
@@ -36,19 +36,19 @@ public:
 
 	}
 
-	virtual SceBool Probe() = 0;
+	virtual bool Probe() = 0;
 
-	virtual SceBool IsAtRoot(string *current) = 0;
+	virtual bool IsAtRoot(string *current) = 0;
 
-	virtual SceBool IsAtRoot() = 0;
+	virtual bool IsAtRoot() = 0;
 
-	virtual SceVoid SetPath(const char *ref) = 0;
+	virtual void SetPath(const char *ref) = 0;
 
 	virtual string GetPath() = 0;
 
 	virtual string GetBEAVUrl(string *in) = 0;
 
-	virtual vector<GenericServerBrowser::Entry *> *GoTo(const char *ref, SceInt32 *result) = 0;
+	virtual vector<GenericServerBrowser::Entry *> *GoTo(const char *ref, int32_t *result) = 0;
 };
 
 #endif

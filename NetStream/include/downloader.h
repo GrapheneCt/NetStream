@@ -12,15 +12,15 @@ class Downloader
 {
 public:
 
-	typedef SceVoid(*OnStartCallback)(SceInt32 result);
+	typedef void(*OnStartCallback)(int32_t result);
 
 	Downloader();
 
 	~Downloader();
 
-	SceInt32 Enqueue(const char *url, const char *name, OnStartCallback cb = SCE_NULL);
+	int32_t Enqueue(const char *url, const char *name, OnStartCallback cb = NULL);
 
-	SceInt32 EnqueueAsync(const char *url, const char *name, OnStartCallback cb = SCE_NULL);
+	int32_t EnqueueAsync(const char *url, const char *name, OnStartCallback cb = NULL);
 
 private:
 
@@ -32,17 +32,17 @@ private:
 
 		~AsyncEnqueue() {}
 
-		SceVoid Run()
+		void Run()
 		{
 			Downloader *pdownloader = (Downloader *)downloader;
 			pdownloader->Enqueue(url8.c_str(), name8.c_str(), onStart);
 		}
 
-		SceVoid Finish() {}
+		void Finish() {}
 
 		string url8;
 		string name8;
-		ScePVoid downloader;
+		void *downloader;
 		OnStartCallback onStart;
 	};
 

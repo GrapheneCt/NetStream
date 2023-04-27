@@ -30,12 +30,12 @@ using namespace paf;
 
 Plugin *g_appPlugin;
 
-graph::Surface *g_texCheckMark;
-graph::Surface *g_texTransparent;
+intrusive_ptr<graph::Surface> g_texCheckMark;
+intrusive_ptr<graph::Surface> g_texTransparent;
 
-SceVoid menu::main::NetcheckJob::Run()
+void menu::main::NetcheckJob::Run()
 {
-	SceInt32 ret = SCE_OK;
+	int32_t ret = SCE_OK;
 	SceUID shellPid = SCE_UID_INVALID_UID;
 	char titleid[12];
 	int sarg[2];
@@ -69,9 +69,8 @@ SceVoid menu::main::NetcheckJob::Run()
 	if (sceAppMgrGetIdByName(&shellPid, "NPXS19999") == SCE_OK &&
 		_vshKernelSearchModuleByName("taihen", sarg) > 0)
 	{
-		string pluginPath;
-		common::string_util::setf(pluginPath, "ux0:app/%s/module/download_enabler_netstream.suprx", titleid);
-		taiLoadStartModuleForPid(shellPid, pluginPath.c_str(), 0, SCE_NULL, 0);
+		string pluginPath = common::FormatString("ux0:app/%s/module/download_enabler_netstream.suprx", titleid);
+		taiLoadStartModuleForPid(shellPid, pluginPath.c_str(), 0, NULL, 0);
 	}
 
 	ytutils::Init();
@@ -79,33 +78,28 @@ SceVoid menu::main::NetcheckJob::Run()
 	dialog::Close();
 }
 
-SceVoid pluginLoadCB(Plugin *plugin)
+void pluginLoadCB(Plugin *plugin)
 {
-	rco::Element searchParam;
-
-	if (plugin == SCE_NULL) {
+	if (plugin == NULL) {
 		SCE_DBG_LOG_ERROR("[NS_PLUGIN_BASE] Plugin load FAIL!\n");
 		return;
 	}
 
 	g_appPlugin = plugin;
 
-	dialog::OpenPleaseWait(g_appPlugin, SCE_NULL, utils::GetString("msg_wait"));
+	Framework *fw = Framework::Instance();
+
+	dialog::OpenPleaseWait(g_appPlugin, NULL, fw->GetCommonString("msg_wait"));
 
 	menu::main::NetcheckJob *ncJob = new menu::main::NetcheckJob("NS::NetcheckJob");
 	common::SharedPtr<job::JobItem> itemParam(ncJob);
-	job::s_defaultJobQueue->Enqueue(itemParam);
+	job::JobQueue::default_queue->Enqueue(itemParam);
 
-	//menu::InitMenuSystem();
+	menu::InitMenuSystem();
 	menu::Settings::Init();
 
-	Plugin *CRplugin = Plugin::Find("__system__common_resource");
-
-	searchParam.hash = utils::GetHash("_common_texture_check_mark");
-	Plugin::GetTexture(&g_texCheckMark, CRplugin, &searchParam);
-
-	searchParam.hash = utils::GetHash("_common_texture_transparent");
-	Plugin::GetTexture(&g_texTransparent, CRplugin, &searchParam);
+	g_texCheckMark = fw->GetCommonTexture("_common_texture_check_mark");
+	g_texTransparent = fw->GetCommonTexture("_common_texture_transparent");
 
 	new menu::First();
 }
@@ -114,24 +108,30 @@ int main()
 {
 	// PAF framework init
 	Framework::InitParam fwParam;
-	fwParam.LoadDefaultParams();
-	fwParam.applicationMode = Framework::Mode_Game;
-	fwParam.defaultSurfacePoolSize = SCE_KERNEL_32MiB;
-	fwParam.textSurfaceCacheSize = SCE_KERNEL_4MiB;
-	fwParam.graphMemSystemHeapSize = SCE_KERNEL_1MiB;
-	fwParam.graphicsFlags = 7;
+	Framework::SampleInit(&fwParam);
+	fwParam.mode = Framework::Mode_Normal;
+	fwParam.surface_pool_size = SCE_KERNEL_32MiB;
+	fwParam.text_surface_pool_size = SCE_KERNEL_4MiB;
+	fwParam.graph_heap_size_on_main_memory = 0;
+	fwParam.graph_heap_size_on_video_memory = SCE_KERNEL_1MiB;
+	fwParam.graphics_option = 7;
 
 	if (SCE_PAF_IS_DOLCE)
 	{
 		scePowerSetConfigurationMode(SCE_POWER_CONFIGURATION_MODE_C);
-		fwParam.uiCtxOpt = new ui::Context::Option(ui::Context::Option::Flag_ResolutionDefault);
-		fwParam.screenWidth = 1920;
-		fwParam.sceenHeight = 1088;
-		//fwParam.optionalFeatureFlags = fwParam.optionalFeatureFlags | Framework::InitParam::FeatureFlag_UseDisplayAreaSettings;
+		fwParam.env_param = new ui::EnvironmentParam(ui::EnvironmentParam::RESOLUTION_PSP2);
+		fwParam.screen_width = 1920;
+		fwParam.screen_height = 1088;
+		//fwParam.option |= Framework::FrameworkOption_UseDisplayAreaSettings;
 	}
 
 	Framework *fw = new Framework(fwParam);
 	fw->LoadCommonResourceAsync();
+
+	if (SCE_PAF_IS_DOLCE)
+	{
+		fw->GetEnvironmentInstance()->SetResolution(960, 544);
+	}
 
 #ifdef _DEBUG
 	sceDbgSetMinimumLogLevel(SCE_DBG_LOG_LEVEL_TRACE);
@@ -150,9 +150,9 @@ int main()
 	sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_BXCE);
 	sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_INI_FILE_PROCESSOR);
 	sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_COMMON_GUI_DIALOG);
-	new Module("app0:module/libInvidious.suprx", 0, 0, 0);
-	new Module("app0:module/libLootkit.suprx", 0, 0, 0);
-	new Module("app0:module/libcurl.suprx", 0, 0, 0);
+	new Module("app0:module/libInvidious.suprx");
+	new Module("app0:module/libLootkit.suprx");
+	new Module("app0:module/libcurl.suprx");
 
 	curl_global_memmanager_set_np(sce_paf_malloc, sce_paf_free, sce_paf_realloc);
 
@@ -160,15 +160,15 @@ int main()
 
 	// Plugin init
 	Plugin::InitParam pluginParam;
-	pluginParam.pluginName = "netstream_plugin";
-	pluginParam.resourcePath = "app0:netstream_plugin.rco";
-	pluginParam.scopeName = "__main__";
+	pluginParam.name = "netstream_plugin";
+	pluginParam.resource_file = "app0:netstream_plugin.rco";
+	pluginParam.caller_name = "__main__";
 #ifdef _DEBUG
-	pluginParam.pluginFlags = Plugin::InitParam::PluginFlag_UseRcdDebug;
+	pluginParam.option |= Plugin::Option_ResourceLoadWithDebugSymbol;
 #endif
-	pluginParam.pluginStartCB = pluginLoadCB;
+	pluginParam.start_func = pluginLoadCB;
 
-	fw->LoadPluginAsync(pluginParam);
+	Plugin::LoadAsync(pluginParam);
 
 	BEAVPlayer::PreInit();
 

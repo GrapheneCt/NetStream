@@ -19,132 +19,112 @@ namespace menu {
 		MenuType_PlayerYouTube,
 	};
 
-	SceVoid SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
+	void SettingsButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 
-	class MenuOpenParam
+	class MenuOpenParam : public Plugin::PageOpenParam
 	{
 	public:
 
-		MenuOpenParam(bool useFadeIn = false, SceFloat32 fadeinTimeMs = 200.0f, Plugin::PageEffectType effectType = Plugin::PageEffectType_None, SceUInt32 openFlags = 0, SceInt32 priority = -1)
+		MenuOpenParam(bool useFadeIn = false, float fadeinTimeMs = 200.0f, Plugin::TransitionType effectType = Plugin::TransitionType_None, uint32_t openFlags = 0, int32_t priority = -1)
 		{
-			this->ctxOpt = SCE_NULL;
+			envOpt = NULL;
 
-			this->useFadein = useFadeIn;
-			this->fadeinTimeMs = fadeinTimeMs;
-			this->effectType = effectType;
-			this->priority = priority;
+			fade = useFadeIn;
+			fade_time_ms = fadeinTimeMs;
+			transition_type = effectType;
+			overwrite_draw_priority = priority;
 
-			this->unk_00 = 0;
-			this->unk_04 = 0;
-			this->unk_0C = 0;
-			this->unk_10 = 0;
-			this->unk_20 = 0;
 			if (openFlags != 0)
 			{
-				if ((openFlags & ui::Context::Option::Flag_ResolutionHalfHd) == ui::Context::Option::Flag_ResolutionHalfHd
-					|| (openFlags & ui::Context::Option::Flag_ResolutionFullHd) == ui::Context::Option::Flag_ResolutionFullHd)
+				if ((openFlags & ui::EnvironmentParam::RESOLUTION_HD_HALF) == ui::EnvironmentParam::RESOLUTION_HD_HALF
+					|| (openFlags & ui::EnvironmentParam::RESOLUTION_HD_FULL) == ui::EnvironmentParam::RESOLUTION_HD_FULL)
 				{
 					if (SCE_PAF_IS_DOLCE)
 					{
-						this->ctxOpt = new ui::Context::Option(openFlags);
+						envOpt = new ui::EnvironmentParam(openFlags);
 					}
 				}
 				else
 				{
-					this->ctxOpt = new ui::Context::Option(openFlags);
+					envOpt = new ui::EnvironmentParam(openFlags);
 				}
 			}
-			this->uiOpt = this->ctxOpt;
-			this->unk_28_pageArg_a5 = 0x80;
+
+			env_param = envOpt;
+			graphics_flag = 0x80;
 		}
 
 		~MenuOpenParam()
 		{
-			delete this->ctxOpt;
+			delete envOpt;
 		}
-
-		SceInt32 unk_00;
-		SceInt32 unk_04;
-		SceInt32 priority;
-		SceInt32 unk_0C;
-		SceInt32 unk_10;
-		bool useFadein;
-		SceFloat32 fadeinTimeMs;
-		Plugin::PageEffectType effectType;
-		SceInt32 unk_20;
-		ui::Context::Option *uiOpt;
-		SceInt32 unk_28_pageArg_a5;
 
 	private:
 
-		ui::Context::Option *ctxOpt;
+		ui::EnvironmentParam *envOpt;
 	};
 
-	class MenuCloseParam
+	class MenuCloseParam : public Plugin::PageCloseParam
 	{
 	public:
 
-		MenuCloseParam(bool useFadeOut = false, SceFloat32 fadeoutTimeMs = 200.0f, Plugin::PageEffectType effectType = Plugin::PageEffectType_None)
+		MenuCloseParam(bool useFadeOut = false, float fadeoutTimeMs = 200.0f, Plugin::TransitionType effectType = Plugin::TransitionType_None)
 		{
-			this->useFadeout = useFadeOut;
-			this->fadeoutTimeMs = fadeoutTimeMs;
-			this->effectType = effectType;
-			this->reserved = 0;
+			fade = useFadeOut;
+			fade_time_ms = fadeoutTimeMs;
+			transition_type = effectType;
 		}
 
 		~MenuCloseParam()
 		{
 
 		}
-
-		bool useFadeout;
-		SceFloat32 fadeoutTimeMs;
-		Plugin::PageEffectType effectType;
-		SceInt32 reserved;
 	};
 
 	class GenericMenu
 	{
 	public:
 
-		GenericMenu(const char *name, MenuOpenParam oparam, MenuCloseParam cparam);
+		GenericMenu(const char *name, MenuOpenParam const& oparam, MenuCloseParam const& cparam);
 
 		virtual ~GenericMenu();
 
-		virtual SceVoid Activate();
+		virtual void Activate();
 
-		virtual SceVoid Deactivate();
+		virtual void Deactivate(bool withDelay = false);
 
-		virtual SceVoid DisableInput();
+		virtual void DisableInput();
 
-		virtual SceVoid EnableInput();
+		virtual void EnableInput();
 
 		virtual MenuType GetMenuType() = 0;
 
-		virtual const SceUInt32 *GetSupportedSettingsItems(SceInt32 *count) = 0;
+		virtual const uint32_t *GetSupportedSettingsItems(int32_t *count) = 0;
+
+		ui::Scene *GetRoot();
+
+	protected:
 
 		ui::Scene *root;
 
 	private:
 
-		static SceVoid DeactivatorFwCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-
-		Plugin::PageCloseParam closeParam;
+		MenuCloseParam closeParam;
 	};
 
-	SceVoid InitMenuSystem();
+	void InitMenuSystem();
 
-	SceVoid TermMenuSystem();
+	void TermMenuSystem();
 
-	SceUInt32 GetMenuCount();
+	uint32_t GetMenuCount();
 
 	menu::GenericMenu *GetTopMenu();
 
-	menu::GenericMenu *GetMenuAt(SceUInt32 idx);
+	menu::GenericMenu *GetMenuAt(uint32_t idx);
 
-	SceVoid DeactivateAll(SceUInt32 endMargin = 0);
+	void DeactivateAll(uint32_t endMargin = 0);
 
-	SceVoid ActivateAll();
+	void ActivateAll();
 }
 
 

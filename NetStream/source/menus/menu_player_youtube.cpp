@@ -19,15 +19,15 @@
 
 using namespace paf;
 
-SceVoid menu::PlayerYoutube::LoadJob::Run()
+void menu::PlayerYoutube::LoadJob::Run()
 {
-	InvItemVideo *invItem = SCE_NULL;
-	SceInt32 ret = 0;
+	InvItemVideo *invItem = NULL;
+	int32_t ret = 0;
 	string text8;
 	wstring text16;
 
 	ret = invParseVideo(workObj->videoId.c_str(), &invItem);
-	if (ret == SCE_TRUE)
+	if (ret == true)
 	{
 		if (invItem->id)
 		{
@@ -35,32 +35,32 @@ SceVoid menu::PlayerYoutube::LoadJob::Run()
 			{
 				workObj->description = invItem->description;
 
-				thread::s_mainThreadMutex.Lock();
+				thread::RMutex::main_thread_mutex.Lock();
 
 				DescButtonCbFun(0, workObj->descButton, 0, workObj);
 
 				text8 = invItem->title;
 				common::Utf8ToUtf16(text8, &text16);
-				workObj->title->SetLabel(&text16);
+				workObj->title->SetString(text16);
 
 				text8 = "Uploaded by ";
 				text8 += invItem->author;
 				common::Utf8ToUtf16(text8, &text16);
-				workObj->stat0->SetLabel(&text16);
+				workObj->stat0->SetString(text16);
 
 				text8 = invItem->subCount;
 				text8 += " subscribers";
 				common::Utf8ToUtf16(text8, &text16);
-				workObj->stat1->SetLabel(&text16);
+				workObj->stat1->SetString(text16);
 
 				text8 = invItem->published;
 				common::Utf8ToUtf16(text8, &text16);
-				workObj->stat2->SetLabel(&text16);
+				workObj->stat2->SetString(text16);
 
-				thread::s_mainThreadMutex.Unlock();
+				thread::RMutex::main_thread_mutex.Unlock();
 			}
 
-			SceInt32 quality = 0;
+			int32_t quality = 0;
 			sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
 
 			if (invItem->isLive)
@@ -73,7 +73,7 @@ SceVoid menu::PlayerYoutube::LoadJob::Run()
 
 				char *hls = new char[SCE_KERNEL_1KiB];
 				hls[0] = 0;
-				settings->GetInt("yt_hls_quality", (SceInt32 *)&quality, 0);
+				settings->GetInt("yt_hls_quality", (int32_t *)&quality, 0);
 				ret = invGetHlsUrl(workObj->videoId.c_str(), (InvHlsQuality)quality, hls, SCE_KERNEL_1KiB);
 				if (ret != SCE_OK)
 				{
@@ -88,25 +88,22 @@ SceVoid menu::PlayerYoutube::LoadJob::Run()
 					invGetHlsUrl(workObj->videoId.c_str(), (InvHlsQuality)quality, hls, SCE_KERNEL_1KiB);
 				}
 				workObj->videoLink = hls;
-				workObj->isHls = SCE_TRUE;
+				workObj->isHls = true;
 				if (quality == 4)
 				{
-					workObj->isHighHls = SCE_TRUE;
+					workObj->isHighHls = true;
 				}
 				delete hls;
 
-				rco::Element searchParam;
-				graph::Surface *liveTex;
-				ui::Widget *livePlane = utils::GetChild(workObj->root, plane_youtube_live_now);
-				searchParam.hash = tex_yt_icon_live_now;
-				Plugin::GetTexture(&liveTex, g_appPlugin, &searchParam);
-				thread::s_mainThreadMutex.Lock();
-				livePlane->SetSurfaceBase(&liveTex);
-				thread::s_mainThreadMutex.Unlock();
+				ui::Widget *livePlane = workObj->root->FindChild(plane_youtube_live_now);
+				intrusive_ptr<graph::Surface> liveTex = g_appPlugin->GetTexture(tex_yt_icon_live_now);
+				thread::RMutex::main_thread_mutex.Lock();
+				livePlane->SetTexture(liveTex);
+				thread::RMutex::main_thread_mutex.Unlock();
 			}
 			else
 			{
-				settings->GetInt("yt_quality", (SceInt32 *)&quality, 0);
+				settings->GetInt("yt_quality", (int32_t *)&quality, 0);
 				if (workObj->lastAttempt)
 				{
 					char lastResort[256];
@@ -156,55 +153,51 @@ releaseLocks:
 	common::MainThreadCallList::Register(menu::PlayerYoutube::TaskLoadSecondStage, workObj);
 }
 
-ui::ListItem *menu::PlayerYoutube::HlsCommentListViewCb::Create(Param *info)
+ui::ListItem *menu::PlayerYoutube::HlsCommentListViewCb::Create(CreateParam& param)
 {
-	rco::Element searchParam;
 	Plugin::TemplateOpenParam tmpParam;
-	ui::Widget *item = SCE_NULL;
+	ui::Widget *item = NULL;
 	wstring text16;
 
-	ui::Widget *targetRoot = info->parent;
+	ui::Widget *targetRoot = param.parent;
 
-	searchParam.hash = template_list_item_youtube_comment;
-	g_appPlugin->TemplateOpen(targetRoot, &searchParam, &tmpParam);
-	item = targetRoot->GetChild(targetRoot->childNum - 1);
+	g_appPlugin->TemplateOpen(targetRoot, template_list_item_youtube_comment, tmpParam);
+	item = targetRoot->GetChild(targetRoot->GetChildrenNum() - 1);
 
-	ui::Widget *button = utils::GetChild(item, button_yt_companel_comment_item);
-	button->elem.hash = HLS_COMMENT_MAGIC + info->cellIndex;
+	ui::Widget *button = item->FindChild(button_yt_companel_comment_item);
+	button->SetName(HLS_COMMENT_MAGIC + param.cell_index);
 
 	return (ui::ListItem *)item;
 }
 
-ui::ListItem *menu::PlayerYoutube::CommentListViewCb::Create(Param *info)
+ui::ListItem *menu::PlayerYoutube::CommentListViewCb::Create(CreateParam& param)
 {
-	rco::Element searchParam;
 	Plugin::TemplateOpenParam tmpParam;
-	ui::Widget *item = SCE_NULL;
+	ui::Widget *item = NULL;
 	wstring text16;
 
-	if (!info->list->elem.hash)
+	if (!param.list_view->GetName().GetIDHash())
 	{
-		return new ui::ListItem(info->parent, 0);
+		return new ui::ListItem(param.parent, 0);
 	}
 
-	ui::Widget *targetRoot = info->parent;
+	ui::Widget *targetRoot = param.parent;
 
-	searchParam.hash = template_list_item_youtube_comment;
-	g_appPlugin->TemplateOpen(targetRoot, &searchParam, &tmpParam);
-	item = targetRoot->GetChild(targetRoot->childNum - 1);
+	g_appPlugin->TemplateOpen(targetRoot, template_list_item_youtube_comment, tmpParam);
+	item = targetRoot->GetChild(targetRoot->GetChildrenNum() - 1);
 
-	ui::Widget *button = utils::GetChild(item, button_yt_companel_comment_item);
-	button->elem.hash = info->cellIndex;
+	ui::Widget *button = item->FindChild(button_yt_companel_comment_item);
+	button->SetName(param.cell_index);
 
-	button->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(CommentBodyButtonCbFun, workObj));
+	button->AddEventCallback(ui::Button::CB_BTN_DECIDE, CommentBodyButtonCbFun, workObj);
 
-	if (info->cellIndex == workObj->commentItems.size())
+	if (param.cell_index == workObj->commentItems.size())
 	{
-		text16 = utils::GetString(msg_youtube_comment_more);
+		text16 = g_appPlugin->GetString(msg_youtube_comment_more);
 	}
 	else
 	{
-		CommentItem entry = workObj->commentItems.at(info->cellIndex);
+		CommentItem entry = workObj->commentItems.at(param.cell_index);
 		text16 = entry.author + L"  " + entry.date + L"\n" + entry.content;
 
 		if (!entry.replyContinuation.empty())
@@ -213,20 +206,19 @@ ui::ListItem *menu::PlayerYoutube::CommentListViewCb::Create(Param *info)
 		}
 	}
 
-	button->SetLabel(&text16);
+	button->SetString(text16);
 
 	return (ui::ListItem *)item;
 }
 
-SceVoid menu::PlayerYoutube::HlsCommentParseThread::EntryFunction()
+void menu::PlayerYoutube::HlsCommentParseThread::EntryFunction()
 {
-	rco::Element searchParam;
 	ui::ListView *list = (ui::ListView *)workObj->companelRoot;
-	ui::Widget *button = SCE_NULL;
+	ui::Widget *button = NULL;
 	InvItemComment *comment;
-	SceInt32 commCount = 0;
-	SceUInt32 realCommentNum = HLS_COMMENT_NUM;
-	SceUInt32 lastHash = 0;
+	int32_t commCount = 0;
+	uint32_t realCommentNum = HLS_COMMENT_NUM;
+	uint32_t lastHash = 0;
 	string text8;
 	wstring text16;
 	wstring tmpText16;
@@ -234,7 +226,7 @@ SceVoid menu::PlayerYoutube::HlsCommentParseThread::EntryFunction()
 	while (!IsCanceled())
 	{
 		realCommentNum = HLS_COMMENT_NUM;
-		comment = SCE_NULL;
+		comment = NULL;
 
 		commCount = invParseHlsComments(workObj->videoId.c_str(), &comment);
 		if (commCount <= 0)
@@ -275,11 +267,10 @@ SceVoid menu::PlayerYoutube::HlsCommentParseThread::EntryFunction()
 			text16 += L"\n";
 			text16 += tmpText16;
 
-			searchParam.hash = HLS_COMMENT_MAGIC + i;
-			button = list->GetChild(&searchParam, 0);
-			thread::s_mainThreadMutex.Lock();
-			button->SetLabel(&text16);
-			thread::s_mainThreadMutex.Unlock();
+			button = list->FindChild(HLS_COMMENT_MAGIC + i);
+			thread::RMutex::main_thread_mutex.Lock();
+			button->SetString(text16);
+			thread::RMutex::main_thread_mutex.Unlock();
 		}
 
 		lastHash = utils::GetHash(text8.c_str());
@@ -292,22 +283,22 @@ SceVoid menu::PlayerYoutube::HlsCommentParseThread::EntryFunction()
 	Cancel();
 }
 
-SceVoid menu::PlayerYoutube::CommentParseJob::Run()
+void menu::PlayerYoutube::CommentParseJob::Run()
 {
-	InvItemComment *comments = SCE_NULL;
+	InvItemComment *comments = NULL;
 	InvCommentSort sort;
 	string text8;
 	wstring text16;
-	SceInt32 ret = 0;
-	SceUInt32 addOverhead = 0;
-	SceUInt32 oldCommentCount = 0;
+	int32_t ret = 0;
+	uint32_t addOverhead = 0;
+	uint32_t oldCommentCount = 0;
 
 	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
-	settings->GetInt("yt_comment_sort", (SceInt32 *)&sort, 0);
+	settings->GetInt("yt_comment_sort", (int32_t *)&sort, 0);
 
 	if (workObj->commentCont.empty())
 	{
-		ret = invParseComments(workObj->videoId.c_str(), SCE_NULL, sort, &comments);
+		ret = invParseComments(workObj->videoId.c_str(), NULL, sort, &comments);
 	}
 	else
 	{
@@ -351,25 +342,25 @@ SceVoid menu::PlayerYoutube::CommentParseJob::Run()
 	}
 
 	ui::ListView *list = (ui::ListView *)workObj->companelRoot;
-	thread::s_mainThreadMutex.Lock();
-	list->AddItem(0, oldCommentCount, workObj->commentItems.size() + addOverhead - oldCommentCount);
-	thread::s_mainThreadMutex.Unlock();
+	thread::RMutex::main_thread_mutex.Lock();
+	list->InsertCell(0, oldCommentCount, workObj->commentItems.size() + addOverhead - oldCommentCount);
+	thread::RMutex::main_thread_mutex.Unlock();
 
 	invCleanupComments(comments);
 }
 
-SceVoid menu::PlayerYoutube::CommentBodyButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+void menu::PlayerYoutube::CommentBodyButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	rco::Element searchParam;
 	Plugin::TemplateOpenParam tmpParam;
 	wstring text16;
+	ui::Widget *wdg = (ui::Widget*)self;
 
-	PlayerYoutube *workObj = (PlayerYoutube *)pUserData;
+	PlayerYoutube *workObj = (PlayerYoutube *)userdata;
 
-	if (self->elem.hash == workObj->commentItems.size())
+	if (wdg->GetName().GetIDHash() == workObj->commentItems.size())
 	{
 		ui::ListView *list = (ui::ListView *)workObj->companelRoot;
-		list->RemoveItem(0, workObj->commentItems.size(), 1);
+		list->DeleteCell(0, workObj->commentItems.size(), 1);
 
 		CommentParseJob *job = new CommentParseJob("YouTube::CommentParseJob");
 		job->workObj = workObj;
@@ -378,91 +369,92 @@ SceVoid menu::PlayerYoutube::CommentBodyButtonCbFun(SceInt32 eventId, ui::Widget
 	}
 	else
 	{
-		CommentItem entry = workObj->commentItems.at(self->elem.hash);
+		CommentItem entry = workObj->commentItems.at(wdg->GetName().GetIDHash());
 
-		ui::ScrollView *commentView = dialog::OpenScrollView(g_appPlugin, utils::GetString(msg_youtube_comment_detail));
+		ui::ScrollView *commentView = dialog::OpenScrollView(g_appPlugin, g_appPlugin->GetString(msg_youtube_comment_detail));
 
-		searchParam.hash = template_scroll_item_youtube_comment_detail;
-		g_appPlugin->TemplateOpen(utils::GetChild(commentView, "dialog_view_box"), &searchParam, &tmpParam);
+		g_appPlugin->TemplateOpen(commentView->FindChild("dialog_view_box"), template_scroll_item_youtube_comment_detail, tmpParam);
 
-		ui::Widget *detailText = utils::GetChild(commentView, text_youtube_comment_detail);
+		ui::Widget *detailText = commentView->FindChild(text_youtube_comment_detail);
 		text16 = entry.author + L"\n" + entry.date + L"\n";
 		wstring likeText16;
-		string likeText8;
-		common::string_util::setf(likeText8, "%d", entry.likeCount);
+		string likeText8 = common::FormatString("%d", entry.likeCount);
 		common::Utf8ToUtf16(likeText8, &likeText16);
-		text16 += likeText16 + utils::GetString(msg_youtube_comment_like_count);
-		detailText->SetLabel(&text16);
+		text16 += likeText16 + g_appPlugin->GetString(msg_youtube_comment_like_count);
+		detailText->SetString(text16);
 
-		ui::Widget *bodyText = utils::GetChild(commentView, text_youtube_comment_detail_body);
+		ui::Widget *bodyText = commentView->FindChild(text_youtube_comment_detail_body);
 		text16 = entry.content;
-		bodyText->SetLabel(&text16);
+		bodyText->SetString(text16);
 	}
 }
 
-SceVoid menu::PlayerYoutube::ExpandButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+void menu::PlayerYoutube::ExpandButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	PlayerYoutube *workObj = (PlayerYoutube *)pUserData;
+	PlayerYoutube *workObj = (PlayerYoutube *)userdata;
 	workObj->player->SetScale(1.0f);
 	workObj->player->SetPosition(0.0f, 0.0f);
 }
 
-SceVoid menu::PlayerYoutube::FavButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+void menu::PlayerYoutube::FavButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	graph::Surface *favIcon = SCE_NULL;
-	PlayerYoutube *workObj = (PlayerYoutube *)pUserData;
+	uint32_t texid = 0;
+	PlayerYoutube *workObj = (PlayerYoutube *)userdata;
 
 	if (workObj->isFav)
 	{
-		favIcon = utils::GetTexture(tex_yt_icon_favourite_for_player);
-		workObj->favButton->SetSurfaceBase(&favIcon);
+		texid = tex_yt_icon_favourite_for_player;
 		ytutils::GetFavLog()->Remove(workObj->videoId.c_str());
-		workObj->isFav = SCE_FALSE;
+		workObj->isFav = false;
 	}
 	else
 	{
-		favIcon = utils::GetTexture(tex_yt_icon_favourite_for_player_glow);
-		workObj->favButton->SetSurfaceBase(&favIcon);
+		texid = tex_yt_icon_favourite_for_player_glow;
 		ytutils::GetFavLog()->AddAsync(workObj->videoId.c_str());
-		workObj->isFav = SCE_TRUE;
+		workObj->isFav = true;
+	}
+
+	intrusive_ptr<graph::Surface> favIcon = g_appPlugin->GetTexture(texid);
+	if (favIcon.get())
+	{
+		workObj->favButton->SetTexture(favIcon);
 	}
 }
 
-SceVoid menu::PlayerYoutube::CommentButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+void menu::PlayerYoutube::CommentButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	rco::Element searchParam;
 	Plugin::TemplateOpenParam tmpParam;
-	PlayerYoutube *workObj = (PlayerYoutube *)pUserData;
+	PlayerYoutube *workObj = (PlayerYoutube *)userdata;
 
 	if (workObj->companelRoot)
 	{
-		if (workObj->companelRoot->elem.id == "comment_root")
+		if (workObj->companelRoot->GetName().GetID() == "comment_root")
 		{
 			return;
 		}
-		effect::Play(0.0f, workObj->companelRoot, effect::EffectType_Fadein1, true, false);
-		workObj->companelRoot = SCE_NULL;
+		common::transition::DoReverse(0.0f, workObj->companelRoot, common::transition::Type_Fadein1, true, false);
+		workObj->companelRoot = NULL;
 	}
 
-	searchParam.hash = template_list_view_youtube_companel;
-	g_appPlugin->TemplateOpen(workObj->companelBase, &searchParam, &tmpParam);
-	workObj->companelRoot = workObj->companelBase->GetChild(workObj->companelBase->childNum - 1);
-	workObj->companelRoot->PlayEffect(0.0f, effect::EffectType_Fadein1);
-	workObj->companelRoot->elem.id = "comment_root";
+	g_appPlugin->TemplateOpen(workObj->companelBase, template_list_view_youtube_companel, tmpParam);
+	workObj->companelRoot = workObj->companelBase->GetChild(workObj->companelBase->GetChildrenNum() - 1);
+	workObj->companelRoot->Show(common::transition::Type_Fadein1);
+	workObj->companelRoot->SetName("comment_root");
 
 	ui::ListView *list = (ui::ListView *)workObj->companelRoot;
-	list->SetSegmentEnable(0, 1);
-	Vector4 sz(414.0f, 70.0f);
-	list->SetCellSize(0, &sz);
-	list->SetConfigurationType(0, ui::ListView::ConfigurationType_Simple);
+
+	list->InsertSegment(0, 1);
+	math::v4 sz(414.0f, 70.0f);
+	list->SetCellSizeDefault(0, sz);
+	list->SetSegmentLayoutType(0, ui::ListView::LAYOUT_TYPE_LIST);
 
 	workObj->commentItems.clear();
 
 	if (workObj->isHls)
 	{
 		HlsCommentListViewCb *lwCb = new HlsCommentListViewCb();
-		list->RegisterItemCallback(lwCb);
-		list->AddItem(0, 0, HLS_COMMENT_NUM);
+		list->SetItemFactory(lwCb);
+		list->InsertCell(0, 0, HLS_COMMENT_NUM);
 
 		workObj->hlsCommentThread = new HlsCommentParseThread(SCE_KERNEL_DEFAULT_PRIORITY_USER + 20, SCE_KERNEL_64KiB, "YouTube::CommentParseThread");
 		workObj->hlsCommentThread->workObj = workObj;
@@ -472,7 +464,7 @@ SceVoid menu::PlayerYoutube::CommentButtonCbFun(SceInt32 eventId, ui::Widget *se
 	{
 		CommentListViewCb *lwCb = new CommentListViewCb();
 		lwCb->workObj = workObj;
-		list->RegisterItemCallback(lwCb);
+		list->SetItemFactory(lwCb);
 
 		CommentParseJob *job = new CommentParseJob("YouTube::CommentParseJob");
 		job->workObj = workObj;
@@ -481,12 +473,11 @@ SceVoid menu::PlayerYoutube::CommentButtonCbFun(SceInt32 eventId, ui::Widget *se
 	}
 }
 
-SceVoid menu::PlayerYoutube::DescButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+void menu::PlayerYoutube::DescButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	rco::Element searchParam;
 	Plugin::TemplateOpenParam tmpParam;
 	wstring text16;
-	PlayerYoutube *workObj = (PlayerYoutube *)pUserData;
+	PlayerYoutube *workObj = (PlayerYoutube *)userdata;
 
 	if (workObj->description.length() == 0)
 	{
@@ -495,7 +486,7 @@ SceVoid menu::PlayerYoutube::DescButtonCbFun(SceInt32 eventId, ui::Widget *self,
 
 	if (workObj->companelRoot)
 	{
-		if (workObj->companelRoot->elem.id == "description_root")
+		if (workObj->companelRoot->GetName().GetID() == "description_root")
 		{
 			return;
 		}
@@ -504,39 +495,37 @@ SceVoid menu::PlayerYoutube::DescButtonCbFun(SceInt32 eventId, ui::Widget *self,
 			workObj->hlsCommentThread->Cancel();
 			workObj->hlsCommentThread->Join();
 			delete workObj->hlsCommentThread;
-			workObj->hlsCommentThread = SCE_NULL;
+			workObj->hlsCommentThread = NULL;
 		}
-		effect::Play(0.0f, workObj->companelRoot, effect::EffectType_Fadein1, true, false);
-		workObj->companelRoot = SCE_NULL;
+		common::transition::DoReverse(0.0f, workObj->companelRoot, common::transition::Type_Fadein1, true, false);
+		workObj->companelRoot = NULL;
 	}
 
-	searchParam.hash = template_scroll_view_youtube_companel;
-	g_appPlugin->TemplateOpen(workObj->companelBase, &searchParam, &tmpParam);
-	workObj->companelRoot = workObj->companelBase->GetChild(workObj->companelBase->childNum - 1);
-	workObj->companelRoot->PlayEffect(0.0f, effect::EffectType_Fadein1);
-	workObj->companelRoot->elem.id = "description_root";
+	g_appPlugin->TemplateOpen(workObj->companelBase, template_scroll_view_youtube_companel, tmpParam);
+	workObj->companelRoot = workObj->companelBase->GetChild(workObj->companelBase->GetChildrenNum() - 1);
+	workObj->companelRoot->Show(common::transition::Type_Fadein1);
+	workObj->companelRoot->SetName("description_root");
 
-	searchParam.hash = text_youtube_companel;
-	ui::Widget *descText = workObj->companelRoot->GetChild(&searchParam, 0);
+	ui::Widget *descText = workObj->companelRoot->FindChild(text_youtube_companel);
 
 	common::Utf8ToUtf16(workObj->description, &text16);
 	text16 += L"\n\n";
-	descText->SetLabel(&text16);
+	descText->SetString(text16);
 }
 
-SceVoid menu::PlayerYoutube::BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+void menu::PlayerYoutube::BackButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	PlayerYoutube *workObj = (PlayerYoutube *)pUserData;
+	PlayerYoutube *workObj = (PlayerYoutube *)userdata;
 	delete workObj->player;
 	delete workObj;
 }
 
-SceVoid menu::PlayerYoutube::DwAddCompleteCb(SceInt32 result)
+void menu::PlayerYoutube::DwAddCompleteCb(int32_t result)
 {
 	dialog::Close();
 	if (result == SCE_OK)
 	{
-		dialog::OpenOk(g_appPlugin, SCE_NULL, utils::GetString(msg_settings_youtube_download_begin));
+		dialog::OpenOk(g_appPlugin, NULL, g_appPlugin->GetString(msg_settings_youtube_download_begin));
 	}
 	else
 	{
@@ -544,47 +533,49 @@ SceVoid menu::PlayerYoutube::DwAddCompleteCb(SceInt32 result)
 	}
 }
 
-SceVoid menu::PlayerYoutube::SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+void menu::PlayerYoutube::SettingsButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	PlayerYoutube *workObj = (PlayerYoutube *)pUserData;
+	PlayerYoutube *workObj = (PlayerYoutube *)userdata;
 
 	vector<OptionMenu::Button> buttons;
 	OptionMenu::Button bt;
-	bt.label = utils::GetString(msg_settings);
+	bt.label = g_appPlugin->GetString(msg_settings);
 	buttons.push_back(bt);
 	if (!workObj->isHls)
 	{
-		bt.label = utils::GetString(msg_settings_youtube_download);
+		bt.label = g_appPlugin->GetString(msg_settings_youtube_download);
 		buttons.push_back(bt);
 	}
 
-	new OptionMenu(g_appPlugin, workObj->root, &buttons, OptionButtonCb, SCE_NULL, pUserData);
+	new OptionMenu(g_appPlugin, workObj->root, &buttons);
 }
 
-SceVoid menu::PlayerYoutube::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)
+void menu::PlayerYoutube::OptionMenuEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	menu::PlayerYoutube *player = (menu::PlayerYoutube *)pUserData;
+	menu::PlayerYoutube *player = (menu::PlayerYoutube *)userdata;
 
-	switch (index)
+	if (e->GetValue(0) == OptionMenu::OptionMenuEvent_Close)
+	{
+		return;
+	}
+
+	switch (e->GetValue(1))
 	{
 	case 0:
 		menu::GetMenuAt(menu::GetMenuCount() - 2)->DisableInput();
-		SceUInt32 clCbArg[2];
-		clCbArg[0] = (SceUInt32)SettingsCloseCbFun;
-		clCbArg[1] = (SceUInt32)pUserData;
-		menu::SettingsButtonCbFun(ui::EventMain_Decide, SCE_NULL, 0, clCbArg);
+		menu::SettingsButtonCbFun(ui::Button::CB_BTN_DECIDE, NULL, 0, NULL);
 		break;
 	case 1:
 		wstring title16;
 		string title8;
-		player->title->GetLabel(&title16);
+		player->title->GetString(title16);
 		common::Utf16ToUtf8(title16, &title8);
 		title8 += ".mp4";
 
-		SceInt32 res = ytutils::EnqueueDownloadAsync(player->videoLink.c_str(), title8.c_str(), DwAddCompleteCb);
+		int32_t res = ytutils::EnqueueDownloadAsync(player->videoLink.c_str(), title8.c_str(), DwAddCompleteCb);
 		if (res == SCE_OK)
 		{
-			dialog::OpenPleaseWait(g_appPlugin, SCE_NULL, utils::GetString("msg_wait"));
+			dialog::OpenPleaseWait(g_appPlugin, NULL, Framework::Instance()->GetCommonString("msg_wait"));
 		}
 		else
 		{
@@ -594,156 +585,160 @@ SceVoid menu::PlayerYoutube::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)
 	}
 }
 
-SceVoid menu::PlayerYoutube::SettingsCloseCbFun(ScePVoid pUserData)
+void menu::PlayerYoutube::PlayerEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	menu::GetMenuAt(menu::GetMenuCount() - 2)->EnableInput();
-}
+	menu::PlayerYoutube *workObj = (menu::PlayerYoutube *)userdata;
 
-SceVoid menu::PlayerYoutube::PlayerBackCb(PlayerSimple *player, ScePVoid pUserArg)
-{
-	if (player->GetScale() != 1.0f)
+	switch (e->GetValue(0))
 	{
-		delete player;
-	}
-	else
-	{
-		player->SetScale(0.5f);
-		if (SCE_PAF_IS_DOLCE)
+	case PlayerSimple::PlayerEvent_Back:
+		if (workObj->player->GetScale() != 1.0f)
 		{
-			player->SetPosition(26.0f, -158.0f);
+			delete workObj->player;
 		}
 		else
 		{
-			player->SetPosition(13.0f, -79.0f);
+			workObj->player->SetScale(0.5f);
+			if (SCE_PAF_IS_DOLCE)
+			{
+				workObj->player->SetPosition(26.0f, -158.0f);
+			}
+			else
+			{
+				workObj->player->SetPosition(13.0f, -79.0f);
+			}
 		}
-	}
-}
+		break;
+	case PlayerSimple::PlayerEvent_InitOk:
+		int32_t min = 0;
 
-SceVoid menu::PlayerYoutube::PlayerOkCb(PlayerSimple *player, ScePVoid pUserArg)
-{
-	PlayerYoutube *workObj = (PlayerYoutube *)pUserArg;
-	SceInt32 min = 0;
+		ui::BusyIndicator *loaderIndicator = (ui::BusyIndicator *)workObj->root->FindChild(busyindicator_youtube_loader);
+		ui::Widget *loaderPlane = workObj->root->FindChild(plane_youtube_loader);
 
-	ui::BusyIndicator *loaderIndicator = (ui::BusyIndicator *)utils::GetChild(workObj->root, busyindicator_youtube_loader);
-	ui::Widget *loaderPlane = utils::GetChild(workObj->root, plane_youtube_loader);
-
-	thread::s_mainThreadMutex.Lock();
-	loaderIndicator->Stop();
-	effect::Play(0.0f, loaderPlane, effect::EffectType_Fadein1, true, false);
-	workObj->EnableInput();
-	thread::s_mainThreadMutex.Unlock();
-
-	menu::Settings::GetAppSetInstance()->GetInt("yt_min", &min, 0);
-	if (min)
-	{
-		player->SetScale(0.5f);
-		if (SCE_PAF_IS_DOLCE)
-		{
-			player->SetPosition(26.0f, -158.0f);
-		}
-		else
-		{
-			player->SetPosition(13.0f, -79.0f);
-		}
-	}
-	else
-	{
-		workObj->player->SetPosition(0.0f, 0.0f);
-		workObj->root->SetGraphicsState(ui::GraphicsState_Disabled);
-	}
-}
-
-SceVoid menu::PlayerYoutube::PlayerFailCb(PlayerSimple *player, ScePVoid pUserArg)
-{
-	PlayerYoutube *workObj = (PlayerYoutube *)pUserArg;
-
-	delete workObj->player;
-	workObj->player = SCE_NULL;
-
-	if (workObj->lastAttempt)
-	{
-		workObj->lastAttempt = SCE_FALSE;
-
-		ui::BusyIndicator *loaderIndicator = (ui::BusyIndicator *)utils::GetChild(workObj->root, busyindicator_youtube_loader);
-		ui::Widget *loaderPlane = utils::GetChild(workObj->root, plane_youtube_loader);
-
-		thread::s_mainThreadMutex.Lock();
 		loaderIndicator->Stop();
-		effect::Play(0.0f, loaderPlane, effect::EffectType_Fadein1, true, false);
+		common::transition::DoReverse(0.0f, loaderPlane, common::transition::Type_Fadein1, true, false);
 		workObj->EnableInput();
-		thread::s_mainThreadMutex.Unlock();
 
-		dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_EUNSUP, utils::GetString("msg_error_connect_server_peer"));
-	}
-	else
-	{
-		workObj->lastAttempt = SCE_TRUE;
-		LoadJob *job = new LoadJob("YouTube::LoadJob");
-		job->workObj = workObj;
-		common::SharedPtr<job::JobItem> itemParam(job);
-		utils::GetJobQueue()->Enqueue(itemParam);
+		menu::Settings::GetAppSetInstance()->GetInt("yt_min", &min, 0);
+		if (min)
+		{
+			workObj->player->SetScale(0.5f);
+			if (SCE_PAF_IS_DOLCE)
+			{
+				workObj->player->SetPosition(26.0f, -158.0f);
+			}
+			else
+			{
+				workObj->player->SetPosition(13.0f, -79.0f);
+			}
+		}
+		else
+		{
+			workObj->player->SetPosition(0.0f, 0.0f);
+			workObj->root->Hide();
+		}
+		break;
+	case PlayerSimple::PlayerEvent_InitFail:
+		delete workObj->player;
+		workObj->player = NULL;
+
+		if (workObj->lastAttempt)
+		{
+			workObj->lastAttempt = false;
+
+			ui::BusyIndicator *loaderIndicator = (ui::BusyIndicator *)workObj->root->FindChild(busyindicator_youtube_loader);
+			ui::Widget *loaderPlane = workObj->root->FindChild(plane_youtube_loader);
+
+			loaderIndicator->Stop();
+			common::transition::DoReverse(0.0f, loaderPlane, common::transition::Type_Fadein1, true, false);
+			workObj->EnableInput();
+
+			dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_EUNSUP, Framework::Instance()->GetCommonString("msg_error_connect_server_peer"));
+		}
+		else
+		{
+			workObj->lastAttempt = true;
+			LoadJob *job = new LoadJob("YouTube::LoadJob");
+			job->workObj = workObj;
+			common::SharedPtr<job::JobItem> itemParam(job);
+			utils::GetJobQueue()->Enqueue(itemParam);
+		}
+		break;
 	}
 }
 
-SceVoid menu::PlayerYoutube::TaskLoadSecondStage(void *pArgBlock)
+void menu::PlayerYoutube::SettingsEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
+{
+	if (e->GetValue(0) == Settings::SettingsEvent_Close)
+	{
+		menu::GetMenuAt(menu::GetMenuCount() - 2)->EnableInput();
+	}
+}
+
+void menu::PlayerYoutube::TaskLoadSecondStage(void *pArgBlock)
 {
 	PlayerYoutube *workObj = (PlayerYoutube *)pArgBlock;
 
-	workObj->player = new menu::PlayerSimple(workObj->videoLink.c_str(), PlayerOkCb, PlayerFailCb, PlayerBackCb, pArgBlock);
+	workObj->player = new menu::PlayerSimple(workObj->videoLink.c_str());
 	workObj->player->SetPosition(-1920.0f, -1080.0f);
-	workObj->root->SetGraphicsState(ui::GraphicsState_Normal);
+	workObj->root->Show();
+	workObj->DisableInput();
 	if (workObj->isHighHls)
 	{
-		workObj->player->player->LimitFPS(SCE_TRUE);
+		workObj->player->player->LimitFPS(true);
 	}
 	workObj->player->SetSettingsOverride(menu::PlayerSimple::SettingsOverride_YouTube);
 
 	common::MainThreadCallList::Unregister(TaskLoadSecondStage, pArgBlock);
 }
 
-menu::PlayerYoutube::PlayerYoutube(const char *id, SceBool isFavourite) :
+menu::PlayerYoutube::PlayerYoutube(const char *id, bool isFavourite) :
 	GenericMenu("page_youtube_player",
-	MenuOpenParam(false, 200.0f, Plugin::PageEffectType_SlideFromBottom),
-	MenuCloseParam(false, 200.0f, Plugin::PageEffectType_SlideFromBottom))
+	MenuOpenParam(false, 200.0f, Plugin::TransitionType_SlideFromBottom),
+	MenuCloseParam(false, 200.0f, Plugin::TransitionType_SlideFromBottom))
 {
-	player = SCE_NULL;
+	player = NULL;
 	videoId = id;
-	isHls = SCE_FALSE;
-	isHighHls = SCE_FALSE;
+	isHls = false;
+	isHighHls = false;
 	isFav = isFavourite;
-	companelRoot = SCE_NULL;
-	hlsCommentThread = SCE_NULL;
-	lastAttempt = SCE_FALSE;
+	companelRoot = NULL;
+	hlsCommentThread = NULL;
+	lastAttempt = false;
 
-	ui::BusyIndicator *loaderIndicator = (ui::BusyIndicator *)utils::GetChild(root, busyindicator_youtube_loader);
+	menu::GetMenuAt(0)->GetRoot()->SetEventCallback(OptionMenu::OptionMenuEvent, OptionMenuEventCbFun, this);
+	root->AddEventCallback(Settings::SettingsEvent, SettingsEventCbFun, this);
+	root->AddEventCallback(PlayerSimple::PlayerSimpleEvent, PlayerEventCbFun, this);
+
+	ui::BusyIndicator *loaderIndicator = (ui::BusyIndicator *)root->FindChild(busyindicator_youtube_loader);
 	loaderIndicator->Start();
 
-	ui::Widget *settingsButton = utils::GetChild(root, button_settings_page_youtube_player);
-	settingsButton->PlayEffect(0.0f, effect::EffectType_Reset);
-	settingsButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(SettingsButtonCbFun, this));
+	ui::Widget *settingsButton = root->FindChild(button_settings_page_youtube_player);
+	settingsButton->Show(common::transition::Type_Reset);
+	settingsButton->AddEventCallback(ui::Button::CB_BTN_DECIDE, SettingsButtonCbFun, this);
 
-	ui::Widget *backButton = utils::GetChild(root, button_back_page_youtube_player);
-	backButton->PlayEffect(0.0f, effect::EffectType_Reset);
-	backButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(BackButtonCbFun, this));
+	ui::Widget *backButton = root->FindChild(button_back_page_youtube_player);
+	backButton->Show(common::transition::Type_Reset);
+	backButton->AddEventCallback(ui::Button::CB_BTN_DECIDE, BackButtonCbFun, this);
 
-	title = (ui::Text *)utils::GetChild(root, "text_video_title");
-	stat0 = (ui::Text *)utils::GetChild(root, "text_video_stat_0");
-	stat1 = (ui::Text *)utils::GetChild(root, "text_video_stat_1");
-	stat2 = (ui::Text *)utils::GetChild(root, "text_video_stat_2");
-	expandButton = utils::GetChild(root, button_youtube_expand);
-	expandButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(ExpandButtonCbFun, this));
-	favButton = utils::GetChild(root, button_youtube_fav);
-	favButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(FavButtonCbFun, this));
+	title = (ui::Text *)root->FindChild(text_video_title);
+	stat0 = (ui::Text *)root->FindChild(text_video_stat_0);
+	stat1 = (ui::Text *)root->FindChild(text_video_stat_1);
+	stat2 = (ui::Text *)root->FindChild(text_video_stat_2);
+	expandButton = root->FindChild(button_youtube_expand);
+	expandButton->AddEventCallback(ui::Button::CB_BTN_DECIDE, ExpandButtonCbFun, this);
+	favButton = root->FindChild(button_youtube_fav);
+	favButton->AddEventCallback(ui::Button::CB_BTN_DECIDE,FavButtonCbFun);
 	if (isFav)
 	{
-		graph::Surface *favIcon = utils::GetTexture(tex_yt_icon_favourite_for_player_glow);
-		favButton->SetSurfaceBase(&favIcon);
+		intrusive_ptr<graph::Surface> favIcon = g_appPlugin->GetTexture(tex_yt_icon_favourite_for_player_glow);
+		favButton->SetTexture(favIcon);
 	}
-	companelBase = utils::GetChild(root, plane_youtube_companel_base);
-	commentButton = utils::GetChild(root, button_yt_companel_comment);
-	commentButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(CommentButtonCbFun, this));
-	descButton = utils::GetChild(root, button_yt_companel_description);
-	descButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(DescButtonCbFun, this));
+	companelBase = root->FindChild(plane_youtube_companel_base);
+	commentButton = root->FindChild(button_yt_companel_comment);
+	commentButton->AddEventCallback(ui::Button::CB_BTN_DECIDE, CommentButtonCbFun, this);
+	descButton = root->FindChild(button_yt_companel_description);
+	descButton->AddEventCallback(ui::Button::CB_BTN_DECIDE, DescButtonCbFun, this);
 
 	DisableInput();
 
@@ -764,6 +759,6 @@ menu::PlayerYoutube::~PlayerYoutube()
 
 	if (companelRoot)
 	{
-		companelRoot->elem.hash = 0;
+		companelRoot->SetName((uint32_t)0);
 	}
 }

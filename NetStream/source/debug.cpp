@@ -8,22 +8,22 @@
 #include "common.h"
 #include "debug.h"
 
-static SceInt32 s_oldMemSize = 0;
-static SceInt32 s_oldGraphMemSize = 0;
-static SceUInt32 s_iter = 0;
+static int32_t s_oldMemSize = 0;
+static int32_t s_oldGraphMemSize = 0;
+static uint32_t s_iter = 0;
 
-SceVoid leakTestTask(ScePVoid pUserData)
+void leakTestTask(void *pUserData)
 {
-	SceInt32 sz = 0;
-	SceInt32 delta = 0;
+	int32_t sz = 0;
+	int32_t delta = 0;
 	string str;
 
 #ifdef DEBUG_MEM_HEAP
-	memory::HeapAllocator *glAlloc = memory::HeapAllocator::GetGlobalHeapAllocator();
+	memory::HeapAllocator *glAlloc = memory::GetGlobalHeapAllocator();
 	sz = glAlloc->GetFreeSize();
 
 	str.clear();
-	common::string_util::SizeToString(str, sz);
+	str = common::FormatBytesize(sz, 0);
 	sceClibPrintf("[NS_DEBUG] Free heap memory: %s\n", str.c_str());
 
 	delta = s_oldMemSize - sz;
@@ -36,10 +36,10 @@ SceVoid leakTestTask(ScePVoid pUserData)
 
 #ifdef DEBUG_SURFACE_HEAP
 
-	sz = s_frameworkInstance->GetDefaultSurfaceMemoryPool()->GetFreeSize();
+	sz = gutil::GetDefaultSurfacePool()->GetFreeSize();
 
 	str.clear();
-	common::string_util::SizeToString(str, sz);
+	str = common::FormatBytesize(sz, 0);
 	sceClibPrintf("[NS_DEBUG] Free graphics pool: %s\n", str.c_str());
 
 	delta = s_oldGraphMemSize - sz;
@@ -51,7 +51,7 @@ SceVoid leakTestTask(ScePVoid pUserData)
 #endif
 }
 
-SceVoid JobQueueTestTask(ScePVoid pUserData)
+void JobQueueTestTask(void *pUserData)
 {
 
 }
@@ -63,17 +63,17 @@ void InitDebug()
 	SCE_PAF_AUTO_TEST_DUMP("\n\n-----PAF EXTRA TTY DEBUG MODE ON-----\n\n");
 #endif
 
-	common::MainThreadCallList::Register(leakTestTask, SCE_NULL);
+	common::MainThreadCallList::Register(leakTestTask, NULL);
 #ifdef DEBUG_JOB_QUEUE
-	task::Register(JobQueueTestTask, SCE_NULL);
+	MainThreadCallList::Register(JobQueueTestTask, NULL);
 #endif
 }
 
 /*
-SceUInt32 oldButtons = 0;
-ui::Widget *widg = SCE_NULL;
+uint32_t oldButtons = 0;
+ui::Widget *widg = NULL;
 
-SceVoid DirectInputCallback(input::GamePad::GamePadData *pData)
+void DirectInputCallback(input::GamePad::GamePadData *pData)
 {
 	Vector4 opos = widg->GetPosition();
 

@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "yt_utils.h"
 #include "dialog.h"
+#include "tex_pool.h"
 #include "invidious.h"
 #include <paf_file_ext.h>
 #include "option_menu.h"
@@ -23,159 +24,168 @@ menu::YouTube::Submenu::Submenu(YouTube *parentObj)
 {
 	currentPage = 0;
 	parent = parentObj;
-	interrupted = SCE_FALSE;
-	allJobsComplete = SCE_TRUE;
+	interrupted = false;
+	allJobsComplete = true;
 }
 
 menu::YouTube::Submenu::~Submenu()
 {
-	list->elem.hash = 0;
+	list->SetName((uint32_t)0);
 	ReleaseCurrentPage();
-	effect::Play(0.0f, submenuRoot, effect::EffectType_Fadein1, true, false);
+	common::transition::DoReverse(0.0f, submenuRoot, common::transition::Type_Fadein1, true, false);
 }
 
-SceVoid menu::YouTube::Submenu::ReleaseCurrentPage()
+void menu::YouTube::Submenu::ReleaseCurrentPage()
 {
-	interrupted = SCE_TRUE;
+	interrupted = true;
 	while (!allJobsComplete)
 	{
-		thread::s_mainThreadMutex.Unlock();
+		thread::RMutex::main_thread_mutex.Unlock();
 		thread::Sleep(10);
-		thread::s_mainThreadMutex.Lock();
+		thread::RMutex::main_thread_mutex.Lock();
 	}
-	interrupted = SCE_FALSE;
+	interrupted = false;
 
 	if (list->GetCellNum(0) > 0)
 	{
-		list->RemoveItem(0, 0, list->GetCellNum(0));
+		list->DeleteCell(0, 0, list->GetCellNum(0));
 	}
 
-	for (Item i : results)
-	{
-		if (i.surface)
-		{
-			i.surface->Release();
-		}
-	}
+	parent->texPool->SetAlive(false);
+	parent->texPool->AddAsyncWaitComplete();
+	parent->texPool->RemoveAll();
+	parent->texPool->SetAlive(true);
 
 	results.clear();
 }
 
-ui::ListItem *menu::YouTube::Submenu::ListViewCb::Create(Param *info)
+void menu::YouTube::Submenu::ListViewCb::TexPoolAddCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	rco::Element searchParam;
+	Item *workItem = (Item *)userdata;
+	ui::Button *button = (ui::Button *)self;
+
+	if (e->GetValue(0) == workItem->texId.GetIDHash())
+	{
+		button->SetTexture(workItem->texPool->Get(workItem->texId));
+		button->DeleteEventCallback(ui::Handler::CB_STATE_READY_CACHEIMAGE, TexPoolAddCbFun, userdata);
+	}
+}
+
+ui::ListItem *menu::YouTube::Submenu::ListViewCb::Create(CreateParam& param)
+{
 	Plugin::TemplateOpenParam tmpParam;
-	ui::Widget *item = SCE_NULL;
-	ui::Widget *button = SCE_NULL;
-	ui::Text *timeText = SCE_NULL;
-	ui::Widget *subText = SCE_NULL;
-	graph::Surface *tex = SCE_NULL;
+	ui::Widget *item = NULL;
+	ui::Widget *button = NULL;
+	ui::Text *timeText = NULL;
+	ui::Widget *subText = NULL;
 	wstring text16;
 	wchar_t numPageText[32];
 
-	if (!info->list->elem.hash)
+	if (!param.list_view->GetName().GetIDHash())
 	{
-		return new ui::ListItem(info->parent, 0);
+		return new ui::ListItem(param.parent, 0);
 	}
 
-	ui::Widget *targetRoot = info->parent;
-	Item *workItem = &workObj->results.at(info->cellIndex);
-	SceUInt32 totalCount = workObj->results.size();
+	ui::Widget *targetRoot = param.parent;
+	uint32_t totalCount = workObj->results.size();
 
-	if (info->cellIndex == totalCount || info->cellIndex == totalCount + 1)
+	if (param.cell_index == totalCount || param.cell_index == totalCount + 1)
 	{
-		searchParam.hash = template_list_item_youtube_aligned;
-		g_appPlugin->TemplateOpen(targetRoot, &searchParam, &tmpParam);
-		item = targetRoot->GetChild(targetRoot->childNum - 1);
-		button = utils::GetChild(item, image_button_list_item_youtube_aligned);
+		g_appPlugin->TemplateOpen(targetRoot, template_list_item_youtube_aligned, tmpParam);
+		item = targetRoot->GetChild(targetRoot->GetChildrenNum() - 1);
+		button = item->FindChild(image_button_list_item_youtube_aligned);
 	}
 	else
 	{
-		searchParam.hash = template_list_item_youtube;
-		g_appPlugin->TemplateOpen(targetRoot, &searchParam, &tmpParam);
-		item = targetRoot->GetChild(targetRoot->childNum - 1);
-		button = utils::GetChild(item, image_button_list_item_youtube);
+		g_appPlugin->TemplateOpen(targetRoot, template_list_item_youtube, tmpParam);
+		item = targetRoot->GetChild(targetRoot->GetChildrenNum() - 1);
+		button = item->FindChild(image_button_list_item_youtube);
 	}
 
-	button->elem.hash = info->cellIndex;
+	button->SetName(param.cell_index);
 
-	if (info->cellIndex == totalCount)
+	intrusive_ptr<graph::Surface> tex;
+
+	if (param.cell_index == totalCount)
 	{
 		if (workObj->currentPage == 0)
 		{
-			text16 = utils::GetString(msg_next_page);
+			text16 = g_appPlugin->GetString(msg_next_page);
 			sce_paf_swprintf(numPageText, sizeof(numPageText) / 2, L" (%d)", workObj->currentPage + 1);
 			text16 += numPageText;
-			button->SetLabel(&text16);
-			tex = utils::GetTexture(tex_button_arrow_right);
-			button->SetSurfaceBase(&tex);
+			button->SetString(text16);
+			tex = g_appPlugin->GetTexture(tex_button_arrow_right);
+			button->SetTexture(tex);
 			goto serviceButton;
 		}
 		else
 		{
-			text16 = utils::GetString(msg_previous_page);
+			text16 = g_appPlugin->GetString(msg_previous_page);
 			sce_paf_swprintf(numPageText, sizeof(numPageText) / 2, L" (%d)", workObj->currentPage - 1);
 			text16 += numPageText;
-			button->SetLabel(&text16);
-			tex = utils::GetTexture(tex_button_arrow_left);
-			button->SetSurfaceBase(&tex);
+			button->SetString(text16);
+			tex = g_appPlugin->GetTexture(tex_button_arrow_left);
+			button->SetTexture(tex);
 			goto serviceButton;
 		}
 	}
-	else if (info->cellIndex == totalCount + 1)
+	else if (param.cell_index == totalCount + 1)
 	{
-		text16 = utils::GetString(msg_next_page);
+		text16 = g_appPlugin->GetString(msg_next_page);
 		sce_paf_swprintf(numPageText, sizeof(numPageText) / 2, L" (%d)", workObj->currentPage + 1);
 		text16 += numPageText;
-		button->SetLabel(&text16);
-		tex = utils::GetTexture(tex_button_arrow_right);
-		button->SetSurfaceBase(&tex);
+		button->SetString(text16);
+		tex = g_appPlugin->GetTexture(tex_button_arrow_right);
+		button->SetTexture(tex);
 		goto serviceButton;
 	}
 
-	timeText = (ui::Text *)utils::GetChild(button, text_list_item_youtube_time);
-	subText = utils::GetChild(button, text_list_item_youtube_subtext);
+	Item *workItem = &workObj->results.at(param.cell_index);
+	timeText = (ui::Text *)button->FindChild(text_list_item_youtube_time);
+	subText = button->FindChild(text_list_item_youtube_subtext);
 	if (workItem->time == L"LIVE")
 	{
-		Rgba col(1.0f, 0.0f, 0.0f, 1.0f);
-		timeText->SetColor(ui::Text::ColorType_Background, 0, 0, &col);
+		math::v4 col(1.0f, 0.0f, 0.0f, 1.0f);
+		timeText->SetStyleAttribute(graph::TextStyleAttribute_BackColor, 0, 0, col);
 	}
-	timeText->SetLabel(&workItem->time);
-	subText->SetLabel(&workItem->stat);
-	button->SetLabel(&workItem->name);
-	if (!workItem->surface)
+	timeText->SetString(workItem->time);
+	subText->SetString(workItem->stat);
+	button->SetString(workItem->name);
+	if (workObj->parent->texPool->Exist(workItem->texId))
 	{
-		new utils::AsyncNetworkSurfaceLoader(workItem->surfacePath.c_str(), button, &workItem->surface);
+		button->SetTexture(workObj->parent->texPool->Get(workItem->texId));
 	}
 	else
 	{
-		button->SetSurfaceBase(&workItem->surface);
+		workItem->texPool = workObj->parent->texPool;
+		button->AddEventCallback(ui::Handler::CB_STATE_READY_CACHEIMAGE, TexPoolAddCbFun, workItem);
+		workObj->parent->texPool->AddAsync(workItem->texId, workItem->texId.GetID().c_str());
 	}
 
 serviceButton:
 
-	button->RegisterEventCallback(ui::EventMain_Decide, new  utils::SimpleEventCallback(ListButtonCbFun, workObj));
+	button->AddEventCallback(ui::Button::CB_BTN_DECIDE, ListButtonCbFun, workObj);
 
 	return (ui::ListItem *)item;
 }
 
-SceVoid menu::YouTube::SearchSubmenu::SearchJob::Run()
+void menu::YouTube::SearchSubmenu::SearchJob::Run()
 {
 	string text8;
-	InvItem *items = SCE_NULL;
-	SceInt32 ret = -1;
+	InvItem *items = NULL;
+	int32_t ret = -1;
 
-	thread::s_mainThreadMutex.Lock();
+	thread::RMutex::main_thread_mutex.Lock();
 	workObj->parent->loaderIndicator->Start();
-	thread::s_mainThreadMutex.Unlock();
+	thread::RMutex::main_thread_mutex.Unlock();
 
 	if (!isId)
 	{
 		InvSort sort;
 		InvDate date;
 		sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
-		settings->GetInt("yt_search_sort", (SceInt32 *)&sort, 0);
-		settings->GetInt("yt_search_date", (SceInt32 *)&date, 0);
+		settings->GetInt("yt_search_sort", (int32_t *)&sort, 0);
+		settings->GetInt("yt_search_date", (int32_t *)&date, 0);
 		ret = invParseSearch(workObj->request.c_str(), workObj->currentPage, INV_ITEM_TYPE_VIDEO, sort, date, &items);
 	}
 	else
@@ -191,11 +201,11 @@ SceVoid menu::YouTube::SearchSubmenu::SearchJob::Run()
 
 	if (ret <= 0)
 	{
-		dialog::OpenError(g_appPlugin, ret, utils::GetString("msg_error_connect_server_peer"));
-		thread::s_mainThreadMutex.Lock();
+		dialog::OpenError(g_appPlugin, ret, Framework::Instance()->GetCommonString("msg_error_connect_server_peer"));
+		thread::RMutex::main_thread_mutex.Lock();
 		workObj->parent->loaderIndicator->Stop();
-		thread::s_mainThreadMutex.Unlock();
-		workObj->allJobsComplete = SCE_TRUE;
+		thread::RMutex::main_thread_mutex.Unlock();
+		workObj->allJobsComplete = true;
 		return;
 	}
 
@@ -206,18 +216,18 @@ SceVoid menu::YouTube::SearchSubmenu::SearchJob::Run()
 		switch (item.type)
 		{
 		case INV_ITEM_TYPE_VIDEO:
-			item.id = items[i].videoItem->id;
+			item.videoId = items[i].videoItem->id;
 			text8 = "\n";
 			text8 += items[i].videoItem->title;
 			common::Utf8ToUtf16(text8, &item.name);
-			item.surfacePath = items[i].videoItem->thmbUrl;
+			item.texId = items[i].videoItem->thmbUrl;
 			if (items[i].videoItem->isLive || items[i].videoItem->lengthSec == 0)
 			{
 				text8 = "LIVE";
 			}
 			else
 			{
-				utils::ConvertSecondsToString(text8, items[i].videoItem->lengthSec, SCE_FALSE);
+				utils::ConvertSecondsToString(text8, items[i].videoItem->lengthSec, false);
 			}
 			common::Utf8ToUtf16(text8, &item.time);
 			text8 = "by ";
@@ -231,24 +241,24 @@ SceVoid menu::YouTube::SearchSubmenu::SearchJob::Run()
 		workObj->results.push_back(item);
 	}
 
-	thread::s_mainThreadMutex.Lock();
+	thread::RMutex::main_thread_mutex.Lock();
 	workObj->parent->loaderIndicator->Stop();
 	if (workObj->currentPage == 0)
 	{
 		if (!isId)
 		{
-			workObj->list->AddItem(0, 0, workObj->results.size() + 1);
+			workObj->list->InsertCell(0, 0, workObj->results.size() + 1);
 		}
 		else
 		{
-			workObj->list->AddItem(0, 0, workObj->results.size());
+			workObj->list->InsertCell(0, 0, workObj->results.size());
 		}
 	}
 	else
 	{
-		workObj->list->AddItem(0, 0, workObj->results.size() + 2);
+		workObj->list->InsertCell(0, 0, workObj->results.size() + 2);
 	}
-	thread::s_mainThreadMutex.Unlock();
+	thread::RMutex::main_thread_mutex.Unlock();
 
 	if (!isId)
 	{
@@ -260,21 +270,21 @@ SceVoid menu::YouTube::SearchSubmenu::SearchJob::Run()
 		delete items;
 	}
 
-	workObj->allJobsComplete = SCE_TRUE;
+	workObj->allJobsComplete = true;
 }
 
-SceVoid menu::YouTube::SearchSubmenu::SearchButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+void menu::YouTube::SearchSubmenu::SearchButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
 	wstring text16;
 	string text8;
-	SceBool isId = SCE_FALSE;
+	bool isId = false;
 
-	menu::YouTube::SearchSubmenu *workObj = (menu::YouTube::SearchSubmenu *)pUserData;
+	menu::YouTube::SearchSubmenu *workObj = (menu::YouTube::SearchSubmenu *)userdata;
 	workObj->ReleaseCurrentPage();
-	workObj->searchBox->Hide();
+	workObj->searchBox->EndEdit();
 
 	workObj->request.clear();
-	workObj->searchBox->GetLabel(&text16);
+	workObj->searchBox->GetString(text16);
 	common::Utf16ToUtf8(text16, &workObj->request);
 
 	if (workObj->request.empty())
@@ -283,7 +293,7 @@ SceVoid menu::YouTube::SearchSubmenu::SearchButtonCbFun(SceInt32 eventId, ui::Wi
 	}
 	else if ((sce_paf_strstr(workObj->request.c_str(), "id:") == workObj->request.c_str()) && workObj->request.length() == 14)
 	{
-		isId = SCE_TRUE;
+		isId = true;
 	}
 
 	workObj->currentPage = 0;
@@ -292,60 +302,58 @@ SceVoid menu::YouTube::SearchSubmenu::SearchButtonCbFun(SceInt32 eventId, ui::Wi
 	job->workObj = workObj;
 	job->isId = isId;
 	common::SharedPtr<job::JobItem> itemParam(job);
-	workObj->allJobsComplete = SCE_FALSE;
+	workObj->allJobsComplete = false;
 	utils::GetJobQueue()->Enqueue(itemParam);
 }
 
-SceVoid menu::YouTube::SearchSubmenu::GoToNextPage()
+void menu::YouTube::SearchSubmenu::GoToNextPage()
 {
 	ReleaseCurrentPage();
 	currentPage++;
 
 	SearchJob *job = new SearchJob("YouTube::SearchJob");
 	job->workObj = this;
-	job->isId = SCE_FALSE;
+	job->isId = false;
 	common::SharedPtr<job::JobItem> itemParam(job);
-	allJobsComplete = SCE_FALSE;
+	allJobsComplete = false;
 	utils::GetJobQueue()->Enqueue(itemParam);
 }
 
-SceVoid menu::YouTube::SearchSubmenu::GoToPrevPage()
+void menu::YouTube::SearchSubmenu::GoToPrevPage()
 {
 	ReleaseCurrentPage();
 	currentPage--;
 
 	SearchJob *job = new SearchJob("YouTube::SearchJob");
 	job->workObj = this;
-	job->isId = SCE_FALSE;
+	job->isId = false;
 	common::SharedPtr<job::JobItem> itemParam(job);
-	allJobsComplete = SCE_FALSE;
+	allJobsComplete = false;
 	utils::GetJobQueue()->Enqueue(itemParam);
 }
 
 menu::YouTube::SearchSubmenu::SearchSubmenu(YouTube *parentObj) : Submenu(parentObj)
 {
-	rco::Element searchParam;
 	Plugin::TemplateOpenParam tmpParam;
 
-	searchParam.hash = template_list_view_youtube_search;
-	g_appPlugin->TemplateOpen(parent->browserRoot, &searchParam, &tmpParam);
-	submenuRoot = utils::GetChild(parent->browserRoot, plane_list_view_youtube_search_root);
-	list = (ui::ListView *)utils::GetChild(submenuRoot, list_view_youtube);
+	g_appPlugin->TemplateOpen(parent->browserRoot, template_list_view_youtube_search, tmpParam);
+	submenuRoot = parent->browserRoot->FindChild(plane_list_view_youtube_search_root);
+	list = (ui::ListView *)submenuRoot->FindChild(list_view_youtube);
 	ListViewCb *lwCb = new ListViewCb();
 	lwCb->workObj = this;
-	list->RegisterItemCallback(lwCb);
-	list->SetSegmentEnable(0, 1);
-	Vector4 sz(960.0f, 100.0f);
-	list->SetCellSize(0, &sz);
-	list->SetConfigurationType(0, ui::ListView::ConfigurationType_Simple);
+	list->SetItemFactory(lwCb);
+	list->InsertSegment(0, 1);
+	math::v4 sz(960.0f, 100.0f);
+	list->SetCellSizeDefault(0, sz);
+	list->SetSegmentLayoutType(0, ui::ListView::LAYOUT_TYPE_LIST);
 
-	searchBox = (ui::TextBox *)utils::GetChild(submenuRoot, text_box_top_youtube_search);
-	searchButton = utils::GetChild(submenuRoot, button_top_youtube_search);
+	searchBox = (ui::TextBox *)submenuRoot->FindChild(text_box_top_youtube_search);
+	searchButton = submenuRoot->FindChild(button_top_youtube_search);
 
-	searchBox->RegisterEventCallback(0x1000000B, new utils::SimpleEventCallback(SearchButtonCbFun, this));
-	searchButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(SearchButtonCbFun, this));
+	searchBox->AddEventCallback(ui::TextBox::CB_TEXT_BOX_ENTER_PRESSED, SearchButtonCbFun, this);
+	searchButton->AddEventCallback(ui::Button::CB_BTN_DECIDE, SearchButtonCbFun, this);
 
-	effect::PlayReverse(0.0f, submenuRoot, effect::EffectType_Fadein1, true, false);
+	common::transition::Do(0.0f, submenuRoot, common::transition::Type_Fadein1, true, false);
 }
 
 menu::YouTube::SearchSubmenu::~SearchSubmenu()
@@ -353,20 +361,20 @@ menu::YouTube::SearchSubmenu::~SearchSubmenu()
 
 }
 
-SceVoid menu::YouTube::HistorySubmenu::HistoryJob::Run()
+void menu::YouTube::HistorySubmenu::HistoryJob::Run()
 {
 	string text8;
 	char *entryData;
-	SceInt32 ret = 0;
+	int32_t ret = 0;
 	InvItemVideo *invItem;
 	char key[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
 
-	thread::s_mainThreadMutex.Lock();
+	thread::RMutex::main_thread_mutex.Lock();
 	workObj->parent->loaderIndicator->Start();
-	thread::s_mainThreadMutex.Unlock();
+	thread::RMutex::main_thread_mutex.Unlock();
 
 	ytutils::GetHistLog()->Reset();
-	SceInt32 totalNum = ytutils::GetHistLog()->GetSize();
+	int32_t totalNum = ytutils::GetHistLog()->GetSize();
 
 	while (totalNum > 30)
 	{
@@ -378,12 +386,12 @@ SceVoid menu::YouTube::HistorySubmenu::HistoryJob::Run()
 
 	entryData = (char *)sce_paf_calloc(totalNum, SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE);
 
-	for (SceInt32 i = 0; i < totalNum; i++)
+	for (int32_t i = 0; i < totalNum; i++)
 	{
 		ytutils::GetHistLog()->GetNext(entryData + (i * SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE));
 	}
 
-	for (SceInt32 i = totalNum; i > -1; i--)
+	for (int32_t i = totalNum; i > -1; i--)
 	{
 		if (workObj->interrupted)
 		{
@@ -391,24 +399,24 @@ SceVoid menu::YouTube::HistorySubmenu::HistoryJob::Run()
 		}
 
 		ret = invParseVideo(entryData + (i * SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE), &invItem);
-		if (ret == SCE_TRUE)
+		if (ret == true)
 		{
 			if (invItem->id)
 			{
 				Item item;
 				item.type = INV_ITEM_TYPE_VIDEO;
-				item.id = invItem->id;
+				item.videoId = invItem->id;
 				text8 = "\n";
 				text8 += invItem->title;
 				common::Utf8ToUtf16(text8, &item.name);
-				item.surfacePath = invItem->thmbUrl;
+				item.texId = invItem->thmbUrl;
 				if (invItem->isLive || invItem->lengthSec == 0)
 				{
 					text8 = "LIVE";
 				}
 				else
 				{
-					utils::ConvertSecondsToString(text8, invItem->lengthSec, SCE_FALSE);
+					utils::ConvertSecondsToString(text8, invItem->lengthSec, false);
 				}
 				common::Utf8ToUtf16(text8, &item.time);
 				text8 = "by ";
@@ -424,57 +432,55 @@ SceVoid menu::YouTube::HistorySubmenu::HistoryJob::Run()
 		}
 	}
 
-	thread::s_mainThreadMutex.Lock();
+	thread::RMutex::main_thread_mutex.Lock();
 	workObj->parent->loaderIndicator->Stop();
 	if (!workObj->interrupted)
 	{
-		workObj->list->AddItem(0, 0, workObj->results.size());
+		workObj->list->InsertCell(0, 0, workObj->results.size());
 	}
-	thread::s_mainThreadMutex.Unlock();
+	thread::RMutex::main_thread_mutex.Unlock();
 
 	sce_paf_free(entryData);
 
-	workObj->allJobsComplete = SCE_TRUE;
+	workObj->allJobsComplete = true;
 }
 
-SceVoid menu::YouTube::HistorySubmenu::GoToNextPage()
+void menu::YouTube::HistorySubmenu::GoToNextPage()
 {
 
 }
 
-SceVoid menu::YouTube::HistorySubmenu::GoToPrevPage()
+void menu::YouTube::HistorySubmenu::GoToPrevPage()
 {
 
 }
 
 menu::YouTube::HistorySubmenu::HistorySubmenu(YouTube *parentObj) : Submenu(parentObj)
 {
-	rco::Element searchParam;
 	Plugin::TemplateOpenParam tmpParam;
 
-	searchParam.hash = template_list_view_youtube_history;
-	g_appPlugin->TemplateOpen(parent->browserRoot, &searchParam, &tmpParam);
-	submenuRoot = utils::GetChild(parent->browserRoot, plane_list_view_youtube_history_root);
-	list = (ui::ListView *)utils::GetChild(submenuRoot, list_view_youtube);
+	g_appPlugin->TemplateOpen(parent->browserRoot, template_list_view_youtube_history, tmpParam);
+	submenuRoot = parent->browserRoot->FindChild(plane_list_view_youtube_history_root);
+	list = (ui::ListView *)submenuRoot->FindChild(list_view_youtube);
 	ListViewCb *lwCb = new ListViewCb();
 	lwCb->workObj = this;
-	list->RegisterItemCallback(lwCb);
-	list->SetSegmentEnable(0, 1);
-	Vector4 sz(960.0f, 100.0f);
-	list->SetCellSize(0, &sz);
-	list->SetConfigurationType(0, ui::ListView::ConfigurationType_Simple);
+	list->SetItemFactory(lwCb);
+	list->InsertSegment(0, 1);
+	math::v4 sz(960.0f, 100.0f);
+	list->SetCellSizeDefault(0, sz);
+	list->SetSegmentLayoutType(0, ui::ListView::LAYOUT_TYPE_LIST);
 
-	wstring title = utils::GetString(msg_youtube_history);
-	parent->topText->SetLabel(&title);
+	wstring title = g_appPlugin->GetString(msg_youtube_history);
+	parent->topText->SetString(title);
 
-	effect::PlayReverse(0.0f, submenuRoot, effect::EffectType_Fadein1, true, false);
+	common::transition::Do(0.0f, submenuRoot, common::transition::Type_Fadein1, true, false);
 
 	if (ytutils::GetHistLog()->GetSize() > 0)
 	{
 		HistoryJob *job = new HistoryJob("YouTube::HistoryJob");
 		job->workObj = this;
 		common::SharedPtr<job::JobItem> itemParam(job);
-		allJobsComplete = SCE_FALSE;
+		allJobsComplete = false;
 		utils::GetJobQueue()->Enqueue(itemParam);
 	}
 }
@@ -482,30 +488,30 @@ menu::YouTube::HistorySubmenu::HistorySubmenu(YouTube *parentObj) : Submenu(pare
 menu::YouTube::HistorySubmenu::~HistorySubmenu()
 {
 	wstring title;
-	parent->topText->SetLabel(&title);
+	parent->topText->SetString(title);
 }
 
-SceVoid menu::YouTube::FavouriteSubmenu::FavouriteJob::Run()
+void menu::YouTube::FavouriteSubmenu::FavouriteJob::Run()
 {
 	string text8;
 	char *entryData;
-	SceInt32 ret = 0;
-	InvItemVideo *invItem = SCE_NULL;
-	SceBool isLastPage = SCE_FALSE;
+	int32_t ret = 0;
+	InvItemVideo *invItem = NULL;
+	bool isLastPage = false;
 
-	thread::s_mainThreadMutex.Lock();
+	thread::RMutex::main_thread_mutex.Lock();
 	workObj->parent->loaderIndicator->Start();
-	thread::s_mainThreadMutex.Unlock();
+	thread::RMutex::main_thread_mutex.Unlock();
 
 	ytutils::GetFavLog()->Reset();
-	SceInt32 totalNum = ytutils::GetFavLog()->GetSize();
+	int32_t totalNum = ytutils::GetFavLog()->GetSize();
 
 	if (!workObj->request.empty())
 	{
-		isLastPage = SCE_TRUE;
+		isLastPage = true;
 		char key[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
 
-		for (SceInt32 i = 0; i < totalNum; i++)
+		for (int32_t i = 0; i < totalNum; i++)
 		{
 			if (workObj->interrupted)
 			{
@@ -514,24 +520,24 @@ SceVoid menu::YouTube::FavouriteSubmenu::FavouriteJob::Run()
 
 			ytutils::GetFavLog()->GetNext(key);
 			ret = invParseVideo(key, &invItem);
-			if (ret == SCE_TRUE)
+			if (ret == true)
 			{
 				if (invItem->id && sce_paf_strstr(invItem->title, workObj->request.c_str()) && workObj->results.size() < 30)
 				{
 					Item item;
 					item.type = INV_ITEM_TYPE_VIDEO;
-					item.id = invItem->id;
+					item.videoId = invItem->id;
 					text8 = "\n";
 					text8 += invItem->title;
 					common::Utf8ToUtf16(text8, &item.name);
-					item.surfacePath = invItem->thmbUrl;
+					item.texId = invItem->thmbUrl;
 					if (invItem->isLive || invItem->lengthSec == 0)
 					{
 						text8 = "LIVE";
 					}
 					else
 					{
-						utils::ConvertSecondsToString(text8, invItem->lengthSec, SCE_FALSE);
+						utils::ConvertSecondsToString(text8, invItem->lengthSec, false);
 					}
 					common::Utf8ToUtf16(text8, &item.time);
 					text8 = "by ";
@@ -549,28 +555,28 @@ SceVoid menu::YouTube::FavouriteSubmenu::FavouriteJob::Run()
 	}
 	else
 	{
-		SceInt32 startNum = workObj->currentPage * 30;
+		int32_t startNum = workObj->currentPage * 30;
 
-		SceInt32 realNum = 30;
+		int32_t realNum = 30;
 		if ((totalNum - startNum) < 30)
 		{
 			realNum = totalNum - startNum;
-			isLastPage = SCE_TRUE;
+			isLastPage = true;
 		}
 
 		entryData = (char *)sce_paf_calloc(realNum, SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE);
 
-		for (SceInt32 i = 0; i < startNum; i++)
+		for (int32_t i = 0; i < startNum; i++)
 		{
 			ytutils::GetFavLog()->GetNext(entryData);
 		}
 
-		for (SceInt32 i = 0; i < realNum; i++)
+		for (int32_t i = 0; i < realNum; i++)
 		{
 			ytutils::GetFavLog()->GetNext(entryData + (i * SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE));
 		}
 
-		for (SceInt32 i = 0; i < realNum; i++)
+		for (int32_t i = 0; i < realNum; i++)
 		{
 			if (workObj->interrupted)
 			{
@@ -578,24 +584,24 @@ SceVoid menu::YouTube::FavouriteSubmenu::FavouriteJob::Run()
 			}
 
 			ret = invParseVideo(entryData + (i * SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE), &invItem);
-			if (ret == SCE_TRUE)
+			if (ret == true)
 			{
 				if (invItem->id)
 				{
 					Item item;
 					item.type = INV_ITEM_TYPE_VIDEO;
-					item.id = invItem->id;
+					item.videoId = invItem->id;
 					text8 = "\n";
 					text8 += invItem->title;
 					common::Utf8ToUtf16(text8, &item.name);
-					item.surfacePath = invItem->thmbUrl;
+					item.texId = invItem->thmbUrl;
 					if (invItem->isLive || invItem->lengthSec == 0)
 					{
 						text8 = "LIVE";
 					}
 					else
 					{
-						utils::ConvertSecondsToString(text8, invItem->lengthSec, SCE_FALSE);
+						utils::ConvertSecondsToString(text8, invItem->lengthSec, false);
 					}
 					common::Utf8ToUtf16(text8, &item.time);
 					text8 = "by ";
@@ -612,7 +618,8 @@ SceVoid menu::YouTube::FavouriteSubmenu::FavouriteJob::Run()
 
 		sce_paf_free(entryData);
 	}
-	thread::s_mainThreadMutex.Lock();
+
+	thread::RMutex::main_thread_mutex.Lock();
 	workObj->parent->loaderIndicator->Stop();
 	if (!workObj->interrupted)
 	{
@@ -620,41 +627,41 @@ SceVoid menu::YouTube::FavouriteSubmenu::FavouriteJob::Run()
 		{
 			if (!isLastPage)
 			{
-				workObj->list->AddItem(0, 0, workObj->results.size() + 1);
+				workObj->list->InsertCell(0, 0, workObj->results.size() + 1);
 			}
 			else
 			{
-				workObj->list->AddItem(0, 0, workObj->results.size());
+				workObj->list->InsertCell(0, 0, workObj->results.size());
 			}
 		}
 		else
 		{
 			if (!isLastPage)
 			{
-				workObj->list->AddItem(0, 0, workObj->results.size() + 2);
+				workObj->list->InsertCell(0, 0, workObj->results.size() + 2);
 			}
 			else
 			{
-				workObj->list->AddItem(0, 0, workObj->results.size() + 1);
+				workObj->list->InsertCell(0, 0, workObj->results.size() + 1);
 			}
 		}
 	}
-	thread::s_mainThreadMutex.Unlock();
+	thread::RMutex::main_thread_mutex.Unlock();
 
-	workObj->allJobsComplete = SCE_TRUE;
+	workObj->allJobsComplete = true;
 }
 
-SceVoid menu::YouTube::FavouriteSubmenu::SearchButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+void menu::YouTube::FavouriteSubmenu::SearchButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
 	wstring text16;
 	string text8;
 
-	menu::YouTube::FavouriteSubmenu *workObj = (menu::YouTube::FavouriteSubmenu *)pUserData;
+	menu::YouTube::FavouriteSubmenu *workObj = (menu::YouTube::FavouriteSubmenu *)userdata;
 	workObj->ReleaseCurrentPage();
-	workObj->searchBox->Hide();
+	workObj->searchBox->EndEdit();
 
 	workObj->request.clear();
-	workObj->searchBox->GetLabel(&text16);
+	workObj->searchBox->GetString(text16);
 	common::Utf16ToUtf8(text16, &workObj->request);
 
 	if (workObj->request.empty() || ytutils::GetFavLog()->GetSize() == 0)
@@ -665,11 +672,11 @@ SceVoid menu::YouTube::FavouriteSubmenu::SearchButtonCbFun(SceInt32 eventId, ui:
 	FavouriteJob *job = new FavouriteJob("YouTube::FavouriteJob");
 	job->workObj = workObj;
 	common::SharedPtr<job::JobItem> itemParam(job);
-	workObj->allJobsComplete = SCE_FALSE;
+	workObj->allJobsComplete = false;
 	utils::GetJobQueue()->Enqueue(itemParam);
 }
 
-SceVoid menu::YouTube::FavouriteSubmenu::GoToNextPage()
+void menu::YouTube::FavouriteSubmenu::GoToNextPage()
 {
 	ReleaseCurrentPage();
 	currentPage++;
@@ -677,11 +684,11 @@ SceVoid menu::YouTube::FavouriteSubmenu::GoToNextPage()
 	FavouriteJob *job = new FavouriteJob("YouTube::FavouriteJob");
 	job->workObj = this;
 	common::SharedPtr<job::JobItem> itemParam(job);
-	allJobsComplete = SCE_FALSE;
+	allJobsComplete = false;
 	utils::GetJobQueue()->Enqueue(itemParam);
 }
 
-SceVoid menu::YouTube::FavouriteSubmenu::GoToPrevPage()
+void menu::YouTube::FavouriteSubmenu::GoToPrevPage()
 {
 	ReleaseCurrentPage();
 	currentPage--;
@@ -689,41 +696,39 @@ SceVoid menu::YouTube::FavouriteSubmenu::GoToPrevPage()
 	FavouriteJob *job = new FavouriteJob("YouTube::FavouriteJob");
 	job->workObj = this;
 	common::SharedPtr<job::JobItem> itemParam(job);
-	allJobsComplete = SCE_FALSE;
+	allJobsComplete = false;
 	utils::GetJobQueue()->Enqueue(itemParam);
 }
 
 menu::YouTube::FavouriteSubmenu::FavouriteSubmenu(YouTube *parentObj) : Submenu(parentObj)
 {
-	rco::Element searchParam;
 	Plugin::TemplateOpenParam tmpParam;
 
-	searchParam.hash = template_list_view_youtube_fav;
-	g_appPlugin->TemplateOpen(parent->browserRoot, &searchParam, &tmpParam);
-	submenuRoot = utils::GetChild(parent->browserRoot, plane_list_view_youtube_fav_root);
-	list = (ui::ListView *)utils::GetChild(submenuRoot, list_view_youtube);
+	g_appPlugin->TemplateOpen(parent->browserRoot, template_list_view_youtube_fav, tmpParam);
+	submenuRoot = parent->browserRoot->FindChild(plane_list_view_youtube_fav_root);
+	list = (ui::ListView *)submenuRoot->FindChild(list_view_youtube);
 	ListViewCb *lwCb = new ListViewCb();
 	lwCb->workObj = this;
-	list->RegisterItemCallback(lwCb);
-	list->SetSegmentEnable(0, 1);
-	Vector4 sz(960.0f, 100.0f);
-	list->SetCellSize(0, &sz);
-	list->SetConfigurationType(0, ui::ListView::ConfigurationType_Simple);
+	list->SetItemFactory(lwCb);
+	list->InsertSegment(0, 1);
+	math::v4 sz(960.0f, 100.0f);
+	list->SetCellSizeDefault(0, sz);
+	list->SetSegmentLayoutType(0, ui::ListView::LAYOUT_TYPE_LIST);
 
-	searchBox = (ui::TextBox *)utils::GetChild(submenuRoot, text_box_top_youtube_search);
-	searchButton = utils::GetChild(submenuRoot, button_top_youtube_search);
+	searchBox = (ui::TextBox *)submenuRoot->FindChild(text_box_top_youtube_search);
+	searchButton = submenuRoot->FindChild(button_top_youtube_search);
 
-	searchBox->RegisterEventCallback(0x1000000B, new utils::SimpleEventCallback(SearchButtonCbFun, this));
-	searchButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(SearchButtonCbFun, this));
+	searchBox->AddEventCallback(ui::TextBox::CB_TEXT_BOX_ENTER_PRESSED, SearchButtonCbFun, this);
+	searchButton->AddEventCallback(ui::Button::CB_BTN_DECIDE, SearchButtonCbFun, this);
 
-	effect::PlayReverse(0.0f, submenuRoot, effect::EffectType_Fadein1, true, false);
+	common::transition::Do(0.0f, submenuRoot, common::transition::Type_Fadein1, true, false);
 
 	if (ytutils::GetFavLog()->GetSize() > 0)
 	{
 		FavouriteJob *job = new FavouriteJob("YouTube::FavouriteJob");
 		job->workObj = this;
 		common::SharedPtr<job::JobItem> itemParam(job);
-		allJobsComplete = SCE_FALSE;
+		allJobsComplete = false;
 		utils::GetJobQueue()->Enqueue(itemParam);
 	}
 }
@@ -733,14 +738,27 @@ menu::YouTube::FavouriteSubmenu::~FavouriteSubmenu()
 
 }
 
-SceVoid menu::YouTube::ListButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+void menu::YouTube::PlayerCreateTimeoutFun(void *userdata1, void *userdata2)
 {
-	Submenu *workObj = (Submenu *)pUserData;
-	SceUInt32 totalCount = workObj->results.size();
+	uint32_t *tmarg = (uint32_t *)userdata1;
+	Submenu *workObj = (Submenu *)tmarg[0];
+	uint32_t idhash = tmarg[1];
+	bool isFav = tmarg[2];
+	Submenu::Item item = workObj->results.at(idhash);
+	new menu::PlayerYoutube(item.videoId.c_str(), isFav);
+	delete tmarg;
+}
+
+void menu::YouTube::ListButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
+{
+	Submenu *workObj = (Submenu *)userdata;
+	ui::Widget *wdg = (ui::Widget *)self;
+	uint32_t totalCount = workObj->results.size();
+	uint32_t idhash = wdg->GetName().GetIDHash();
 
 	if (workObj->currentPage == 0)
 	{
-		if (self->elem.hash == totalCount)
+		if (idhash == totalCount)
 		{
 			workObj->GoToNextPage();
 			return;
@@ -748,77 +766,94 @@ SceVoid menu::YouTube::ListButtonCbFun(SceInt32 eventId, ui::Widget *self, SceIn
 	}
 	else
 	{
-		if (self->elem.hash == totalCount)
+		if (idhash == totalCount)
 		{
 			workObj->GoToPrevPage();
 			return;
 		}
-		else if (self->elem.hash == totalCount + 1)
+		else if (idhash == totalCount + 1)
 		{
 			workObj->GoToNextPage();
 			return;
 		}
 	}
 
-	SceInt32 idx = self->elem.hash;
-
-	Submenu::Item item = workObj->results.at(idx);
+	Submenu::Item item = workObj->results.at(idhash);
 
 	switch (item.type)
 	{
 	case INV_ITEM_TYPE_VIDEO:
-		ytutils::GetHistLog()->AddAsync(item.id.c_str());
+		bool isFav = false;
+		ytutils::GetHistLog()->AddAsync(item.videoId.c_str());
 		if (workObj->GetType() == Submenu::SubmenuType_Favourites)
 		{
-			new menu::PlayerYoutube(item.id.c_str(), SCE_TRUE);
+			isFav = true;
+		}
+		if (SCE_PAF_IS_DOLCE)
+		{
+			Framework::Instance()->GetEnvironmentInstance()->SetResolution(1920, 1088);
+			uint32_t *tmarg = new uint32_t[3];
+			tmarg[0] = (uint32_t)workObj;
+			tmarg[1] = idhash;
+			tmarg[2] = isFav;
+			utils::SetTimeout(PlayerCreateTimeoutFun, 10.0f, tmarg);
 		}
 		else
 		{
-			new menu::PlayerYoutube(item.id.c_str(), SCE_FALSE);
+			new menu::PlayerYoutube(item.videoId.c_str(), isFav);
 		}
 		break;
 	}
 }
 
-SceVoid menu::YouTube::SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+void menu::YouTube::SettingsButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	YouTube *workObj = (YouTube *)pUserData;
+	YouTube *workObj = (YouTube *)userdata;
 
 	vector<OptionMenu::Button> buttons;
 	OptionMenu::Button bt;
-	bt.label = utils::GetString(msg_settings);
+	bt.label = g_appPlugin->GetString(msg_settings);
 	buttons.push_back(bt);
-	bt.label = utils::GetString(msg_settings_youtube_clean_history);
+	bt.label = g_appPlugin->GetString(msg_settings_youtube_clean_history);
 	buttons.push_back(bt);
-	bt.label = utils::GetString(msg_settings_youtube_clean_fav);
+	bt.label = g_appPlugin->GetString(msg_settings_youtube_clean_fav);
 	buttons.push_back(bt);
 
-	new OptionMenu(g_appPlugin, workObj->root, &buttons, OptionButtonCb, SCE_NULL, SCE_NULL);
+	new OptionMenu(g_appPlugin, workObj->root, &buttons);
 }
 
-SceVoid menu::YouTube::OptionButtonCb(SceUInt32 index, ScePVoid pUserData)
+void menu::YouTube::OptionMenuEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	switch (index)
+	menu::YouTube *workObj = (menu::YouTube *)userdata;
+
+	if (e->GetValue(0) == OptionMenu::OptionMenuEvent_Close)
+	{
+		return;
+	}
+
+	switch (e->GetValue(1))
 	{
 	case 0:
-		menu::SettingsButtonCbFun(ui::EventMain_Decide, SCE_NULL, 0, SCE_NULL);
+		menu::SettingsButtonCbFun(ui::Button::CB_BTN_DECIDE, NULL, 0, NULL);
 		break;
 	case 1:
-		dialog::OpenYesNo(g_appPlugin, SCE_NULL, utils::GetString(msg_settings_youtube_clean_history_confirm), DialogEventHandler, (ScePVoid)index);
+		dialog::OpenYesNo(g_appPlugin, NULL, g_appPlugin->GetString(msg_settings_youtube_clean_history_confirm));
+		workObj->dialogIdx = e->GetValue(1);
 		break;
 	case 2:
-		dialog::OpenYesNo(g_appPlugin, SCE_NULL, utils::GetString(msg_settings_youtube_clean_fav_confirm), DialogEventHandler, (ScePVoid)index);
+		dialog::OpenYesNo(g_appPlugin, NULL, g_appPlugin->GetString(msg_settings_youtube_clean_fav_confirm));
+		workObj->dialogIdx = e->GetValue(1);
 		break;
 	}
 }
 
-SceVoid menu::YouTube::DialogEventHandler(dialog::ButtonCode buttonCode, ScePVoid pUserArg)
+void menu::YouTube::DialogHandlerCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	SceUInt32 index = (SceUInt32)pUserArg;
+	menu::YouTube *workObj = (menu::YouTube *)userdata;
 
-	if (buttonCode == dialog::ButtonCode_Yes)
+	if (e->GetValue(0) == dialog::ButtonCode_Yes)
 	{
-		switch (index)
+		switch (workObj->dialogIdx)
 		{
 		case 1:
 			ytutils::HistLog::Clean();
@@ -830,50 +865,57 @@ SceVoid menu::YouTube::DialogEventHandler(dialog::ButtonCode buttonCode, ScePVoi
 	}
 }
 
-SceVoid menu::YouTube::BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+void menu::YouTube::BackButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	YouTube *workObj = (YouTube *)pUserData;
+	YouTube *workObj = (YouTube *)userdata;
 
 	delete workObj;
 }
 
-SceVoid menu::YouTube::SubmenuButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+void menu::YouTube::SubmenuButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	YouTube *workObj = (YouTube *)pUserData;
-	workObj->SwitchSubmenu((Submenu::SubmenuType)self->elem.hash);
+	YouTube *workObj = (YouTube *)userdata;
+	ui::Widget *wdg = (ui::Widget *)self;
+	workObj->SwitchSubmenu((Submenu::SubmenuType)wdg->GetName().GetIDHash());
 }
 
 menu::YouTube::YouTube() :
 	GenericMenu("page_youtube",
-	MenuOpenParam(false, 200.0f, Plugin::PageEffectType_SlideFromBottom),
-	MenuCloseParam(false, 200.0f, Plugin::PageEffectType_SlideFromBottom))
+	MenuOpenParam(false, 200.0f, Plugin::TransitionType_SlideFromBottom),
+	MenuCloseParam(false, 200.0f, Plugin::TransitionType_SlideFromBottom))
 {
-	currentSubmenu = SCE_NULL;
+	currentSubmenu = NULL;
 
-	ui::Widget *settingsButton = utils::GetChild(root, button_settings_page_youtube);
-	settingsButton->PlayEffect(0.0f, effect::EffectType_Reset);
-	settingsButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(SettingsButtonCbFun, this));
+	menu::GetMenuAt(0)->GetRoot()->SetEventCallback(OptionMenu::OptionMenuEvent, OptionMenuEventCbFun, this);
+	menu::GetMenuAt(0)->GetRoot()->SetEventCallback(dialog::DialogEvent, DialogHandlerCbFun, this);
 
-	ui::Widget *backButton = utils::GetChild(root, button_back_page_youtube);
-	backButton->PlayEffect(0.0f, effect::EffectType_Reset);
-	backButton->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(BackButtonCbFun, this));
+	ui::Widget *settingsButton = root->FindChild(button_settings_page_youtube);
+	settingsButton->Show(common::transition::Type_Reset);
+	settingsButton->AddEventCallback(ui::Button::CB_BTN_DECIDE, SettingsButtonCbFun, this);
 
-	browserRoot = utils::GetChild(root, plane_browser_root_page_youtube);
-	loaderIndicator = (ui::BusyIndicator *)utils::GetChild(root, busyindicator_loader_page_youtube);
-	topText = (ui::Text *)utils::GetChild(root, text_top);
-	btMenu = (ui::Box *)utils::GetChild(root, box_bottommenu_page_youtube);
+	ui::Widget *backButton = root->FindChild(button_back_page_youtube);
+	backButton->Show(common::transition::Type_Reset);
+	backButton->AddEventCallback(ui::Button::CB_BTN_DECIDE, BackButtonCbFun, this);
 
-	searchBt = utils::GetChild(btMenu, button_yt_btmenu_search);
-	histBt = utils::GetChild(btMenu, button_yt_btmenu_history);
-	favBt = utils::GetChild(btMenu, button_yt_btmenu_favourite);
-	searchBt->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(SubmenuButtonCbFun, this));
-	histBt->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(SubmenuButtonCbFun, this));
-	favBt->RegisterEventCallback(ui::EventMain_Decide, new utils::SimpleEventCallback(SubmenuButtonCbFun, this));
+	browserRoot = root->FindChild(plane_browser_root_page_youtube);
+	loaderIndicator = (ui::BusyIndicator *)root->FindChild(busyindicator_loader_page_youtube);
+	topText = (ui::Text *)root->FindChild(text_top);
+	btMenu = (ui::Box *)root->FindChild(box_bottommenu_page_youtube);
+
+	searchBt = btMenu->FindChild(button_yt_btmenu_search);
+	histBt = btMenu->FindChild(button_yt_btmenu_history);
+	favBt = btMenu->FindChild(button_yt_btmenu_favourite);
+	searchBt->AddEventCallback(ui::Button::CB_BTN_DECIDE, SubmenuButtonCbFun, this);
+	histBt->AddEventCallback(ui::Button::CB_BTN_DECIDE, SubmenuButtonCbFun, this);
+	favBt->AddEventCallback(ui::Button::CB_BTN_DECIDE, SubmenuButtonCbFun, this);
 
 	char instance[256];
 	sce_paf_memset(instance, 0, sizeof(instance));
 	menu::Settings::GetAppSetInstance()->GetString("inv_instance", instance, sizeof(instance), "");
 	invSetInstanceUrl(instance);
+
+	texPool = new TexPool(g_appPlugin);
+	texPool->SetShare(utils::GetShare());
 
 	SwitchSubmenu(Submenu::SubmenuType_Search);
 }
@@ -881,16 +923,17 @@ menu::YouTube::YouTube() :
 menu::YouTube::~YouTube()
 {
 	delete currentSubmenu;
+	texPool->DestroyAsync();
 }
 
-SceVoid menu::YouTube::SwitchSubmenu(Submenu::SubmenuType type)
+void menu::YouTube::SwitchSubmenu(Submenu::SubmenuType type)
 {
 	if (currentSubmenu)
 	{
 		if (currentSubmenu->GetType() == type)
 			return;
 		delete currentSubmenu;
-		currentSubmenu = SCE_NULL;
+		currentSubmenu = NULL;
 	}
 
 	switch (type)

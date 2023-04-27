@@ -9,6 +9,11 @@ using namespace paf;
 
 namespace dialog
 {
+	enum
+	{
+		DialogEvent = (ui::Handler::CB_STATE + 0x40000),
+	};
+
 	enum ButtonCode
 	{
 		ButtonCode_X = 1,
@@ -21,50 +26,40 @@ namespace dialog
 		ButtonCode_Button3 = ButtonCode_Cancel
 	};
 
-	typedef void(*EventHandler)(ButtonCode buttonCode, ScePVoid pUserArg);
+	void OpenPleaseWait(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageText, bool withCancel = false);
 
-	SceVoid OpenPleaseWait(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageText, SceBool withCancel = SCE_FALSE, EventHandler eventHandler= SCE_NULL, ScePVoid userArg = SCE_NULL);
+	void OpenYesNo(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageTextL);
 
-	SceVoid OpenYesNo(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageText, EventHandler eventHandler = SCE_NULL, ScePVoid userArg = SCE_NULL);
+	void OpenOk(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageText);
 
-	SceVoid OpenOk(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageText, EventHandler eventHandler = SCE_NULL, ScePVoid userArg = SCE_NULL);
+	void OpenError(Plugin *workPlugin, int32_t errorCode, const wchar_t *messageText = NULL);
 
-	SceVoid OpenError(Plugin *workPlugin, SceInt32 errorCode, const wchar_t *messageText = SCE_NULL, EventHandler eventHandler = SCE_NULL, ScePVoid userArg = SCE_NULL);
-
-	SceVoid OpenTwoButton(
+	void OpenTwoButton(
 		Plugin *workPlugin,
 		const wchar_t *titleText,
 		const wchar_t *messageText,
-		SceUInt32 button1TextHashref,
-		SceUInt32 button2TextHashref,
-		EventHandler eventHandler = SCE_NULL,
-		ScePVoid userArg = SCE_NULL);
+		uint32_t button1TextHashref,
+		uint32_t button2TextHashref);
 
-	SceVoid OpenThreeButton(
+	void OpenThreeButton(
 		Plugin *workPlugin,
 		const wchar_t *titleText,
 		const wchar_t *messageText,
-		SceUInt32 button1TextHashref,
-		SceUInt32 button2TextHashref,
-		SceUInt32 button3TextHashref,
-		EventHandler eventHandler = SCE_NULL,
-		ScePVoid userArg = SCE_NULL);
+		uint32_t button1TextHashref,
+		uint32_t button2TextHashref,
+		uint32_t button3TextHashref);
 
-	ui::ListView *dialog::OpenListView(
+	ui::ListView *OpenListView(
 		Plugin *workPlugin,
-		const wchar_t *titleText,
-		EventHandler eventHandler = SCE_NULL,
-		ScePVoid userArg = SCE_NULL);
+		const wchar_t *titleText);
 
-	ui::ScrollView *dialog::OpenScrollView(
+	ui::ScrollView *OpenScrollView(
 		Plugin *workPlugin,
-		const wchar_t *titleText,
-		EventHandler eventHandler = SCE_NULL,
-		ScePVoid userArg = SCE_NULL);
+		const wchar_t *titleText);
 
-	SceVoid Close();
+	void Close();
 
-	SceVoid WaitEnd();
+	void WaitEnd();
 };
 
 #endif

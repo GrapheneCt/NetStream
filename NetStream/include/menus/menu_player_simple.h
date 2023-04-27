@@ -15,6 +15,18 @@ namespace menu {
 	{
 	public:
 
+		enum
+		{
+			PlayerSimpleEvent = (ui::Handler::CB_STATE + 0x10000),
+		};
+
+		enum PlayerEvent
+		{
+			PlayerEvent_InitFail,
+			PlayerEvent_InitOk,
+			PlayerEvent_Back
+		};
+
 		enum AccJumpState
 		{
 			AccJumpState_None,
@@ -28,85 +40,79 @@ namespace menu {
 			SettingsOverride_YouTube
 		};
 
-		typedef void(*PlayerSimpleCallback)(PlayerSimple *player, ScePVoid pUserArg);
+		typedef void(*PlayerSimpleCallback)(PlayerSimple *player, void *pUserArg);
 
-		static SceVoid VideoPlaneCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid ProgressBarCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid PlayButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid WholeRepeatButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceInt32 PowerCallback(SceUID notifyId, SceInt32 notifyCount, SceInt32 notifyArg, void *pCommon);
+		static void VideoPlaneCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void ProgressBarCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void BackButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void PlayButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void WholeRepeatButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void BEAVPlayerStateCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static int32_t PowerCallback(SceUID notifyId, int32_t notifyCount, int32_t notifyArg, void *pCommon);
 
-		PlayerSimple(const char *url, PlayerSimpleCallback okCb = SCE_NULL, PlayerSimpleCallback failCb = SCE_NULL, PlayerSimpleCallback backCb = SCE_NULL, ScePVoid cbArg = SCE_NULL);
+		PlayerSimple(const char *url);
 
 		~PlayerSimple();
 
-		SceVoid SetScale(SceFloat32 scale);
+		void SetScale(float scale);
 
-		SceFloat32 GetScale();
+		float GetScale();
 
-		SceVoid SetPosition(SceFloat32 x, SceFloat32 y);
+		void SetPosition(float x, float y);
 
-		SceVoid SetSettingsOverride(SettingsOverride override);
-
-		SceVoid SetBackButtonCb(PlayerSimpleCallback backCb);
+		void SetSettingsOverride(SettingsOverride override);
 
 		MenuType GetMenuType()
 		{
 			return MenuType_PlayerSimple;
 		}
 
-		const SceUInt32 *GetSupportedSettingsItems(SceInt32 *count)
+		const uint32_t *GetSupportedSettingsItems(int32_t *count)
 		{
 			switch (settingsOverride)
 			{
 			case SettingsOverride_None:
 				*count = 0;
-				return SCE_NULL;
+				return NULL;
 			case SettingsOverride_YouTube:
 				*count = sizeof(k_settingsIdListYoutubeOverride) / sizeof(char*);
 				return k_settingsIdListYoutubeOverride;
 			}
 
-			return SCE_NULL;
+			return NULL;
 		}
 
-		static SceVoid UpdateTask(ScePVoid pArgBlock);
+		static void UpdateTask(void *pArgBlock);
 
-		static SceVoid StateCheckTask(ScePVoid pArgBlock);
-
-		static SceVoid DirectInputCallback(input::GamePad::GamePadData *pData);
+		static void DirectInputCallback(inputdevice::pad::Data *pData);
 
 		ui::Widget *videoPlane;
 		ui::BusyIndicator *loadIndicator;
 		ui::Widget *leftAccText;
 		ui::Widget *rightAccText;
+		ui::Widget *statPlane;
 		ui::Widget *backButton;
 		ui::Widget *wholeRepeatButton;
 		ui::Text *elapsedTimeText;
 		ui::ProgressBarTouch *progressBar;
 		ui::Widget *progressPlane;
 		ui::Widget *playButton;
-		SceUInt32 oldCurrTime;
-		SceBool progressPlaneShown;
-		SceUInt32 progressPlaneShownTime;
-		SceBool isSeeking;
-		SceBool isLS;
-		SceUInt32 oldButtons;
-		SceInt32 accJumpTime;
-		SceUInt32 accStartTime;
+		uint32_t oldCurrTime;
+		bool progressPlaneShown;
+		uint32_t progressPlaneShownTime;
+		bool isSeeking;
+		bool isLS;
+		uint32_t oldButtons;
+		int32_t accJumpTime;
+		uint32_t accStartTime;
 		AccJumpState accJumpState;
-		SceFloat32 currentScale;
-		PlayerSimpleCallback initOkCb;
-		PlayerSimpleCallback initFailCb;
-		PlayerSimpleCallback backButtonCb;
-		ScePVoid cbUserArg;
+		float currentScale;
 		SettingsOverride settingsOverride;
 		SceUID pwCbId;
 
 		BEAVPlayer *player;
 
-		const SceUInt32 k_settingsIdListYoutubeOverride[4] = {
+		const uint32_t k_settingsIdListYoutubeOverride[4] = {
 			youtube_search_setting,
 			youtube_comment_setting,
 			youtube_quality_setting,

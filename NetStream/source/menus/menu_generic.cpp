@@ -10,46 +10,26 @@ using namespace paf;
 
 static paf::vector<menu::GenericMenu*> s_menuStack;
 
-SceVoid menu::SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+void menu::SettingsButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
 	menu::Settings *set = new menu::Settings();
-	if (pUserData)
-	{
-		SceUInt32 *uarg = (SceUInt32 *)pUserData;
-		set->SetCloseCallback((menu::Settings::CloseCallback)uarg[0], (ScePVoid)uarg[1]);
-	}
 }
 
-SceVoid menu::GenericMenu::DeactivatorFwCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+menu::GenericMenu::GenericMenu(const char *name, MenuOpenParam const& oparam, MenuCloseParam const& cparam)
 {
-	if (self->animationStatus == 0)
-	{
-		ui::Widget *oldMenuRoot = (ui::Widget *)pUserData;
-		oldMenuRoot->SetGraphicsState(ui::GraphicsState_Disabled);
-		self->UnregisterFwEventCallback(0x200FB2B);
-	}
-}
-
-menu::GenericMenu::GenericMenu(const char *name, MenuOpenParam oparam, MenuCloseParam cparam)
-{
-	rco::Element searchParam;
-	Plugin::PageOpenParam openParam;
-
 	if (!name)
 	{
 		return;
 	}
 
-	closeParam = *(Plugin::PageCloseParam *)&cparam;
+	closeParam = cparam;
 
-	searchParam.hash = utils::GetHash(name);
-	root = g_appPlugin->PageOpen(&searchParam, (Plugin::PageOpenParam *)&oparam);
+	root = g_appPlugin->PageOpen(name, oparam);
+	root->SetName(name);
 
 	if (!s_menuStack.empty())
 	{
-		menu::GenericMenu *oldMenu = s_menuStack.back();
-		ui::Widget::SetControlFlags(oldMenu->root, 0);
-		root->RegisterFwEventCallback(0x200FB2B, new utils::SimpleEventCallback(DeactivatorFwCbFun, oldMenu->root));
+		s_menuStack.back()->Deactivate(true);
 	}
 
 	s_menuStack.push_back(this);
@@ -59,7 +39,7 @@ menu::GenericMenu::~GenericMenu()
 {
 	s_menuStack.pop_back();
 
-	g_appPlugin->PageClose(&root->elem, &closeParam);
+	g_appPlugin->PageClose(root->GetName(), closeParam);
 
 	if (!s_menuStack.empty())
 	{
@@ -67,29 +47,39 @@ menu::GenericMenu::~GenericMenu()
 	}
 }
 
-SceVoid menu::GenericMenu::Deactivate()
+void menu::GenericMenu::Deactivate(bool withDelay)
 {
-	ui::Widget::SetControlFlags(root, 0);
-	root->SetGraphicsState(ui::GraphicsState_Disabled);
+	Timer *t = NULL;
+	root->SetActivate(false);
+	if (withDelay)
+	{
+		t = new Timer(200.0f);
+	}
+	root->Hide(t);
 }
 
-SceVoid menu::GenericMenu::Activate()
+void menu::GenericMenu::Activate()
 {
-	ui::Widget::SetControlFlags(root, 1);
-	root->SetGraphicsState(ui::GraphicsState_Normal);
+	root->Show();
+	root->SetActivate(true);
 }
 
-SceVoid menu::GenericMenu::DisableInput()
+void menu::GenericMenu::DisableInput()
 {
-	ui::Widget::SetControlFlags(root, 0);
+	root->SetActivate(false);
 }
 
-SceVoid menu::GenericMenu::EnableInput()
+void menu::GenericMenu::EnableInput()
 {
-	ui::Widget::SetControlFlags(root, 1);
+	root->SetActivate(true);
 }
 
-SceVoid menu::DeactivateAll(SceUInt32 endMargin)
+ui::Scene *menu::GenericMenu::GetRoot()
+{
+	return root;
+}
+
+void menu::DeactivateAll(uint32_t endMargin)
 {
 	for (int i = 0; i < s_menuStack.size() - endMargin; i++)
 	{
@@ -97,7 +87,7 @@ SceVoid menu::DeactivateAll(SceUInt32 endMargin)
 	}
 }
 
-SceVoid menu::ActivateAll()
+void menu::ActivateAll()
 {
 	for (int i = 0; i < s_menuStack.size(); i++)
 	{
@@ -105,12 +95,12 @@ SceVoid menu::ActivateAll()
 	}
 }
 
-SceVoid menu::InitMenuSystem()
+void menu::InitMenuSystem()
 {
 
 }
 
-SceVoid menu::TermMenuSystem()
+void menu::TermMenuSystem()
 {
 
 }
@@ -122,15 +112,15 @@ menu::GenericMenu *menu::GetTopMenu()
 		return s_menuStack.back();
 	}
 
-	return SCE_NULL;
+	return NULL;
 }
 
-SceUInt32 menu::GetMenuCount()
+uint32_t menu::GetMenuCount()
 {
 	return s_menuStack.size();
 }
 
-menu::GenericMenu *menu::GetMenuAt(SceUInt32 idx)
+menu::GenericMenu *menu::GetMenuAt(uint32_t idx)
 {
 	return s_menuStack.at(idx);
 }

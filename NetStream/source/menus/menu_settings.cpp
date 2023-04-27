@@ -15,6 +15,7 @@
 #include "menus/menu_settings.h"
 #include "menus/menu_generic.h"
 #include "utils.h"
+#include "event.h"
 
 #define WIDE2(x) L##x
 #define WIDE(x) WIDE2(x)
@@ -22,46 +23,42 @@
 using namespace paf;
 using namespace sce;
 
-const SceUInt32 k_safeMemIniLimit = 0x400;
-const SceInt32 k_settingsVersion = 4;
+const uint32_t k_safeMemIniLimit = 0x400;
+const int32_t k_settingsVersion = 4;
 
-static sce::AppSettings *s_appSet = SCE_NULL;
-static menu::Settings *s_instance = SCE_NULL;
-static wchar_t *s_verinfo = SCE_NULL;
+static sce::AppSettings *s_appSet = NULL;
+static menu::Settings *s_instance = NULL;
+static wchar_t *s_verinfo = NULL;
 
-static menu::Settings::ValueChangeCallback s_valChangeCb = SCE_NULL;
-static ScePVoid s_valChangeCbUserArg = SCE_NULL;
-
-SceVoid menu::Settings::Init()
+void menu::Settings::Init()
 {
-	SceInt32 ret;
-	SceSize fsize = 0;
-	const char *fmime = SCE_NULL;
+	int32_t ret;
+	size_t fsize = 0;
+	const char *fmime = NULL;
 	Plugin::InitParam pluginParam;
 	AppSettings::InitParam sparam;
 
-	pluginParam.pluginName = "app_settings_plugin";
-	pluginParam.resourcePath = "vs0:vsh/common/app_settings_plugin.rco";
-	pluginParam.scopeName = "__main__";
-
-	pluginParam.pluginSetParamCB = AppSettings::PluginCreateCB;
-	pluginParam.pluginInitCB = AppSettings::PluginInitCB;
-	pluginParam.pluginStartCB = AppSettings::PluginStartCB;
-	pluginParam.pluginStopCB = AppSettings::PluginStopCB;
-	pluginParam.pluginExitCB = AppSettings::PluginExitCB;
-	pluginParam.pluginPath = "vs0:vsh/common/app_settings.suprx";
-	pluginParam.unk_58 = 0x96;
+	pluginParam.name = "app_settings_plugin";
+	pluginParam.resource_file = "vs0:vsh/common/app_settings_plugin.rco";
+	pluginParam.module_file = "vs0:vsh/common/app_settings.suprx";
+	pluginParam.caller_name = "__main__";
+	pluginParam.set_param_func = AppSettings::PluginSetParamCB;
+	pluginParam.init_func = AppSettings::PluginInitCB;
+	pluginParam.start_func = AppSettings::PluginStartCB;
+	pluginParam.stop_func = AppSettings::PluginStopCB;
+	pluginParam.exit_func = AppSettings::PluginExitCB;
+	pluginParam.draw_priority = 0x96;
 
 	Plugin::LoadSync(pluginParam);
 
-	sparam.xmlFile = g_appPlugin->resource->GetFile(file_netstream_settings, &fsize, &fmime);
-	sparam.allocCB = sce_paf_malloc;
-	sparam.freeCB = sce_paf_free;
-	sparam.reallocCB = sce_paf_realloc;
-	sparam.safeMemoryOffset = 0;
-	sparam.safeMemorySize = k_safeMemIniLimit;
+	sparam.xml_file = g_appPlugin->GetResource()->GetFile(file_netstream_settings, &fsize, &fmime);
+	sparam.alloc_cb = sce_paf_malloc;
+	sparam.free_cb = sce_paf_free;
+	sparam.realloc_cb = sce_paf_realloc;
+	sparam.safemem_offset = 0;
+	sparam.safemem_size = k_safeMemIniLimit;
 
-	sce::AppSettings::GetInstance(&sparam, &s_appSet);
+	sce::AppSettings::GetInstance(sparam, &s_appSet);
 
 	ret = -1;
 	s_appSet->GetInt("settings_version", &ret, 0);
@@ -78,7 +75,7 @@ SceVoid menu::Settings::Init()
 	*verinfo = L"RELEASE ";
 #endif
 	*verinfo += WIDE(__DATE__);
-	*verinfo += L" v 2.04";
+	*verinfo += L" v 3.00";
 	s_verinfo = (wchar_t *)verinfo->c_str();
 }
 
@@ -89,18 +86,13 @@ menu::Settings::~Settings()
 		topMenu->Activate();
 	}
 
-	if (closeCb) {
-		closeCb(closeCbUserArg);
-	}
+	event::BroadcastGlobalEvent(g_appPlugin, SettingsEvent, SettingsEvent_Close);
 
-	s_instance = SCE_NULL;
+	s_instance = NULL;
 }
 
 menu::Settings::Settings()
 {
-	closeCb = SCE_NULL;
-	closeCbUserArg = SCE_NULL;
-
 	if (s_instance)
 	{
 		SCE_DBG_LOG_ERROR("[MENU] Attempt to create second singleton instance\n");
@@ -133,106 +125,88 @@ menu::Settings::Settings()
 	s_instance = this;
 }
 
-SceVoid menu::Settings::SetCloseCallback(CloseCallback cb, ScePVoid uarg)
-{
-	closeCb = cb;
-	closeCbUserArg = uarg;
-}
-
-SceVoid menu::Settings::SetValueChangeCallback(ValueChangeCallback cb, ScePVoid uarg)
-{
-	s_valChangeCb = cb;
-	s_valChangeCbUserArg = uarg;
-}
-
-SceVoid menu::Settings::CBOnStartPageTransition(const char *elementId, SceInt32 type)
+void menu::Settings::CBOnStartPageTransition(const char *elementId, int32_t type)
 {
 
 }
 
-SceVoid menu::Settings::CBOnPageActivate(const char *elementId, SceInt32 type)
+void menu::Settings::CBOnPageActivate(const char *elementId, int32_t type)
 {
 
 }
 
-SceVoid menu::Settings::CBOnPageDeactivate(const char *elementId, SceInt32 type)
+void menu::Settings::CBOnPageDeactivate(const char *elementId, int32_t type)
 {
 
 }
 
-SceInt32 menu::Settings::CBOnCheckVisible(const char *elementId, SceBool *pIsVisible)
+int32_t menu::Settings::CBOnCheckVisible(const char *elementId, bool *pIsVisible)
 {
-	*pIsVisible = SCE_FALSE;
+	*pIsVisible = false;
 
 	if (sce_paf_strstr(elementId, "_setting"))
 	{
 		if (!sce_paf_strcmp(elementId, "verinfo_setting"))
 		{
-			*pIsVisible = SCE_TRUE;
+			*pIsVisible = true;
 			return SCE_OK;
 		}
 
-		SceInt32 supportedItemsCount = 0;
-		SceUInt32 elementHash = utils::GetHash(elementId);
-		const SceUInt32 *supportedItems = menu::GetTopMenu()->GetSupportedSettingsItems(&supportedItemsCount);
+		int32_t supportedItemsCount = 0;
+		uint32_t elementHash = utils::GetHash(elementId);
+		const uint32_t *supportedItems = menu::GetTopMenu()->GetSupportedSettingsItems(&supportedItemsCount);
 
 		for (int i = 0; i < supportedItemsCount; i++)
 		{
 			if (supportedItems[i] == elementHash)
 			{
-				*pIsVisible = SCE_TRUE;
+				*pIsVisible = true;
 				return SCE_OK;
 			}
 		}
 	}
 	else
 	{
-		*pIsVisible = SCE_TRUE;
+		*pIsVisible = true;
 	}
 
 	return SCE_OK;
 }
 
-SceInt32 menu::Settings::CBOnPreCreate(const char *elementId, sce::AppSettings::Element *element)
+int32_t menu::Settings::CBOnPreCreate(const char *elementId, sce::AppSettings::Element *element)
 {
 	return SCE_OK;
 }
 
-SceInt32 menu::Settings::CBOnPostCreate(const char *elementId, paf::ui::Widget *widget)
+int32_t menu::Settings::CBOnPostCreate(const char *elementId, paf::ui::Widget *widget)
 {
 	return SCE_OK;
 }
 
-SceInt32 menu::Settings::CBOnPress(const char *elementId, const char *newValue)
+int32_t menu::Settings::CBOnPress(const char *elementId, const char *newValue)
 {
-	SceInt32 ret = SCE_OK;
+	int32_t ret = SCE_OK;
+	IDParam elem(elementId);
+	IDParam val(newValue);
 
-	if (s_valChangeCb)
-	{
-		return s_valChangeCb(elementId, newValue, s_valChangeCbUserArg);
-	}
+	event::BroadcastGlobalEvent(g_appPlugin, SettingsEvent, SettingsEvent_ValueChange, elem.GetIDHash(), val.GetIDHash());
 
 	return ret;
 }
 
-SceInt32 menu::Settings::CBOnPress2(const char *elementId, const char *newValue)
+int32_t menu::Settings::CBOnPress2(const char *elementId, const char *newValue)
 {
 	return SCE_OK;
 }
 
-SceVoid menu::Settings::CBOnTerm(SceInt32 result)
+void menu::Settings::CBOnTerm(int32_t result)
 {
 	delete s_instance;
 }
 
 wchar_t *menu::Settings::CBOnGetString(const char *elementId)
 {
-	rco::Element searchParam;
-	wchar_t *res = SCE_NULL;
-
-	searchParam.hash = utils::GetHash(elementId);
-
-	res = g_appPlugin->GetWString(&searchParam);
+	wchar_t *res = g_appPlugin->GetString(elementId);
 
 	if (res[0] == 0)
 	{
@@ -245,7 +219,7 @@ wchar_t *menu::Settings::CBOnGetString(const char *elementId)
 	return res;
 }
 
-SceInt32 menu::Settings::CBOnGetSurface(graph::Surface **surf, const char *elementId)
+int32_t menu::Settings::CBOnGetSurface(graph::Surface **surf, const char *elementId)
 {
 	return SCE_OK;
 }

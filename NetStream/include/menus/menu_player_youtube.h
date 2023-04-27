@@ -35,9 +35,9 @@ namespace menu {
 
 			~LoadJob() {}
 
-			SceVoid Run();
+			void Run();
 
-			SceVoid Finish() {}
+			void Finish() {}
 
 			PlayerYoutube *workObj;
 		};
@@ -49,12 +49,12 @@ namespace menu {
 			wstring author;
 			wstring content;
 			wstring date;
-			SceInt32 likeCount;
-			SceBool likedByOwner;
+			int32_t likeCount;
+			bool likedByOwner;
 			string replyContinuation;
 		};
 
-		class HlsCommentListViewCb : public ui::ListView::ItemCallback
+		class HlsCommentListViewCb : public ui::listview::ItemFactory
 		{
 		public:
 
@@ -63,10 +63,10 @@ namespace menu {
 
 			}
 
-			ui::ListItem *Create(Param *info);
+			ui::ListItem* Create(CreateParam& param);
 		};
 
-		class CommentListViewCb : public ui::ListView::ItemCallback
+		class CommentListViewCb : public ui::listview::ItemFactory
 		{
 		public:
 
@@ -75,7 +75,7 @@ namespace menu {
 
 			}
 
-			ui::ListItem *Create(Param *info);
+			ui::ListItem* Create(CreateParam& param);
 
 			PlayerYoutube *workObj;
 		};
@@ -86,7 +86,7 @@ namespace menu {
 
 			using thread::Thread::Thread;
 
-			SceVoid EntryFunction();
+			void EntryFunction();
 
 			PlayerYoutube *workObj;
 		};
@@ -99,29 +99,27 @@ namespace menu {
 
 			~CommentParseJob() {}
 
-			SceVoid Run();
+			void Run();
 
-			SceVoid Finish() {}
+			void Finish() {}
 
 			PlayerYoutube *workObj;
 		};
 
-		static SceVoid PlayerBackCb(PlayerSimple *player, ScePVoid pUserArg);
-		static SceVoid PlayerOkCb(PlayerSimple *player, ScePVoid pUserArg);
-		static SceVoid PlayerFailCb(PlayerSimple *player, ScePVoid pUserArg);
-		static SceVoid TaskLoadSecondStage(void *pArgBlock);
-		static SceVoid DwAddCompleteCb(SceInt32 result);
-		static SceVoid OptionButtonCb(SceUInt32 index, ScePVoid pUserData);
-		static SceVoid BackButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid SettingsButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid ExpandButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid FavButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid CommentButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid DescButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid CommentBodyButtonCbFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
-		static SceVoid SettingsCloseCbFun(ScePVoid pUserData);
+		static void TaskLoadSecondStage(void *pArgBlock);
+		static void DwAddCompleteCb(int32_t result);
+		static void BackButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void SettingsButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void ExpandButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void FavButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void CommentButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void DescButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void CommentBodyButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void PlayerEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void OptionMenuEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void SettingsEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 
-		PlayerYoutube(const char *id, SceBool isFavourite);
+		PlayerYoutube(const char *id, bool isFavourite);
 
 		~PlayerYoutube();
 
@@ -130,7 +128,7 @@ namespace menu {
 			return MenuType_PlayerYouTube;
 		}
 
-		const SceUInt32 *GetSupportedSettingsItems(SceInt32 *count)
+		const uint32_t *GetSupportedSettingsItems(int32_t *count)
 		{
 			*count = sizeof(k_settingsIdList) / sizeof(char*);
 			return k_settingsIdList;
@@ -149,16 +147,16 @@ namespace menu {
 		menu::PlayerSimple *player;
 		string videoLink;
 		string videoId;
-		SceBool isHls;
-		SceBool isHighHls;
-		SceBool isFav;
+		bool isHls;
+		bool isHighHls;
+		bool isFav;
 		string description;
 		string commentCont;
 		vector<CommentItem> commentItems;
 		HlsCommentParseThread *hlsCommentThread;
-		SceBool lastAttempt;
+		bool lastAttempt;
 
-		const SceUInt32 k_settingsIdList[4] = {
+		const uint32_t k_settingsIdList[4] = {
 			youtube_search_setting,
 			youtube_comment_setting,
 			youtube_quality_setting,

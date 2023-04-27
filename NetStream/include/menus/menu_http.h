@@ -38,7 +38,7 @@ namespace menu {
 			return MenuType_Http;
 		}
 
-		const SceUInt32 *GetSupportedSettingsItems(SceInt32 *count)
+		const uint32_t *GetSupportedSettingsItems(int32_t *count)
 		{
 			*count = sizeof(k_settingsIdList) / sizeof(char*);
 			return k_settingsIdList;
@@ -46,7 +46,7 @@ namespace menu {
 
 	private:
 
-		const SceUInt32 k_settingsIdList[1] = {
+		const uint32_t k_settingsIdList[1] = {
 			http_setting
 		};
 	};

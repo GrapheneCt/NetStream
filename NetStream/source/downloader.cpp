@@ -14,8 +14,8 @@ Downloader::Downloader()
 {
 	IPMI::Client::Config conf;
 	IPMI::Client *client;
-	SceUInt32 clMemSize;
-	SceInt32 ret;
+	uint32_t clMemSize;
+	int32_t ret;
 
 	sce_paf_memset(&dw, 0, sizeof(sce::Download));
 	sce_paf_memset(&conf, 0, sizeof(IPMI::Client::Config));
@@ -59,13 +59,13 @@ Downloader::~Downloader()
 	sce_paf_free(dw.bufMem);
 }
 
-SceInt32 Downloader::Enqueue(const char *url, const char *name, OnStartCallback cb)
+int32_t Downloader::Enqueue(const char *url, const char *name, OnStartCallback cb)
 {
 	IPMI::DataInfo dtInfo[3];
 	IPMI::BufferInfo bfInfo[1];
-	SceInt32 ret = SCE_OK;
-	SceInt32 ret2 = SCE_OK;
-	SceInt32 dwRes = 0;
+	int32_t ret = SCE_OK;
+	int32_t ret2 = SCE_OK;
+	int32_t dwRes = 0;
 
 	sce::Download::GetHeaderInfoParam hparam;
 	sce::Download::AuthParam aparam;
@@ -86,6 +86,8 @@ SceInt32 Downloader::Enqueue(const char *url, const char *name, OnStartCallback 
 
 	dtInfo[0].data = &hparam;
 	dtInfo[0].dataSize = sizeof(sce::Download::GetHeaderInfoParam);
+	dtInfo[1].data = &aparam;
+	dtInfo[1].dataSize = sizeof(sce::Download::AuthParam);
 
 	bfInfo[0].data = &minfo;
 	bfInfo[0].dataSize = sizeof(sce::Download::HeaderInfo);
@@ -113,7 +115,7 @@ SceInt32 Downloader::Enqueue(const char *url, const char *name, OnStartCallback 
 	dtInfo[2].dataSize = sizeof(sce::Download::HeaderInfo);
 
 	bfInfo[0].data = &dwRes;
-	bfInfo[0].dataSize = sizeof(SceInt32);
+	bfInfo[0].dataSize = sizeof(int32_t);
 
 	ret2 = SCE_OK;
 	ret = dw.client->invokeSyncMethod(sce::Download::Method_Download, dtInfo, 3, &ret2, bfInfo, 1);
@@ -141,7 +143,7 @@ end:
 	return ret;
 }
 
-SceInt32 Downloader::EnqueueAsync(const char *url, const char *name, OnStartCallback cb)
+int32_t Downloader::EnqueueAsync(const char *url, const char *name, OnStartCallback cb)
 {
 	AsyncEnqueue *dwJob = new AsyncEnqueue("Downloader::AsyncEnqueue");
 	dwJob->downloader = this;
@@ -151,5 +153,5 @@ SceInt32 Downloader::EnqueueAsync(const char *url, const char *name, OnStartCall
 
 	common::SharedPtr<job::JobItem> itemParam(dwJob);
 
-	return job::s_defaultJobQueue->Enqueue(itemParam);
+	return job::JobQueue::default_queue->Enqueue(itemParam);
 }

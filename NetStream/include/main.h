@@ -21,9 +21,9 @@ namespace menu {
 
 			~NetcheckJob() {}
 
-			SceVoid Run();
+			void Run();
 
-			SceVoid Finish() {}
+			void Finish() {}
 		};
 	}
 }

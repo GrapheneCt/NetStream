@@ -30,27 +30,27 @@ public:
 
 			CurlLsHandle()
 			{
-				curl = SCE_NULL;
+				curl = NULL;
 				readPos = 0;
-				buf = SCE_NULL;
+				buf = NULL;
 				pos = 0;
 				lastError = 0;
 			}
 
 			~CurlLsHandle() {};
 
-			ScePVoid curl;
-			SceOff readPos;
-			ScePVoid buf;
-			SceUInt32 pos;
-			SceInt32 lastError;
+			void *curl;
+			int64_t readPos;
+			void *buf;
+			uint32_t pos;
+			int32_t lastError;
 		};
 
 		LibLSInterface();
 		~LibLSInterface();
 
-		static SceVoid Init();
-		static SceVoid Term();
+		static void Init();
+		static void Term();
 		static size_t DownloadCore(char *buffer, size_t size, size_t nitems, void *userdata);
 		static LSInputResult ConvertError(int err);
 		static LSInputResult Open(char *pcURI, uint64_t uOffset, uint32_t uTimeOutMSecs, LSInputHandle *pHandle);
@@ -76,11 +76,16 @@ public:
 
 		~BootJob() {}
 
-		SceVoid Run();
+		void Run();
 
-		SceVoid Finish() {}
+		void Finish() {}
 
 		BEAVPlayer *workObj;
+	};
+
+	enum
+	{
+		BEAVPlayerChangeState = (ui::Handler::CB_STATE + 0x20000),
 	};
 
 	enum SupportType
@@ -102,37 +107,37 @@ public:
 
 	~BEAVPlayer();
 
-	SceVoid InitAsync();
+	void InitAsync();
 
-	SceVoid Term();
+	void Term();
 
 	InitState GetInitState();
 
-	SceUInt32 GetTotalTimeMs();
+	uint32_t GetTotalTimeMs();
 
-	SceUInt32 GetCurrentTimeMs();
+	uint32_t GetCurrentTimeMs();
 
-	SceBool JumpToTimeMs(SceUInt32 time);
+	bool JumpToTimeMs(uint32_t time);
 
-	SceVoid SwitchPlaybackState();
+	void SwitchPlaybackState();
 
-	SceBool IsPaused();
+	bool IsPaused();
 
-	SceUInt32 GetPlaySpeed();
+	uint32_t GetPlaySpeed();
 
-	SceVoid SetPlaySpeed(SceInt32 speed, SceInt32 milliSec);
+	void SetPlaySpeed(int32_t speed, int32_t milliSec);
 
 	SceBeavCorePlayerState GetState();
 
-	SceVoid SetPowerSaving(SceBool enable);
+	void SetPowerSaving(bool enable);
 
-	SceVoid LimitFPS(SceBool enable);
+	void LimitFPS(bool enable);
 
-	static SceVoid PreInit();
+	static void PreInit();
 
 	static SupportType IsSupported(const char *path);
 
-	static SceVoid PlayerNotifyCb(SceInt32 reserved, SceBeavCorePlayerDecodeError *eventInfo);
+private:
 
 	class BEAVVideoThread : public thread::Thread
 	{
@@ -140,16 +145,16 @@ public:
 
 		using thread::Thread::Thread;
 
-		SceVoid EntryFunction();
+		void EntryFunction();
 
-		static SceVoid SurfaceUpdateTask(void *pArgBlock);
+		static void SurfaceUpdateTask(void *pArgBlock);
 
 		BEAVPlayer *workObj;
 		ui::Widget *target;
-		graph::Surface *drawSurf[BEAV_SURFACE_COUNT];
-		SceInt32 surfIdx;
+		intrusive_ptr<graph::Surface> drawSurf[BEAV_SURFACE_COUNT];
+		int32_t surfIdx;
 		SceBeavCorePlayerHandle playerCore;
-		SceBool limitFps;
+		bool limitFps;
 	};
 
 	class BEAVAudioThread : public thread::Thread
@@ -158,24 +163,28 @@ public:
 
 		using thread::Thread::Thread;
 
-		SceVoid EntryFunction();
+		void EntryFunction();
 
 		BEAVPlayer *workObj;
 		SceBeavCorePlayerHandle playerCore;
 	};
 
-	static SceUInt32 GetFreeHeapSize();
+	static uint32_t GetFreeHeapSize();
+
+	static void PlayerNotifyCb(int32_t reserved, SceBeavCorePlayerDecodeError *eventInfo);
+
+	void SetInitState(InitState state);
 
 	ui::Widget *target;
 	string path;
 	InitState initState;
-	SceBool limitFps;
-	SceBool powerSaving;
+	bool limitFps;
+	bool powerSaving;
 
 	SceBeavCorePlayerHandle playerCore;
 	BEAVVideoThread *videoThread;
 	BEAVAudioThread *audioThread;
-	ScePVoid notifyCbMem;
+	void *notifyCbMem;
 };
 
 #endif

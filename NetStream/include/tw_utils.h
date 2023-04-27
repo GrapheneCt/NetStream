@@ -21,9 +21,9 @@ namespace twutils
 
 			~AddAsyncJob() {}
 
-			SceVoid Run();
+			void Run();
 
-			SceVoid Finish() {}
+			void Finish() {}
 
 			Log *workObj;
 			string data;
@@ -41,21 +41,21 @@ namespace twutils
 			delete ini;
 		}
 
-		virtual SceInt32 GetNext(char *data);
+		virtual int32_t GetNext(char *data);
 
-		virtual SceInt32 Get(const char *data);
+		virtual int32_t Get(const char *data);
 
-		virtual SceVoid Reset();
+		virtual void Reset();
 
-		virtual SceVoid Add(const char *data);
+		virtual void Add(const char *data);
 
-		virtual SceVoid AddAsync(const char *data);
+		virtual void AddAsync(const char *data);
 
-		virtual SceVoid Remove(const char *data);
+		virtual void Remove(const char *data);
 
-		virtual SceVoid Flush();
+		virtual void Flush();
 
-		virtual SceInt32 GetSize();
+		virtual int32_t GetSize();
 
 	protected:
 
@@ -68,9 +68,9 @@ namespace twutils
 
 		HistLog();
 
-		static SceVoid Clean();
+		static void Clean();
 
-		static const SceUInt32 k_maxHistItems = 20;
+		static const uint32_t k_maxHistItems = 20;
 	};
 
 	class FavLog : public Log
@@ -79,22 +79,22 @@ namespace twutils
 
 		FavLog();
 
-		static SceVoid Clean();
+		static void Clean();
 	};
 
 	class InvDownloadData
 	{
 	public:
 
-		ScePVoid buf;
-		SceUInt32 pos;
+		void *buf;
+		uint32_t pos;
 	};
 
-	SceVoid Init();
+	void Init();
 
-	SceVoid Term();
+	void Term();
 
-	SceVoid Flush();
+	void Flush();
 
 	HistLog *GetHistLog();
 
