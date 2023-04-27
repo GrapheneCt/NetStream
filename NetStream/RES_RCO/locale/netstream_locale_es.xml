@@ -40,12 +40,12 @@
   <string src="Si activas esta opción, NetStream enviará el comando NLST al servidor FTP en lugar del comando LIST. Esta opción agiliza el funcionamiento, pero algunos servidores FTP podrían no admitirla." id="msg_ftp_nlst_hint" />
 
   <string src="Prefijo para listas de reproducción .m3u8 relativas" id="msg_local_playlist_prefix" />
-  <string src="Sort By Name" id="msg_local_sort_name" />
-  <string src="Sort By Type" id="msg_local_sort_type" />
-  <string src="Ascending" id="msg_option_local_sort_name_0" />
-  <string src="Descending" id="msg_option_local_sort_name_1" />
-  <string src="Folders First" id="msg_option_local_sort_type_0" />
-  <string src="Files First" id="msg_option_local_sort_type_1" />
+  <string src="Ordenar por nombre" id="msg_local_sort_name" />
+  <string src="Ordenar por tipo" id="msg_local_sort_type" />
+  <string src="Ascendente" id="msg_option_local_sort_name_0" />
+  <string src="Descendente" id="msg_option_local_sort_name_1" />
+  <string src="Carpetas primero" id="msg_option_local_sort_type_0" />
+  <string src="Archivos primero" id="msg_option_local_sort_type_1" />
 
   <string src="Calidad preferida de videos" id="msg_youtube_quality" />
   <string src="Calidad preferida de directos" id="msg_youtube_hls_quality" />
@@ -81,12 +81,12 @@
 
   <string src="Inicio minimizado" id="msg_toggle_youtube_min" />
 
-  <string src="Eliminar historial" id="msg_settings_youtube_clean_history" />
-  <string src="Eliminar favoritos" id="msg_settings_youtube_clean_fav" />
-  <string src="Se ha eliminado el historial." id="msg_settings_youtube_clean_history_done" />
-  <string src="Se han eliminado los favoritos." id="msg_settings_youtube_clean_fav_done" />
-  <string src="Se eliminará todo de historial. ¿Continuar?" id="msg_settings_youtube_clean_history_confirm" />
-  <string src="Se eliminarán todos los favoritos. ¿Continuar?" id="msg_settings_youtube_clean_fav_confirm" />
+  <string src="Borrar historial" id="msg_settings_youtube_clean_history" />
+  <string src="Borrar favoritos" id="msg_settings_youtube_clean_fav" />
+  <string src="Se ha borrado el historial." id="msg_settings_youtube_clean_history_done" />
+  <string src="Se han borrado los favoritos." id="msg_settings_youtube_clean_fav_done" />
+  <string src="Se borrará todo de historial. ¿Continuar?" id="msg_settings_youtube_clean_history_confirm" />
+  <string src="Se borrarán todos los favoritos. ¿Continuar?" id="msg_settings_youtube_clean_fav_confirm" />
   <string src="Descargar" id="msg_settings_youtube_download" />
   <string src="La descarga se ha añadido a la cola." id="msg_settings_youtube_download_begin" />
 
