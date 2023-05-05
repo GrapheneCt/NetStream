@@ -4,7 +4,8 @@
 #include <psp2_compat/curl/curl.h>
 
 #include "common.h"
-#include "beav_player.h"
+#include "player_beav.h"
+#include "player_fmod.h"
 #include "local_server_browser.h"
 
 using namespace paf;
@@ -258,20 +259,24 @@ vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, i
 			{
 				while (dir.Read(&dentry) >= 0)
 				{
-					BEAVPlayer::SupportType beavType = BEAVPlayer::IsSupported(dentry.name.c_str());
+					GenericPlayer::SupportType supportType = BEAVPlayer::IsSupported(dentry.name.c_str());
+					if (supportType == GenericPlayer::SupportType_NotSupported)
+					{
+						supportType = FMODPlayer::IsSupported(dentry.name.c_str());
+					}
 
-					if (beavType != BEAVPlayer::SupportType_NotSupported)
+					if (supportType != GenericPlayer::SupportType_NotSupported)
 					{
 						LocalServerBrowser::Entry *entry = new LocalServerBrowser::Entry();
 						entry->ref = dentry.name.c_str();
 						entry->type = LocalServerBrowser::Entry::Type_UnsupportedFile;
 
-						if (beavType == BEAVPlayer::SupportType_MaybeSupported)
+						if (supportType == GenericPlayer::SupportType_MaybeSupported)
 						{
 							entry->ref += "/";
 							entry->type = LocalServerBrowser::Entry::Type_Folder;
 						}
-						else if (beavType == BEAVPlayer::SupportType_Supported)
+						else if (supportType == GenericPlayer::SupportType_Supported)
 						{
 							if (sce_paf_strstr(entry->ref.c_str(), ".m3u8"))
 							{

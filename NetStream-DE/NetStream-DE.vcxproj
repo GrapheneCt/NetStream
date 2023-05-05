@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="download_enabler.c" />
+    <ClCompile Include="download_enabler.cpp" />
     <ClCompile Include="paf_runtime.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -50,9 +50,10 @@
       <OptimizationLevel>Level3</OptimizationLevel>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(SCE_PSP2_SDK_DIR)\target\include\vdsuite\user;$(SCE_PSP2_SDK_DIR)\target\include\vdsuite\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CppLanguageStd>Cpp11</CppLanguageStd>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>-lSceLibKernel_stub;-lScePafStdc_stub;-ltaihen_stub;-lsnc;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>-lSceLibKernel_stub;-lScePafStdc_stub;-lScePafCommon_stub;-lScePafMisc_stub;-ltaihen_stub;-lsnc;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>--no-standard-libraries </AdditionalOptions>
       <AdditionalLibraryDirectories>$(SCE_PSP2_SDK_DIR)\target\lib\vdsuite;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
@@ -67,9 +68,10 @@ copy /Y "$(OutDir)download_enabler_netstream.suprx" "$(SolutionDir)NetStream\CON
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(SCE_PSP2_SDK_DIR)\target\include\vdsuite\user;$(SCE_PSP2_SDK_DIR)\target\include\vdsuite\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CppLanguageStd>Cpp11</CppLanguageStd>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>-lSceLibKernel_stub;-lScePafStdc_stub;-ltaihen_stub;-lsnc;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>-lSceLibKernel_stub;-lScePafStdc_stub;-lScePafCommon_stub;-lScePafMisc_stub;-ltaihen_stub;-lsnc;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>--no-standard-libraries </AdditionalOptions>
       <AdditionalLibraryDirectories>$(SCE_PSP2_SDK_DIR)\target\lib\vdsuite;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>

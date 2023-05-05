@@ -6,6 +6,7 @@
 #include <scebeavplayer.h>
 
 #include "common.h"
+#include "player_generic.h"
 #include <paf_file_ext.h>
 
 using namespace paf;
@@ -16,7 +17,7 @@ using namespace paf;
 #define BEAV_VIDEO_BUFFER_HEIGHT	720
 #define BEAV_USER_AGENT				
 
-class BEAVPlayer
+class BEAVPlayer : public GenericPlayer
 {
 public:
 
@@ -83,26 +84,6 @@ public:
 		BEAVPlayer *workObj;
 	};
 
-	enum
-	{
-		BEAVPlayerChangeState = (ui::Handler::CB_STATE + 0x20000),
-	};
-
-	enum SupportType
-	{
-		SupportType_NotSupported,
-		SupportType_Supported,
-		SupportType_MaybeSupported
-	};
-
-	enum InitState
-	{
-		InitState_NotInit,
-		InitState_InProgress,
-		InitState_InitOk,
-		InitState_InitFail
-	};
-
 	BEAVPlayer(ui::Widget *targetPlane, const char *url);
 
 	~BEAVPlayer();
@@ -123,11 +104,7 @@ public:
 
 	bool IsPaused();
 
-	uint32_t GetPlaySpeed();
-
-	void SetPlaySpeed(int32_t speed, int32_t milliSec);
-
-	SceBeavCorePlayerState GetState();
+	PlayerState GetState();
 
 	void SetPowerSaving(bool enable);
 
@@ -174,12 +151,6 @@ private:
 	static void PlayerNotifyCb(int32_t reserved, SceBeavCorePlayerDecodeError *eventInfo);
 
 	void SetInitState(InitState state);
-
-	ui::Widget *target;
-	string path;
-	InitState initState;
-	bool limitFps;
-	bool powerSaving;
 
 	SceBeavCorePlayerHandle playerCore;
 	BEAVVideoThread *videoThread;

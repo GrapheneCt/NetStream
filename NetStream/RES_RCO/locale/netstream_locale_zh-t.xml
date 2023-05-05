@@ -51,6 +51,7 @@
   <string src="首選直播質量" id="msg_youtube_hls_quality" />
 
   <string src="令人反感的實例" id="msg_youtube_inv_instance" />
+  <string src="地區" id="msg_youtube_region" />
   <string src="種類" id="msg_youtube_search_sort" />
   <string src="日期" id="msg_youtube_search_date" />
   <string src="種類" id="msg_youtube_comment_sort" />
@@ -88,6 +89,7 @@
   <string src="所有歷史記錄將被刪除。 繼續？" id="msg_settings_youtube_clean_history_confirm" />
   <string src="所有收藏夾都將被刪除。 繼續？" id="msg_settings_youtube_clean_fav_confirm" />
   <string src="下載" id="msg_settings_youtube_download" />
+  <string src="下載音頻" id="msg_settings_youtube_download_audio" />
   <string src="下載已添加到隊列中。" id="msg_settings_youtube_download_begin" />
 
 </stringset>

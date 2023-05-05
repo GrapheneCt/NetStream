@@ -145,7 +145,7 @@ ui::ListItem *menu::YouTube::Submenu::ListViewCb::Create(CreateParam& param)
 	subText = button->FindChild(text_list_item_youtube_subtext);
 	if (workItem->time == L"LIVE")
 	{
-		math::v4 col(1.0f, 0.0f, 0.0f, 1.0f);
+		math::v4 col(1.0f, 0.0f, 0.0f, 0.5f);
 		timeText->SetStyleAttribute(graph::TextStyleAttribute_BackColor, 0, 0, col);
 	}
 	timeText->SetString(workItem->time);
@@ -183,10 +183,13 @@ void menu::YouTube::SearchSubmenu::SearchJob::Run()
 	{
 		InvSort sort;
 		InvDate date;
+		char region[3];
 		sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
 		settings->GetInt("yt_search_sort", (int32_t *)&sort, 0);
 		settings->GetInt("yt_search_date", (int32_t *)&date, 0);
-		ret = invParseSearch(workObj->request.c_str(), workObj->currentPage, INV_ITEM_TYPE_VIDEO, sort, date, &items);
+		region[0] = 0;
+		settings->GetString("yt_search_region", region, sizeof(region), "");
+		ret = invParseSearch(workObj->request.c_str(), workObj->currentPage, INV_ITEM_TYPE_VIDEO, sort, date, region, &items);
 	}
 	else
 	{
@@ -738,17 +741,6 @@ menu::YouTube::FavouriteSubmenu::~FavouriteSubmenu()
 
 }
 
-void menu::YouTube::PlayerCreateTimeoutFun(void *userdata1, void *userdata2)
-{
-	uint32_t *tmarg = (uint32_t *)userdata1;
-	Submenu *workObj = (Submenu *)tmarg[0];
-	uint32_t idhash = tmarg[1];
-	bool isFav = tmarg[2];
-	Submenu::Item item = workObj->results.at(idhash);
-	new menu::PlayerYoutube(item.videoId.c_str(), isFav);
-	delete tmarg;
-}
-
 void menu::YouTube::ListButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
 	Submenu *workObj = (Submenu *)userdata;
@@ -783,25 +775,9 @@ void menu::YouTube::ListButtonCbFun(int32_t type, ui::Handler *self, ui::Event *
 	switch (item.type)
 	{
 	case INV_ITEM_TYPE_VIDEO:
-		bool isFav = false;
 		ytutils::GetHistLog()->AddAsync(item.videoId.c_str());
-		if (workObj->GetType() == Submenu::SubmenuType_Favourites)
-		{
-			isFav = true;
-		}
-		if (SCE_PAF_IS_DOLCE)
-		{
-			Framework::Instance()->GetEnvironmentInstance()->SetResolution(1920, 1088);
-			uint32_t *tmarg = new uint32_t[3];
-			tmarg[0] = (uint32_t)workObj;
-			tmarg[1] = idhash;
-			tmarg[2] = isFav;
-			utils::SetTimeout(PlayerCreateTimeoutFun, 10.0f, tmarg);
-		}
-		else
-		{
-			new menu::PlayerYoutube(item.videoId.c_str(), isFav);
-		}
+		utils::SetDisplayResolution(ui::EnvironmentParam::RESOLUTION_HD_FULL);
+		new menu::PlayerYoutube(item.videoId.c_str(), workObj->GetType() == Submenu::SubmenuType_Favourites);
 		break;
 	}
 }
@@ -824,6 +800,11 @@ void menu::YouTube::SettingsButtonCbFun(int32_t type, ui::Handler *self, ui::Eve
 
 void menu::YouTube::OptionMenuEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
+	if (menu::GetTopMenu()->GetMenuType() != menu::MenuType_Youtube)
+	{
+		return;
+	}
+
 	menu::YouTube *workObj = (menu::YouTube *)userdata;
 
 	if (e->GetValue(0) == OptionMenu::OptionMenuEvent_Close)
@@ -849,6 +830,11 @@ void menu::YouTube::OptionMenuEventCbFun(int32_t type, ui::Handler *self, ui::Ev
 
 void menu::YouTube::DialogHandlerCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
+	if (menu::GetTopMenu()->GetMenuType() != menu::MenuType_Youtube)
+	{
+		return;
+	}
+
 	menu::YouTube *workObj = (menu::YouTube *)userdata;
 
 	if (e->GetValue(0) == dialog::ButtonCode_Yes)
@@ -886,8 +872,8 @@ menu::YouTube::YouTube() :
 {
 	currentSubmenu = NULL;
 
-	menu::GetMenuAt(0)->GetRoot()->SetEventCallback(OptionMenu::OptionMenuEvent, OptionMenuEventCbFun, this);
-	menu::GetMenuAt(0)->GetRoot()->SetEventCallback(dialog::DialogEvent, DialogHandlerCbFun, this);
+	root->AddEventCallback(OptionMenu::OptionMenuEvent, OptionMenuEventCbFun, this);
+	root->AddEventCallback(dialog::DialogEvent, DialogHandlerCbFun, this);
 
 	ui::Widget *settingsButton = root->FindChild(button_settings_page_youtube);
 	settingsButton->Show(common::transition::Type_Reset);

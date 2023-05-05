@@ -205,7 +205,6 @@ namespace menu {
 		static void SettingsButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 		static void OptionMenuEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 		static void DialogHandlerCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void PlayerCreateTimeoutFun(void *userdata1, void *userdata2);
 
 		YouTube();
 

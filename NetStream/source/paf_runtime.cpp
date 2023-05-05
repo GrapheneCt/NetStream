@@ -1,4 +1,5 @@
 #include <kernel.h>
+#include <paf.h>
 #include <libsysmodule.h>
 
 extern "C" {
@@ -34,12 +35,112 @@ extern "C" {
 	{
 		return 0;
 	}
+	
+	void user_malloc_init(void)
+	{
+
+	}
+
+	void user_malloc_finalize(void)
+	{
+
+	}
+
+	void *user_malloc(size_t size)
+	{
+		return sce_paf_malloc(size);
+	}
+
+	void user_free(void *ptr)
+	{
+		sce_paf_free(ptr);
+	}
+
+	void *user_calloc(size_t nelem, size_t size)
+	{
+		return sce_paf_calloc(nelem, size);
+	}
+
+	void *user_realloc(void *ptr, size_t size)
+	{
+		return sce_paf_realloc(ptr, size);
+	}
+
+	void *user_memalign(size_t boundary, size_t size)
+	{
+		return sce_paf_memalign(boundary, size);
+	}
+
+	void *user_reallocalign(void *ptr, size_t size, size_t boundary)
+	{
+		sceClibPrintf("[PAF2LIBC] reallocalign is not supported\n");
+		abort();
+		return NULL;
+	}
+
+	int user_malloc_stats(struct malloc_managed_size *mmsize)
+	{
+		sceClibPrintf("[PAF2LIBC] malloc_stats is not supported\n");
+		abort();
+		return 0;
+	}
+
+	int user_malloc_stats_fast(struct malloc_managed_size *mmsize)
+	{
+		sceClibPrintf("[PAF2LIBC] malloc_stats_fast is not supported\n");
+		abort();
+		return 0;
+	}
+
+	size_t user_malloc_usable_size(void *ptr)
+	{
+		return sce_paf_musable_size(ptr);
+	}
+}
+
+void *user_new(std::size_t size)
+{
+	return sce_paf_malloc(size);
+}
+
+void *user_new(std::size_t size, const std::nothrow_t& x)
+{
+	return sce_paf_malloc(size);
+}
+
+void *user_new_array(std::size_t size)
+{
+	return sce_paf_malloc(size);
+}
+
+void *user_new_array(std::size_t size, const std::nothrow_t& x)
+{
+	return sce_paf_malloc(size);
+}
+
+void user_delete(void *ptr)
+{
+	sce_paf_free(ptr);
+}
+
+void user_delete(void *ptr, const std::nothrow_t& x)
+{
+	sce_paf_free(ptr);
+}
+
+void user_delete_array(void *ptr)
+{
+	sce_paf_free(ptr);
+}
+
+void user_delete_array(void *ptr, const std::nothrow_t& x)
+{
+	sce_paf_free(ptr);
 }
 
 __attribute__((constructor(101))) void preloadPaf()
 {
 	int32_t ret = -1, load_res;
-	void* pRet = 0;
 
 	ScePafInit init_param;
 	SceSysmoduleOpt sysmodule_opt;

@@ -12,15 +12,18 @@ class Downloader
 {
 public:
 
-	typedef void(*OnStartCallback)(int32_t result);
+	enum
+	{
+		DownloaderEvent = (ui::Handler::CB_STATE + 0x60000),
+	};
 
 	Downloader();
 
 	~Downloader();
 
-	int32_t Enqueue(const char *url, const char *name, OnStartCallback cb = NULL);
+	int32_t Enqueue(Plugin *workPlugin, const char *url, const char *name);
 
-	int32_t EnqueueAsync(const char *url, const char *name, OnStartCallback cb = NULL);
+	int32_t EnqueueAsync(Plugin *workPlugin, const char *url, const char *name);
 
 private:
 
@@ -35,7 +38,7 @@ private:
 		void Run()
 		{
 			Downloader *pdownloader = (Downloader *)downloader;
-			pdownloader->Enqueue(url8.c_str(), name8.c_str(), onStart);
+			pdownloader->Enqueue(plugin, url8.c_str(), name8.c_str());
 		}
 
 		void Finish() {}
@@ -43,7 +46,7 @@ private:
 		string url8;
 		string name8;
 		void *downloader;
-		OnStartCallback onStart;
+		Plugin *plugin;
 	};
 
 	sce::Download dw;

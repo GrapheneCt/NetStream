@@ -4,7 +4,7 @@
 #include <kernel.h>
 #include <paf.h>
 
-#include "beav_player.h"
+#include "player_generic.h"
 #include "menu_generic.h"
 #include "menu_youtube.h"
 
@@ -47,7 +47,7 @@ namespace menu {
 		static void BackButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 		static void PlayButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 		static void WholeRepeatButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void BEAVPlayerStateCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		static void GenericPlayerStateCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 		static int32_t PowerCallback(SceUID notifyId, int32_t notifyCount, int32_t notifyArg, void *pCommon);
 
 		PlayerSimple(const char *url);
@@ -83,7 +83,6 @@ namespace menu {
 		}
 
 		static void UpdateTask(void *pArgBlock);
-
 		static void DirectInputCallback(inputdevice::pad::Data *pData);
 
 		ui::Widget *videoPlane;
@@ -103,6 +102,7 @@ namespace menu {
 		bool isSeeking;
 		bool isLS;
 		uint32_t oldButtons;
+		GenericPlayer::PlayerState oldState;
 		int32_t accJumpTime;
 		uint32_t accStartTime;
 		AccJumpState accJumpState;
@@ -110,7 +110,7 @@ namespace menu {
 		SettingsOverride settingsOverride;
 		SceUID pwCbId;
 
-		BEAVPlayer *player;
+		GenericPlayer *player;
 
 		const uint32_t k_settingsIdListYoutubeOverride[4] = {
 			youtube_search_setting,

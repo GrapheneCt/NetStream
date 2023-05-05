@@ -51,6 +51,7 @@
   <string src="Calidad preferida de directos" id="msg_youtube_hls_quality" />
 
   <string src="Instancia de Invidious" id="msg_youtube_inv_instance" />
+  <string src="Región" id="msg_youtube_region" />
   <string src="Ordenar por" id="msg_youtube_search_sort" />
   <string src="Fecha de carga" id="msg_youtube_search_date" />
   <string src="Ordenar por" id="msg_youtube_comment_sort" />
@@ -88,6 +89,7 @@
   <string src="Se borrará todo de historial. ¿Continuar?" id="msg_settings_youtube_clean_history_confirm" />
   <string src="Se borrarán todos los favoritos. ¿Continuar?" id="msg_settings_youtube_clean_fav_confirm" />
   <string src="Descargar" id="msg_settings_youtube_download" />
+  <string src="Descargar audio" id="msg_settings_youtube_download_audio" />
   <string src="La descarga se ha añadido a la cola." id="msg_settings_youtube_download_begin" />
 
 </stringset>

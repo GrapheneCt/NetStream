@@ -51,6 +51,7 @@
   <string src="Qualità livestream preferita" id="msg_youtube_hls_quality" />
 
   <string src="Instanza Invidious" id="msg_youtube_inv_instance" />
+  <string src="Regione" id="msg_youtube_region" />
   <string src="Ordina per" id="msg_youtube_search_sort" />
   <string src="Data" id="msg_youtube_search_date" />
   <string src="Ordina per" id="msg_youtube_comment_sort" />
@@ -87,7 +88,8 @@
   <string src="I preferiti sono stati puliti." id="msg_settings_youtube_clean_fav_done" />
   <string src="Tutti i record della cronologia verranno eliminati. Vuoi continuare?" id="msg_settings_youtube_clean_history_confirm" />
   <string src="Tutti i preferiti verranno eliminati. Vuoi continuare?" id="msg_settings_youtube_clean_fav_confirm" />
-  <string src="Download" id="msg_settings_youtube_download" />
+  <string src="Scaricare" id="msg_settings_youtube_download" />
+  <string src="Scarica l'audio" id="msg_settings_youtube_download_audio" />
   <string src="Il download è stato aggiunto alla coda di download." id="msg_settings_youtube_download_begin" />
 
 </stringset>

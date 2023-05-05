@@ -16,7 +16,8 @@
 #include "utils.h"
 #include "yt_utils.h"
 #include "tw_utils.h"
-#include "beav_player.h"
+#include "player_beav.h"
+#include "player_fmod.h"
 #include "invidious.h"
 #include "menus/menu_generic.h"
 #include "menus/menu_first.h"
@@ -80,7 +81,8 @@ void menu::main::NetcheckJob::Run()
 
 void pluginLoadCB(Plugin *plugin)
 {
-	if (plugin == NULL) {
+	if (plugin == NULL)
+	{
 		SCE_DBG_LOG_ERROR("[NS_PLUGIN_BASE] Plugin load FAIL!\n");
 		return;
 	}
@@ -128,10 +130,7 @@ int main()
 	Framework *fw = new Framework(fwParam);
 	fw->LoadCommonResourceAsync();
 
-	if (SCE_PAF_IS_DOLCE)
-	{
-		fw->GetEnvironmentInstance()->SetResolution(960, 544);
-	}
+	utils::SetDisplayResolution(ui::EnvironmentParam::RESOLUTION_PSP2);
 
 #ifdef _DEBUG
 	sceDbgSetMinimumLogLevel(SCE_DBG_LOG_LEVEL_TRACE);
@@ -150,6 +149,8 @@ int main()
 	sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_BXCE);
 	sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_INI_FILE_PROCESSOR);
 	sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_COMMON_GUI_DIALOG);
+	new Module("vs0:sys/external/libfios2.suprx");
+	new Module("vs0:sys/external/libc.suprx");
 	new Module("app0:module/libInvidious.suprx");
 	new Module("app0:module/libLootkit.suprx");
 	new Module("app0:module/libcurl.suprx");
@@ -171,6 +172,7 @@ int main()
 	Plugin::LoadAsync(pluginParam);
 
 	BEAVPlayer::PreInit();
+	FMODPlayer::PreInit();
 
 	fw->Run();
 

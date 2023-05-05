@@ -5,7 +5,7 @@
 
 #include "common.h"
 #include "ftpparse.h"
-#include "beav_player.h"
+#include "player_beav.h"
 #include "ftp_server_browser.h"
 
 using namespace paf;

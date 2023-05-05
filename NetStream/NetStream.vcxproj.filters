@@ -38,9 +38,6 @@
     <ClCompile Include="source\yt_utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\beav_player.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\menus\menu_generic.cpp">
       <Filter>Source Files\menus</Filter>
     </ClCompile>
@@ -89,6 +86,12 @@
     <ClCompile Include="source\event.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\player_beav.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\player_fmod.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\common.h">
@@ -113,9 +116,6 @@
       <Filter>Header Files\menus</Filter>
     </ClInclude>
     <ClInclude Include="include\yt_utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\beav_player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\menus\menu_generic.h">
@@ -172,6 +172,15 @@
     <ClInclude Include="include\event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\player_generic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\player_beav.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\player_fmod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="RES_RCO\netstream_plugin.xml">
@@ -208,6 +217,9 @@
       <Filter>Source Files\resource</Filter>
     </Xml>
     <Xml Include="RES_RCO\locale\netstream_locale_it.xml">
+      <Filter>Source Files\resource</Filter>
+    </Xml>
+    <Xml Include="RES_RCO\locale\netstream_locale_fr.xml">
       <Filter>Source Files\resource</Filter>
     </Xml>
   </ItemGroup>

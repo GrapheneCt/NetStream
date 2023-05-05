@@ -89,6 +89,26 @@ void utils::ConvertSecondsToString(string& string, uint64_t seconds, bool needSe
 	}
 }
 
+void utils::SetDisplayResolution(uint32_t resolution)
+{
+	if (SCE_PAF_IS_DOLCE)
+	{
+		ui::Environment *env = Framework::Instance()->GetEnvironmentInstance();
+		switch (resolution)
+		{
+		case ui::EnvironmentParam::RESOLUTION_PSP2:
+			env->SetResolution(960, 544);
+			break;
+		case ui::EnvironmentParam::RESOLUTION_HD_HALF:
+			env->SetResolution(1280, 725);
+			break;
+		case ui::EnvironmentParam::RESOLUTION_HD_FULL:
+			env->SetResolution(1920, 1088);
+			break;
+		}
+	}
+}
+
 void utils::Init()
 {
 	s_lock = sceKernelCreateEventFlag("utils::Lock", SCE_KERNEL_ATTR_MULTI, 0, NULL);

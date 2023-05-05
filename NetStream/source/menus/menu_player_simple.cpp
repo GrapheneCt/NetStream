@@ -7,7 +7,8 @@
 #include "utils.h"
 #include "event.h"
 #include "dialog.h"
-#include "beav_player.h"
+#include "player_beav.h"
+#include "player_fmod.h"
 #include "menus/menu_player_simple.h"
 #include "menus/menu_settings.h"
 
@@ -96,6 +97,7 @@ void menu::PlayerSimple::WholeRepeatButtonCbFun(int32_t type, ui::Handler *self,
 {
 	PlayerSimple *workObj = (PlayerSimple *)userdata;
 	workObj->player->JumpToTimeMs(0);
+	workObj->player->SwitchPlaybackState();
 	math::v4 col(1.0f, 1.0f, 1.0f, 1.0f);
 	workObj->videoPlane->SetColor(col);
 	workObj->wholeRepeatButton->Hide(common::transition::Type_Fadein1);
@@ -117,7 +119,7 @@ int32_t menu::PlayerSimple::PowerCallback(SceUID notifyId, int32_t notifyCount, 
 	return SCE_OK;
 }
 
-void menu::PlayerSimple::BEAVPlayerStateCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
+void menu::PlayerSimple::GenericPlayerStateCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
 	PlayerSimple *workObj = (PlayerSimple *)userdata;
 	string text8;
@@ -125,7 +127,7 @@ void menu::PlayerSimple::BEAVPlayerStateCbFun(int32_t type, ui::Handler *self, u
 
 	int32_t state = e->GetValue(0);
 
-	if (state == BEAVPlayer::InitState_InitOk)
+	if (state == GenericPlayer::InitState_InitOk)
 	{
 		workObj->loadIndicator->Stop();
 
@@ -156,7 +158,7 @@ void menu::PlayerSimple::BEAVPlayerStateCbFun(int32_t type, ui::Handler *self, u
 
 		event::BroadcastGlobalEvent(g_appPlugin, PlayerSimpleEvent, PlayerEvent_InitOk);
 	}
-	else if (state == BEAVPlayer::InitState_InitFail)
+	else if (state == GenericPlayer::InitState_InitFail)
 	{
 		event::BroadcastGlobalEvent(g_appPlugin, PlayerSimpleEvent, PlayerEvent_InitFail);
 	}
@@ -171,7 +173,7 @@ void menu::PlayerSimple::DirectInputCallback(inputdevice::pad::Data *pData)
 
 	if (PRESSED(inputdevice::pad::Data::PAD_ENTER))
 	{
-		if (s_instance->player->GetState() == SCE_BEAV_CORE_PLAYER_STATE_EOF && !s_instance->isLS)
+		if (s_instance->player->GetState() == GenericPlayer::PlayerState_Eof && !s_instance->isLS)
 		{
 			WholeRepeatButtonCbFun(0, NULL, 0, s_instance);
 		}
@@ -304,13 +306,14 @@ void menu::PlayerSimple::UpdateTask(void *pArgBlock)
 		}
 	}
 
-	SceBeavCorePlayerState state = workObj->player->GetState();
-	if (!workObj->isLS && state == SCE_BEAV_CORE_PLAYER_STATE_EOF)
+	GenericPlayer::PlayerState state = workObj->player->GetState();
+	if (!workObj->isLS && state == GenericPlayer::PlayerState_Eof && workObj->oldState != GenericPlayer::PlayerState_Eof)
 	{
 		math::v4 col(0.4f, 0.4f, 0.4f, 1.0f);
 		workObj->videoPlane->SetColor(col);
 		workObj->wholeRepeatButton->Show(common::transition::Type_Fadein1);
 	}
+	workObj->oldState = state;
 }
 
 menu::PlayerSimple::PlayerSimple(const char *url) :
@@ -363,8 +366,15 @@ menu::PlayerSimple::PlayerSimple(const char *url) :
 
 	videoPlane = root->FindChild(plane_video_page_player_simple);
 
-	root->AddEventCallback(BEAVPlayer::BEAVPlayerChangeState, BEAVPlayerStateCbFun, this);
-	player = new BEAVPlayer(videoPlane, url);
+	root->AddEventCallback(GenericPlayer::GenericPlayerChangeState, GenericPlayerStateCbFun, this);
+	if (FMODPlayer::IsSupported(url) == GenericPlayer::SupportType_Supported)
+	{
+		player = new FMODPlayer(videoPlane, url);
+	}
+	else
+	{
+		player = new BEAVPlayer(videoPlane, url);
+	}
 	player->InitAsync();
 
 	pwCbId = sceKernelCreateCallback("PowerCallback", 0, PowerCallback, this);
@@ -379,10 +389,7 @@ menu::PlayerSimple::PlayerSimple(const char *url) :
 
 menu::PlayerSimple::~PlayerSimple()
 {
-	if (SCE_PAF_IS_DOLCE)
-	{
-		Framework::Instance()->GetEnvironmentInstance()->SetResolution(960, 544);
-	}
+	utils::SetDisplayResolution(ui::EnvironmentParam::RESOLUTION_PSP2);
 	common::MainThreadCallList::Unregister(UpdateTask, this);
 	scePowerUnregisterCallback(pwCbId);
 	sceKernelDeleteCallback(pwCbId);

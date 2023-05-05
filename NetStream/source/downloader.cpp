@@ -5,8 +5,7 @@
 #include <download_service.h>
 
 #include "downloader.h"
-#include "utils.h"
-#include "common.h"
+#include "event.h"
 
 using namespace paf;
 
@@ -59,7 +58,7 @@ Downloader::~Downloader()
 	sce_paf_free(dw.bufMem);
 }
 
-int32_t Downloader::Enqueue(const char *url, const char *name, OnStartCallback cb)
+int32_t Downloader::Enqueue(Plugin *workPlugin, const char *url, const char *name)
 {
 	IPMI::DataInfo dtInfo[3];
 	IPMI::BufferInfo bfInfo[1];
@@ -137,19 +136,18 @@ int32_t Downloader::Enqueue(const char *url, const char *name, OnStartCallback c
 
 end:
 
-	if (cb)
-		cb(ret);
+	event::BroadcastGlobalEvent(workPlugin, DownloaderEvent, ret);
 
 	return ret;
 }
 
-int32_t Downloader::EnqueueAsync(const char *url, const char *name, OnStartCallback cb)
+int32_t Downloader::EnqueueAsync(Plugin *workPlugin, const char *url, const char *name)
 {
 	AsyncEnqueue *dwJob = new AsyncEnqueue("Downloader::AsyncEnqueue");
 	dwJob->downloader = this;
 	dwJob->url8 = url;
 	dwJob->name8 = name;
-	dwJob->onStart = cb;
+	dwJob->plugin = workPlugin;
 
 	common::SharedPtr<job::JobItem> itemParam(dwJob);
 

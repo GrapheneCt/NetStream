@@ -4,7 +4,8 @@
 #include <psp2_compat/curl/curl.h>
 
 #include "common.h"
-#include "beav_player.h"
+#include "player_beav.h"
+#include "player_fmod.h"
 #include "http_server_browser.h"
 
 using namespace paf;
@@ -165,9 +166,13 @@ vector<HttpServerBrowser::Entry *> *HttpServerBrowser::GoTo(const char *ref, int
 			refEnd = sce_paf_strstr(href, "\">");
 			*refEnd = 0;
 
-			BEAVPlayer::SupportType beavType = BEAVPlayer::IsSupported(href);
+			GenericPlayer::SupportType supportType = BEAVPlayer::IsSupported(href);
+			if (supportType == GenericPlayer::SupportType_NotSupported)
+			{
+				supportType = FMODPlayer::IsSupported(href);
+			}
 
-			if (beavType != BEAVPlayer::SupportType_NotSupported)
+			if (supportType != GenericPlayer::SupportType_NotSupported)
 			{
 				char *decoded = curl_easy_unescape(curl, href, 0, NULL);
 				HttpServerBrowser::Entry *entry = new HttpServerBrowser::Entry();
@@ -175,11 +180,11 @@ vector<HttpServerBrowser::Entry *> *HttpServerBrowser::GoTo(const char *ref, int
 				entry->type = HttpServerBrowser::Entry::Type_UnsupportedFile;
 				curl_free(decoded);
 
-				if (beavType == BEAVPlayer::SupportType_MaybeSupported)
+				if (supportType == GenericPlayer::SupportType_MaybeSupported)
 				{
 					entry->type = HttpServerBrowser::Entry::Type_Folder;
 				}
-				else if (beavType == BEAVPlayer::SupportType_Supported)
+				else if (supportType == GenericPlayer::SupportType_Supported)
 				{
 					entry->type = HttpServerBrowser::Entry::Type_SupportedFile;
 				}

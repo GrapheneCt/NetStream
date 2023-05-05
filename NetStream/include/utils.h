@@ -38,6 +38,8 @@ namespace utils
 
 	void Wait(uint32_t flag);
 
+	void SetDisplayResolution(uint32_t resolution);
+
 	job::JobQueue *GetJobQueue();
 
 	CurlFile::Share *GetShare();

@@ -47,6 +47,7 @@
 #define msg_youtube_quality (0xc3f81023)
 #define msg_youtube_hls_quality (0x20d26d06)
 #define msg_youtube_inv_instance (0x40157a95)
+#define msg_youtube_region (0xb1f1b682)
 #define msg_youtube_search_sort (0x656f44a5)
 #define msg_youtube_search_date (0xcf93868a)
 #define msg_youtube_comment_sort (0xfd6ca373)
@@ -77,5 +78,6 @@
 #define msg_settings_youtube_clean_history_confirm (0xd3225a4e)
 #define msg_settings_youtube_clean_fav_confirm (0x68a1ba57)
 #define msg_settings_youtube_download (0x8449e69c)
+#define msg_settings_youtube_download_audio (0x99364cad)
 #define msg_settings_youtube_download_begin (0x5ed1d900)
 #endif

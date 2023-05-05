@@ -4,7 +4,7 @@
 #include "common.h"
 #include "utils.h"
 #include "dialog.h"
-#include "beav_player.h"
+#include "player_beav.h"
 #include "generic_server_browser.h"
 #include "option_menu.h"
 #include "menus/menu_server.h"
@@ -66,7 +66,7 @@ void menu::GenericServerMenu::ListButtonCbFun(int32_t type, ui::Handler *self, u
 	{
 		if (SCE_PAF_IS_DOLCE)
 		{
-			Framework::Instance()->GetEnvironmentInstance()->SetResolution(1920, 1088);
+			utils::SetDisplayResolution(ui::EnvironmentParam::RESOLUTION_HD_FULL);
 			utils::SetTimeout(PlayerCreateTimeoutFun, 10.0f, workObj, entry);
 		}
 		else
@@ -234,8 +234,8 @@ menu::GenericServerMenu::GenericServerMenu() :
 	firstBoot = true;
 	playerFailed = false;
 
-	menu::GetMenuAt(0)->GetRoot()->SetEventCallback(dialog::DialogEvent, ConnectionFailedDialogHandler, this);
-	menu::GetMenuAt(0)->GetRoot()->SetEventCallback(OptionMenu::OptionMenuEvent, OptionMenuEventCbFun, this);
+	root->AddEventCallback(dialog::DialogEvent, ConnectionFailedDialogHandler, this);
+	root->AddEventCallback(OptionMenu::OptionMenuEvent, OptionMenuEventCbFun, this);
 	root->AddEventCallback(PlayerSimple::PlayerSimpleEvent, PlayerEventCbFun, this);
 
 	ui::Widget *settingsButton = root->FindChild(button_settings_page_server_generic);

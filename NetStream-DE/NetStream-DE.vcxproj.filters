@@ -11,10 +11,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="download_enabler.c">
+    <ClCompile Include="paf_runtime.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="paf_runtime.c">
+    <ClCompile Include="download_enabler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

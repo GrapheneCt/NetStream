@@ -569,7 +569,7 @@
     <locale src="RES_RCO_TMP\netstream_locale_ja.xml.rcs" id="ja" />
     <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="en" />
     <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="en-gb" />
-    <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="fr" />
+    <locale src="RES_RCO_TMP\netstream_locale_fr.xml.rcs" id="fr" />
     <locale src="RES_RCO_TMP\netstream_locale_es.xml.rcs" id="es" />
     <locale src="RES_RCO_TMP\netstream_locale_en.xml.rcs" id="de" />
     <locale src="RES_RCO_TMP\netstream_locale_it.xml.rcs" id="it" />

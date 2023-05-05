@@ -51,6 +51,7 @@
   <string src="Qualidade de stream preferencial" id="msg_youtube_hls_quality" />
 
   <string src="Instância Invidious" id="msg_youtube_inv_instance" />
+  <string src="Região" id="msg_youtube_region" />
   <string src="Ordenar" id="msg_youtube_search_sort" />
   <string src="Data" id="msg_youtube_search_date" />
   <string src="Ordenar" id="msg_youtube_comment_sort" />
@@ -87,7 +88,8 @@
   <string src="Os favoritos foram apagados." id="msg_settings_youtube_clean_fav_done" />
   <string src="Todos os registos de histórico serão apagados. Deseja continuar?" id="msg_settings_youtube_clean_history_confirm" />
   <string src="Todos os favoritos serão apagados. Deseja continuar?" id="msg_settings_youtube_clean_fav_confirm" />
-  <string src="Transferência" id="msg_settings_youtube_download" />
+  <string src="Descarregar" id="msg_settings_youtube_download" />
+  <string src="Descarregar áudio" id="msg_settings_youtube_download_audio" />
   <string src="A transferência foi adicionada à lista de transferências." id="msg_settings_youtube_download_begin" />
 
 </stringset>

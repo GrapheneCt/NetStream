@@ -12,7 +12,7 @@
 #include "common.h"
 #include "utils.h"
 #include "event.h"
-#include "beav_player.h"
+#include "player_beav.h"
 
 using namespace paf;
 
@@ -22,7 +22,7 @@ static CURL *s_fileCurl;
 static graph::SurfacePool *s_beavSurfacePool = NULL;
 static void *s_beavDecodeMem = NULL;
 
-const char *k_supportedExtensions[] = {
+static const char *k_supportedExtensions[] = {
 		".ts",
 		".mpg",
 		".m2ts",
@@ -444,6 +444,14 @@ void BEAVPlayer::BEAVVideoThread::EntryFunction()
 
 	SCE_DBG_LOG_INFO("[BEAV] Video: uTexWidth: %d, uTexPitch: %d, uTexHeight: %d\n", data.uTexWidth, data.uTexPitch, data.uTexHeight);
 
+	//float aspect = (float)data.uTexWidth / (float)data.uTexHeight;
+	//if (aspect > 1.78f || aspect < 1.76f)
+	{
+		//SCE_DBG_LOG_INFO("[BEAV] Suspicious aspect ratio (%.03f), so respect it\n", aspect);
+		graph::PlaneObj *po = (graph::PlaneObj *)target->GetDrawObj(ui::Plane::OBJ_PLANE);
+		po->SetScaleMode(graph::PlaneObj::SCALE_ASPECT_SIZE, graph::PlaneObj::SCALE_ASPECT_SIZE);
+	}
+
 	for (int i = 0; i < BEAV_SURFACE_COUNT; i++)
 	{
 		drawSurf[i] = new graph::Surface(s_beavSurfacePool, data.uTexWidth, data.uTexHeight, ImageMode_RGBA8888, ImageOrder_Linear, 1, 1, 0);
@@ -539,11 +547,9 @@ void BEAVPlayer::BootJob::Run()
 
 BEAVPlayer::BEAVPlayer(ui::Widget *targetPlane, const char *url)
 {
-	initState = InitState_NotInit;
+	SCE_DBG_LOG_INFO("[BEAV] Open url: %s\n", url);
 	target = targetPlane;
 	path = url;
-	limitFps = false;
-	powerSaving = false;
 }
 
 BEAVPlayer::~BEAVPlayer()
@@ -599,15 +605,16 @@ void BEAVPlayer::Term()
 	SetInitState(InitState_NotInit);
 }
 
-BEAVPlayer::InitState BEAVPlayer::GetInitState()
+GenericPlayer::InitState BEAVPlayer::GetInitState()
 {
 	return initState;
 }
 
-void BEAVPlayer::SetInitState(BEAVPlayer::InitState state)
+void BEAVPlayer::SetInitState(GenericPlayer::InitState state)
 {
 	initState = state;
-	event::BroadcastGlobalEvent(g_appPlugin, BEAVPlayerChangeState, initState);
+	SCE_DBG_LOG_INFO("[BEAV] State changed to: %d\n", state);
+	event::BroadcastGlobalEvent(g_appPlugin, GenericPlayerChangeState, initState);
 }
 
 uint32_t BEAVPlayer::GetTotalTimeMs()
@@ -626,9 +633,9 @@ bool BEAVPlayer::JumpToTimeMs(uint32_t time)
 	return sceBeavCorePlayerJumpToTimeCode(playerCore, time / 1000);
 }
 
-SceBeavCorePlayerState BEAVPlayer::GetState()
+GenericPlayer::PlayerState BEAVPlayer::GetState()
 {
-	return (SceBeavCorePlayerState)sceBeavCorePlayerGetPlayerState(playerCore);
+	return (GenericPlayer::PlayerState)sceBeavCorePlayerGetPlayerState(playerCore);
 }
 
 void BEAVPlayer::SetPowerSaving(bool enable)
@@ -649,16 +656,6 @@ void BEAVPlayer::SwitchPlaybackState()
 bool BEAVPlayer::IsPaused()
 {
 	return sceBeavCorePlayerIsPaused(playerCore);
-}
-
-uint32_t BEAVPlayer::GetPlaySpeed()
-{
-	return sceBeavCorePlayerGetPlaySpeed(playerCore);
-}
-
-void BEAVPlayer::SetPlaySpeed(int32_t speed, int32_t milliSec)
-{
-	sceBeavCorePlayerSetPlaySpeed(playerCore, speed, milliSec);
 }
 
 uint32_t BEAVPlayer::GetFreeHeapSize()
@@ -700,7 +697,7 @@ void BEAVPlayer::PreInit()
 	s_beavDecodeMem = s_beavSurfacePool->Allocate(64, BEAV_VIDEO_BUFFER_WIDTH * BEAV_VIDEO_BUFFER_HEIGHT * 4 * BEAV_VIDEO_BUFFER_COUNT);
 }
 
-BEAVPlayer::SupportType BEAVPlayer::IsSupported(const char *path)
+GenericPlayer::SupportType BEAVPlayer::IsSupported(const char *path)
 {
 	char *extStart = sce_paf_strrchr(path, '.');
 	if (!extStart)

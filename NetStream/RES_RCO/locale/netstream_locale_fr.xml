@@ -3,29 +3,29 @@
 
   <string src="NetStream" id="msg_title_menu_first" />
   <string src="YouTube" id="msg_fpmenu_item_0" />
-  <string src="HTTP Server" id="msg_fpmenu_item_1" />
-  <string src="FTP Server" id="msg_fpmenu_item_2" />
+  <string src="Serveur HTTP" id="msg_fpmenu_item_1" />
+  <string src="Serveur FTP" id="msg_fpmenu_item_2" />
   <string src="Stockage local" id="msg_fpmenu_item_3" />
 
   <string src="Historique" id="msg_youtube_history" />
   <string src="Description" id="msg_youtube_description" />
   <string src="Charger plus de commentaires..." id="msg_youtube_comment_more" />
   <string src="Détails du commentaire" id="msg_youtube_comment_detail" />
-  <string src="Réponses aux commentaires" id="msg_youtube_comment_reply" />
+  <string src="Réponses au commentaire" id="msg_youtube_comment_reply" />
   <string src="J'aime" id="msg_youtube_comment_like_count" />
 
-  <string src="Page Suivantes" id="msg_next_page" />
-  <string src="Page Précedente" id="msg_previous_page" />
+  <string src="Page suivante" id="msg_next_page" />
+  <string src="Page précédente" id="msg_previous_page" />
 
   <string src="Paramètres" id="msg_settings" />
   <string src="Serveur HTTP" id="msg_settings_http" />
   <string src="Serveur FTP" id="msg_settings_ftp" />
   <string src="Stockage local" id="msg_settings_local" />
   <string src="Recherche" id="msg_settings_search" />
-  <string src="Commentaire" id="msg_settings_comment" />
+  <string src="Commentaires" id="msg_settings_comment" />
   <string src="Qualité" id="msg_settings_quality" />
-  <string src="Joueur" id="msg_settings_youtube_player" />
-  <string src="Informations Système" id="msg_settings_verinfo" />
+  <string src="Lecteur" id="msg_settings_youtube_player" />
+  <string src="Informations système" id="msg_settings_verinfo" />
   
   <string src="Adresse de l'hôte" id="msg_http_host" />
   <string src="Port" id="msg_http_port" />
@@ -37,32 +37,39 @@
   <string src="Utilisateur" id="msg_ftp_user" />
   <string src="Mot de passe" id="msg_ftp_password" />
   <string src="Utiliser NLST" id="msg_ftp_nlst" />
-  <string src="L'activation de cette option obligera NetStream à envoyer la commande NLST au serveur FTP au lieu de la commande LIST. Cette option rend l'opération plus rapide mais peut ne pas être prise en charge par certains serveurs FTP." id="msg_ftp_nlst_hint" />
+  <string src="Si cette option est activée, NetStream enverra la commande NLST au serveur FTP au lieu de la commande LIST. Cette option rend le fonctionnement plus rapide mais peut ne pas être prise en charge par certains serveurs FTP." id="msg_ftp_nlst_hint" />
 
-  <string src="Préfixe relatif .m3u8 Playlists" id="msg_local_playlist_prefix" />
+  <string src="Préfixe pour les playlists .m3u8 relatives" id="msg_local_playlist_prefix" />
+  <string src="Trier par nom" id="msg_local_sort_name" />
+  <string src="Trier par type" id="msg_local_sort_type" />
+  <string src="Croissant" id="msg_option_local_sort_name_0" />
+  <string src="Décroissant" id="msg_option_local_sort_name_1" />
+  <string src="Dossiers en premier" id="msg_option_local_sort_type_0" />
+  <string src="Fichiers en premier" id="msg_option_local_sort_type_1" />
 
   <string src="Qualité vidéo préférée" id="msg_youtube_quality" />
   <string src="Qualité de diffusion en direct préférée" id="msg_youtube_hls_quality" />
 
-  <string src="Instance Invidieuse" id="msg_youtube_inv_instance" />
+  <string src="Instance Invidious" id="msg_youtube_inv_instance" />
+  <string src="Région" id="msg_youtube_region" />
   <string src="Trier" id="msg_youtube_search_sort" />
   <string src="Date" id="msg_youtube_search_date" />
   <string src="Trier" id="msg_youtube_comment_sort" />
   
   <string src="Pertinence" id="msg_option_search_sort_0" />
-  <string src="Notation" id="msg_option_search_sort_1" />
-  <string src="Date" id="msg_option_search_sort_2" />
+  <string src="Avis" id="msg_option_search_sort_1" />
+  <string src="Date de mise en ligne" id="msg_option_search_sort_2" />
   <string src="Nombre de vues" id="msg_option_search_sort_3" />
   
-  <string src="Heures" id="msg_option_search_date_0" />
+  <string src="Dernière heure" id="msg_option_search_date_0" />
   <string src="Aujourd'hui" id="msg_option_search_date_1" />
-  <string src="Semaine" id="msg_option_search_date_2" />
-  <string src="Mois" id="msg_option_search_date_3" />
-  <string src="Année" id="msg_option_search_date_4" />
-  <string src="quelconque" id="msg_option_search_date_5" />
+  <string src="Cette semaine" id="msg_option_search_date_2" />
+  <string src="Ce mois-ci" id="msg_option_search_date_3" />
+  <string src="Cette année" id="msg_option_search_date_4" />
+  <string src="Peu importe" id="msg_option_search_date_5" />
   
-  <string src="Haut" id="msg_option_comment_sort_0" />
-  <string src="Nouveau" id="msg_option_comment_sort_1" />
+  <string src="Top des commentaires" id="msg_option_comment_sort_0" />
+  <string src="Plus récents d'abord" id="msg_option_comment_sort_1" />
   
   <string src="360P" id="msg_option_youtube_quality_0" />
   <string src="720P" id="msg_option_youtube_quality_1" />
@@ -73,15 +80,16 @@
   <string src="480P" id="msg_option_youtube_hls_quality_3" />
   <string src="720P" id="msg_option_youtube_hls_quality_4" />
 
-  <string src="Commencer réduit" id="msg_toggle_youtube_min" />
+  <string src="Démarrer en mode réduit" id="msg_toggle_youtube_min" />
 
-  <string src="Nettoyer l'historique" id="msg_settings_youtube_clean_history" />
-  <string src="Nettoyer les favoris" id="msg_settings_youtube_clean_fav" />
-  <string src="L'historique a été nettoyé." id="msg_settings_youtube_clean_history_done" />
-  <string src="Les favoris ont été nettoyés." id="msg_settings_youtube_clean_fav_done" />
-  <string src="Tous les enregistrements de l'historique seront supprimés. Voulez-vous continuer ?" id="msg_settings_youtube_clean_history_confirm" />
+  <string src="Effacer l'historique" id="msg_settings_youtube_clean_history" />
+  <string src="Effacer les favoris" id="msg_settings_youtube_clean_fav" />
+  <string src="L'historique a été effacé." id="msg_settings_youtube_clean_history_done" />
+  <string src="Les favoris ont été effacés." id="msg_settings_youtube_clean_fav_done" />
+  <string src="Tout le contenu de l'historique sera supprimé. Voulez-vous continuer ?" id="msg_settings_youtube_clean_history_confirm" />
   <string src="Tous les favoris seront supprimés. Voulez-vous continuer ?" id="msg_settings_youtube_clean_fav_confirm" />
-  <string src="Téléchargement" id="msg_settings_youtube_download" />
-  <string src="Le fichier a été ajouté à la file d'attente de téléchargement." id="msg_settings_youtube_download_begin" />
+  <string src="Télécharger" id="msg_settings_youtube_download" />
+  <string src="Télécharger l'audio" id="msg_settings_youtube_download_audio" />
+  <string src="Le fichier a été ajouté à la file d'attente des téléchargements." id="msg_settings_youtube_download_begin" />
 
 </stringset>

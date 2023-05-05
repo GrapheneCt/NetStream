@@ -256,10 +256,10 @@ ytutils::FavLog *ytutils::GetFavLog()
 
 int32_t ytutils::EnqueueDownload(const char *url, const char *name)
 {
-	return s_downloader->Enqueue(url, name);
+	return s_downloader->Enqueue(g_appPlugin, url, name);
 }
 
-int32_t ytutils::EnqueueDownloadAsync(const char *url, const char *name, Downloader::OnStartCallback cb)
+int32_t ytutils::EnqueueDownloadAsync(const char *url, const char *name)
 {
-	return s_downloader->EnqueueAsync(url, name, cb);
+	return s_downloader->EnqueueAsync(g_appPlugin, url, name);
 }

@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\beav_player.cpp" />
+    <ClCompile Include="source\player_beav.cpp" />
     <ClCompile Include="source\debug.cpp" />
     <ClCompile Include="source\dialog.cpp" />
     <ClCompile Include="source\downloader.cpp" />
@@ -30,13 +30,14 @@
     <ClCompile Include="source\menus\menu_player_youtube.cpp" />
     <ClCompile Include="source\option_menu.cpp" />
     <ClCompile Include="source\paf_runtime.cpp" />
+    <ClCompile Include="source\player_fmod.cpp" />
     <ClCompile Include="source\tex_pool.cpp" />
     <ClCompile Include="source\tw_utils.cpp" />
     <ClCompile Include="source\utils.cpp" />
     <ClCompile Include="source\yt_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\beav_player.h" />
+    <ClInclude Include="include\player_beav.h" />
     <ClInclude Include="include\common.h" />
     <ClInclude Include="include\debug.h" />
     <ClInclude Include="include\dialog.h" />
@@ -44,6 +45,8 @@
     <ClInclude Include="include\event.h" />
     <ClInclude Include="include\ftpparse.h" />
     <ClInclude Include="include\ftp_server_browser.h" />
+    <ClInclude Include="include\player_fmod.h" />
+    <ClInclude Include="include\player_generic.h" />
     <ClInclude Include="include\generic_server_browser.h" />
     <ClInclude Include="include\http_server_browser.h" />
     <ClInclude Include="include\local_server_browser.h" />
@@ -70,6 +73,7 @@
     </Xml>
     <Xml Include="RES_RCO\locale\netstream_locale_en.xml" />
     <Xml Include="RES_RCO\locale\netstream_locale_es.xml" />
+    <Xml Include="RES_RCO\locale\netstream_locale_fr.xml" />
     <Xml Include="RES_RCO\locale\netstream_locale_it.xml" />
     <Xml Include="RES_RCO\locale\netstream_locale_ja.xml" />
     <Xml Include="RES_RCO\locale\netstream_locale_pl.xml" />
@@ -125,7 +129,7 @@
       <AdditionalOptions>--no-standard-libraries </AdditionalOptions>
       <AdditionalLibraryDirectories>$(SCE_PSP2_SDK_DIR)\target\lib\vdsuite;$(ProjectDir)libs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateSnMapFile>FullMapFile</GenerateSnMapFile>
-      <AdditionalDependencies>-lSceIpmi_stub;-lSceSysmem_stub;-lSceThreadMgr_stub;-lSceThreadmgrCoredumpTime_stub;-lSceModuleMgr_stub;-lSceProcessMgr_stub;-lSceTouch_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceAppUtil_stub;-lSceAudio_stub;-lSceCtrl_stub;-lSceDisplay_stub;-lScePower_stub;-lSceSysmodule_stub;-lSceGxm_stub;-lSceDbg_stub;-lScePafThread_stub;-lScePafStdc_stub;-lScePafToplevel_stub;-lScePafResource_stub;-lScePafWidget_stub;-lScePafMisc_stub;-lScePafCommon_stub;-lScePafGraphics_stub;-lSceLibKernel_stub;-lSceNet_stub;-lSceNetCtl_stub;-lSceHttp_stub;-lSceSsl_stub;-lSceAppSettings_stub;-lSceCommonGuiDialog_stub;-lSceIniFileProcessor_stub;-lSceBEAVCorePlayer_stub;-lSceDmacmgr_stub;-lSceFiber_stub;-lSceVshBridge_stub;-ltaihenUnsafe_stub;-lInvidious_stub;-lLootkit_stub;-lcurl_stub;-lsnc;-lPafFileExt;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>-lSceIpmi_stub;-lSceSysmem_stub;-lSceThreadMgr_stub;-lSceThreadmgrCoredumpTime_stub;-lSceModuleMgr_stub;-lSceProcessMgr_stub;-lSceTouch_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceAppUtil_stub;-lSceAudio_stub;-lSceCtrl_stub;-lSceDisplay_stub;-lScePower_stub;-lSceSysmodule_stub;-lSceGxm_stub;-lSceDbg_stub;-lScePafThread_stub;-lScePafStdc_stub;-lScePafToplevel_stub;-lScePafResource_stub;-lScePafWidget_stub;-lScePafMisc_stub;-lScePafCommon_stub;-lScePafGraphics_stub;-lSceLibKernel_stub;-lSceNet_stub;-lSceNetCtl_stub;-lSceHttp_stub;-lSceSsl_stub;-lSceAppSettings_stub;-lSceCommonGuiDialog_stub;-lSceIniFileProcessor_stub;-lSceBEAVCorePlayer_stub;-lSceDmacmgr_stub;-lSceFiber_stub;-lSceVshBridge_stub;-ltaihenUnsafe_stub;-lInvidious_stub;-lLootkit_stub;-lcurl_stub;-lfmodstudio_stub;-lfmodngpext_stub;-lsnc;-lPafFileExt;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>"$(SCE_PSP2_SDK_DIR)/host_tools/build/bin/vdsuite-pubprx.exe" --boot-param "$(ProjectDir)ebootparam.bin" "$(LocalDebuggerCommand)" "$(OutDir)eboot.bin"</Command>
@@ -158,7 +162,7 @@
     <Link>
       <DuplicateStripping>true</DuplicateStripping>
       <AdditionalOptions>--no-standard-libraries </AdditionalOptions>
-      <AdditionalDependencies>-lSceIpmi_stub;-lSceSysmem_stub;-lSceThreadMgr_stub;-lSceThreadmgrCoredumpTime_stub;-lSceModuleMgr_stub;-lSceProcessMgr_stub;-lSceTouch_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceAppUtil_stub;-lSceAudio_stub;-lSceCtrl_stub;-lSceDisplay_stub;-lScePower_stub;-lSceSysmodule_stub;-lSceGxm_stub;-lSceDbg_stub;-lScePafThread_stub;-lScePafStdc_stub;-lScePafToplevel_stub;-lScePafResource_stub;-lScePafWidget_stub;-lScePafMisc_stub;-lScePafCommon_stub;-lScePafGraphics_stub;-lSceLibKernel_stub;-lSceNet_stub;-lSceNetCtl_stub;-lSceAppSettings_stub;-lSceCommonGuiDialog_stub;-lSceIniFileProcessor_stub;-lSceBEAVCorePlayer_stub;-lSceDmacmgr_stub;-lSceFiber_stub;-lSceVshBridge_stub;-ltaihenUnsafe_stub;-lInvidious_stub;-lLootkit_stub;-lcurl_stub;-lsnc;-lPafFileExt;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>-lSceIpmi_stub;-lSceSysmem_stub;-lSceThreadMgr_stub;-lSceThreadmgrCoredumpTime_stub;-lSceModuleMgr_stub;-lSceProcessMgr_stub;-lSceTouch_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceAppUtil_stub;-lSceAudio_stub;-lSceCtrl_stub;-lSceDisplay_stub;-lScePower_stub;-lSceSysmodule_stub;-lSceGxm_stub;-lSceDbg_stub;-lScePafThread_stub;-lScePafStdc_stub;-lScePafToplevel_stub;-lScePafResource_stub;-lScePafWidget_stub;-lScePafMisc_stub;-lScePafCommon_stub;-lScePafGraphics_stub;-lSceLibKernel_stub;-lSceNet_stub;-lSceNetCtl_stub;-lSceAppSettings_stub;-lSceCommonGuiDialog_stub;-lSceIniFileProcessor_stub;-lSceBEAVCorePlayer_stub;-lSceDmacmgr_stub;-lSceFiber_stub;-lSceVshBridge_stub;-ltaihenUnsafe_stub;-lInvidious_stub;-lLootkit_stub;-lcurl_stub;-lfmodstudio_stub;-lfmodngpext_stub;-lsnc;-lPafFileExt;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>call "$(ProjectDir)gen_rco.bat"
@@ -173,10 +177,10 @@ copy /Y "$(OutDir)param.sfo" "$(ProjectDir)CONTENTS/sce_sys/param.sfo"
       <Message>VDSUITE: Building packages</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>"$(SCE_PSP2_SDK_DIR)/host_tools/build/rco/bin/psp2pafhashgen.exe" -i "$(ProjectDir)RES_RCO\netstream_plugin.xml" -o "$(ProjectDir)include\netstream_plugin.h"
-"$(SCE_PSP2_SDK_DIR)/host_tools/build/rco/bin/psp2pafhashgen.exe" -i "$(ProjectDir)RES_RCO\file\netstream_settings.xml" -o "$(ProjectDir)include\netstream_settings.h"
-"$(SCE_PSP2_SDK_DIR)/host_tools/build/rco/bin/psp2pafhashgen.exe" -i "$(ProjectDir)RES_RCO\locale\netstream_locale_en.xml" -o "$(ProjectDir)include\netstream_locale.h"</Command>
-      <Message>VDSUITE: generate PAF hashlist</Message>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Condition="'$(ConfigurationType)' == 'Makefile' and Exists('$(VCTargetsPath)\Platforms\$(Platform)\SCE.Makefile.$(Platform).targets')" Project="$(VCTargetsPath)\Platforms\$(Platform)\SCE.Makefile.$(Platform).targets" />

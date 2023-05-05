@@ -104,7 +104,7 @@ namespace ytutils
 
 	int32_t EnqueueDownload(const char *url, const char *name);
 
-	int32_t EnqueueDownloadAsync(const char *url, const char *name, Downloader::OnStartCallback cb);
+	int32_t EnqueueDownloadAsync(const char *url, const char *name);
 };
 
 #endif

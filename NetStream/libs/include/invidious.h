@@ -67,13 +67,16 @@ typedef enum InvHlsQuality
 	INV_HLS_QUALITY_MAX
 } InvHlsQuality;
 
-typedef enum InvVideoQuality
+typedef enum InvProxyType
 {
-	INV_VIDEO_QUALITY_360P,
-	INV_VIDEO_QUALITY_720P,
+	INV_PROXY_VIDEO_360P,
+	INV_PROXY_VIDEO_720P,
+	INV_PROXY_AUDIO_LQ,
+	INV_PROXY_AUDIO_MQ,
+	INV_PROXY_AUDIO_HQ,
 
-	INV_VIDEO_QUALITY_MAX
-} InvVideoQuality;
+	INV_PROXY_VIDEO_MAX
+} InvProxyType;
 
 typedef struct InvItemVideo
 {
@@ -149,7 +152,7 @@ INV_EXPORT SceInt32 invTerm();
 
 INV_EXPORT SceInt32 invSetInstanceUrl(const char *url);
 
-INV_EXPORT SceInt32 invParseSearch(const char *request, SceInt32 page, InvItemType searchTypes, InvSort sort, InvDate date, InvItem **firstItem);
+INV_EXPORT SceInt32 invParseSearch(const char *request, SceInt32 page, InvItemType searchTypes, InvSort sort, InvDate date, const char *regionCode, InvItem **firstItem);
 
 INV_EXPORT SceInt32 invParseVideo(const char *videoId, InvItemVideo **item);
 
@@ -167,6 +170,6 @@ INV_EXPORT SceInt32 invCleanupHlsComments(InvItemComment *item);
 
 INV_EXPORT SceInt32 invGetHlsUrl(const char *videoId, InvHlsQuality quality, char *hlsUrl, SceInt32 sizeOfUrl);
 
-INV_EXPORT SceInt32 invGetProxyUrl(const char *videoId, InvVideoQuality quality, char *proxyUrl, SceInt32 sizeOfUrl);
+INV_EXPORT SceInt32 invGetProxyUrl(const char *videoId, InvProxyType type, char *proxyUrl, SceInt32 sizeOfUrl);
 
 SCE_CDECL_END

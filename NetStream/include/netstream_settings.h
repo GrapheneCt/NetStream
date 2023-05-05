@@ -27,6 +27,7 @@
 #define list_local_sort_type_01 (0x996d8e98)
 #define youtube_search_setting (0x47942f14)
 #define youtube_inv_instance (0xb938b374)
+#define youtube_region (0x4466b383)
 #define list_youtube_search_sort (0xcf6d2a1c)
 #define list_youtube_search_sort_00 (0x43d23f6c)
 #define list_youtube_search_sort_01 (0xa6ae18f3)

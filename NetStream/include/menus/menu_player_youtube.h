@@ -107,7 +107,7 @@ namespace menu {
 		};
 
 		static void TaskLoadSecondStage(void *pArgBlock);
-		static void DwAddCompleteCb(int32_t result);
+		static void DwAddCompleteCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 		static void BackButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 		static void SettingsButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 		static void ExpandButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
@@ -146,6 +146,7 @@ namespace menu {
 		ui::Widget *companelRoot;
 		menu::PlayerSimple *player;
 		string videoLink;
+		string audioLink;
 		string videoId;
 		bool isHls;
 		bool isHighHls;

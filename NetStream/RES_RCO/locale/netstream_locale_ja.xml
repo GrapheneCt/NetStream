@@ -51,6 +51,7 @@
   <string src="優先するライブストリームの画質" id="msg_youtube_hls_quality" />
 
   <string src="邪悪な実例" id="msg_youtube_inv_instance" />
+  <string src="地域" id="msg_youtube_region" />
   <string src="ソート" id="msg_youtube_search_sort" />
   <string src="日付" id="msg_youtube_search_date" />
   <string src="ソート" id="msg_youtube_comment_sort" />
@@ -88,6 +89,7 @@
   <string src="全ての履歴が削除されます。 続けますか？" id="msg_settings_youtube_clean_history_confirm" />
   <string src="全てのお気に入りが削除されます。 続けますか？" id="msg_settings_youtube_clean_fav_confirm" />
   <string src="ダウンロード" id="msg_settings_youtube_download" />
+  <string src="ダウンロードオーディオ" id="msg_settings_youtube_download_audio" />
   <string src="ダウンロードがキューに追加されました。" id="msg_settings_youtube_download_begin" />
 
 </stringset>

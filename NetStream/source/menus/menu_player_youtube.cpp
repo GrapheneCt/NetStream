@@ -107,9 +107,13 @@ void menu::PlayerYoutube::LoadJob::Run()
 				if (workObj->lastAttempt)
 				{
 					char lastResort[256];
+					char lastResortAudio[256];
 					lastResort[0] = 0;
-					ret = invGetProxyUrl(workObj->videoId.c_str(), (InvVideoQuality)quality, lastResort, sizeof(lastResort));
+					lastResortAudio[0] = 0;
+					ret = invGetProxyUrl(workObj->videoId.c_str(), (InvProxyType)quality, lastResort, sizeof(lastResort));
 					workObj->videoLink = lastResort;
+					invGetProxyUrl(workObj->videoId.c_str(), INV_PROXY_AUDIO_HQ, lastResortAudio, sizeof(lastResortAudio));
+					workObj->audioLink = lastResortAudio;
 				}
 				else
 				{
@@ -128,6 +132,7 @@ void menu::PlayerYoutube::LoadJob::Run()
 							workObj->videoLink = invItem->avcLqUrl;
 						break;
 					}
+					workObj->audioLink = invItem->audioHqUrl;
 				}
 			}
 		}
@@ -148,6 +153,7 @@ releaseLocks:
 	if (ret < 0)
 	{
 		workObj->videoLink = "";
+		workObj->audioLink = "";
 	}
 
 	common::MainThreadCallList::Register(menu::PlayerYoutube::TaskLoadSecondStage, workObj);
@@ -520,9 +526,10 @@ void menu::PlayerYoutube::BackButtonCbFun(int32_t type, ui::Handler *self, ui::E
 	delete workObj;
 }
 
-void menu::PlayerYoutube::DwAddCompleteCb(int32_t result)
+void menu::PlayerYoutube::DwAddCompleteCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
 	dialog::Close();
+	int32_t result = e->GetValue(0);
 	if (result == SCE_OK)
 	{
 		dialog::OpenOk(g_appPlugin, NULL, g_appPlugin->GetString(msg_settings_youtube_download_begin));
@@ -545,6 +552,8 @@ void menu::PlayerYoutube::SettingsButtonCbFun(int32_t type, ui::Handler *self, u
 	{
 		bt.label = g_appPlugin->GetString(msg_settings_youtube_download);
 		buttons.push_back(bt);
+		bt.label = g_appPlugin->GetString(msg_settings_youtube_download_audio);
+		buttons.push_back(bt);
 	}
 
 	new OptionMenu(g_appPlugin, workObj->root, &buttons);
@@ -559,6 +568,9 @@ void menu::PlayerYoutube::OptionMenuEventCbFun(int32_t type, ui::Handler *self, 
 		return;
 	}
 
+	wstring title16;
+	string title8;
+	int32_t res = SCE_OK;
 	switch (e->GetValue(1))
 	{
 	case 0:
@@ -566,13 +578,26 @@ void menu::PlayerYoutube::OptionMenuEventCbFun(int32_t type, ui::Handler *self, 
 		menu::SettingsButtonCbFun(ui::Button::CB_BTN_DECIDE, NULL, 0, NULL);
 		break;
 	case 1:
-		wstring title16;
-		string title8;
 		player->title->GetString(title16);
 		common::Utf16ToUtf8(title16, &title8);
 		title8 += ".mp4";
 
-		int32_t res = ytutils::EnqueueDownloadAsync(player->videoLink.c_str(), title8.c_str(), DwAddCompleteCb);
+		res = ytutils::EnqueueDownloadAsync(player->videoLink.c_str(), title8.c_str());
+		if (res == SCE_OK)
+		{
+			dialog::OpenPleaseWait(g_appPlugin, NULL, Framework::Instance()->GetCommonString("msg_wait"));
+		}
+		else
+		{
+			dialog::OpenError(g_appPlugin, res);
+		}
+		break;
+	case 2:
+		player->title->GetString(title16);
+		common::Utf16ToUtf8(title16, &title8);
+		title8 += ".webm";
+
+		res = ytutils::EnqueueDownloadAsync(player->audioLink.c_str(), title8.c_str());
 		if (res == SCE_OK)
 		{
 			dialog::OpenPleaseWait(g_appPlugin, NULL, Framework::Instance()->GetCommonString("msg_wait"));
@@ -657,6 +682,7 @@ void menu::PlayerYoutube::PlayerEventCbFun(int32_t type, ui::Handler *self, ui::
 		}
 		else
 		{
+			utils::SetDisplayResolution(ui::EnvironmentParam::RESOLUTION_HD_FULL);
 			workObj->lastAttempt = true;
 			LoadJob *job = new LoadJob("YouTube::LoadJob");
 			job->workObj = workObj;
@@ -681,8 +707,7 @@ void menu::PlayerYoutube::TaskLoadSecondStage(void *pArgBlock)
 
 	workObj->player = new menu::PlayerSimple(workObj->videoLink.c_str());
 	workObj->player->SetPosition(-1920.0f, -1080.0f);
-	workObj->root->Show();
-	workObj->DisableInput();
+	workObj->root->SetShowAlpha(1.0f);
 	if (workObj->isHighHls)
 	{
 		workObj->player->player->LimitFPS(true);
@@ -706,9 +731,10 @@ menu::PlayerYoutube::PlayerYoutube(const char *id, bool isFavourite) :
 	hlsCommentThread = NULL;
 	lastAttempt = false;
 
-	menu::GetMenuAt(0)->GetRoot()->SetEventCallback(OptionMenu::OptionMenuEvent, OptionMenuEventCbFun, this);
+	root->AddEventCallback(OptionMenu::OptionMenuEvent, OptionMenuEventCbFun, this);
 	root->AddEventCallback(Settings::SettingsEvent, SettingsEventCbFun, this);
 	root->AddEventCallback(PlayerSimple::PlayerSimpleEvent, PlayerEventCbFun, this);
+	root->AddEventCallback(Downloader::DownloaderEvent, DwAddCompleteCbFun, this);
 
 	ui::BusyIndicator *loaderIndicator = (ui::BusyIndicator *)root->FindChild(busyindicator_youtube_loader);
 	loaderIndicator->Start();

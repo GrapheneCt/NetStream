@@ -24,7 +24,7 @@ using namespace paf;
 using namespace sce;
 
 const uint32_t k_safeMemIniLimit = 0x400;
-const int32_t k_settingsVersion = 4;
+const int32_t k_settingsVersion = 5;
 
 static sce::AppSettings *s_appSet = NULL;
 static menu::Settings *s_instance = NULL;
@@ -75,7 +75,7 @@ void menu::Settings::Init()
 	*verinfo = L"RELEASE ";
 #endif
 	*verinfo += WIDE(__DATE__);
-	*verinfo += L" v 3.00";
+	*verinfo += L" v 3.10";
 	s_verinfo = (wchar_t *)verinfo->c_str();
 }
 
