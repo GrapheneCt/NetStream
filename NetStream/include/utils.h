@@ -44,6 +44,12 @@ namespace utils
 
 	CurlFile::Share *GetShare();
 
+	uint32_t SafememGetSettingsSize();
+
+	void SafememWrite(string const& str, uint32_t offset = 0);
+
+	string SafememRead(uint32_t offset = 0);
+
 	class TimeoutListener : public TimerListener
 	{
 	public:

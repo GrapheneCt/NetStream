@@ -14,6 +14,8 @@
 
 using namespace paf;
 
+static bool s_afterBoot = true;
+
 void menu::First::ListButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
 	ui::Widget *wdg = (ui::Widget*)self;
@@ -32,7 +34,16 @@ void menu::First::ListButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e,
 		break;
 	case 3:
 		menu::Local *lmenu = new menu::Local();
-		lmenu->PushBrowserPage(NULL);
+		if (s_afterBoot)
+		{
+			string ref = utils::SafememRead();
+			lmenu->PushBrowserPage(&ref);
+			s_afterBoot = false;
+		}
+		else
+		{
+			lmenu->PushBrowserPage(NULL);
+		}
 		break;
 	}
 }

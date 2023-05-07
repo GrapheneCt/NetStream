@@ -1,4 +1,5 @@
 #include <kernel.h>
+#include <apputil.h> 
 #include <power.h> 
 #include <libdbg.h>
 #include <paf.h>
@@ -30,11 +31,9 @@ uint32_t utils::GetHash(const char *name)
 
 wchar_t *utils::GetStringWithNum(const char *name, uint32_t num)
 {
-	IDParam searchRequest;
 	char fullName[128];
 	sce_paf_snprintf(fullName, sizeof(fullName), "%s%u", name, num);
-	searchRequest.SetID(fullName);
-	return g_appPlugin->GetString(searchRequest);
+	return g_appPlugin->GetString(fullName);
 }
 
 void utils::SetPowerTickTask(PowerTick mode)
@@ -133,6 +132,37 @@ job::JobQueue *utils::GetJobQueue()
 CurlFile::Share *utils::GetShare()
 {
 	return s_curlShare;
+}
+
+uint32_t utils::SafememGetSettingsSize()
+{
+	return 0x400;
+}
+
+void utils::SafememWrite(string const& str, uint32_t offset)
+{
+	int32_t strlen = str.length();
+	uint32_t baseOffset = SafememGetSettingsSize();
+	sceAppUtilSaveSafeMemory(&strlen, 4, baseOffset + offset);
+	sceAppUtilSaveSafeMemory(str.c_str(), strlen, baseOffset + offset + 4);
+}
+
+string utils::SafememRead(uint32_t offset)
+{
+	string ret;
+	int32_t strlen = 0;
+	uint32_t baseOffset = SafememGetSettingsSize();
+	sceAppUtilLoadSafeMemory(&strlen, 4, baseOffset + offset);
+	if (strlen <= 0 || strlen > SCE_KERNEL_64KiB - baseOffset + offset + 4)
+	{
+		return ret;
+	}
+	char *tmp = new char[strlen + 1];
+	tmp[strlen] = 0;
+	sceAppUtilLoadSafeMemory(tmp, strlen, baseOffset + offset + 4);
+	ret = tmp;
+	delete tmp;
+	return ret;
 }
 
 void utils::SetTimeout(TimeoutFunc func, float timeoutMs, void *userdata1, void *userdata2)

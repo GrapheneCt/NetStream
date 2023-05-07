@@ -66,6 +66,10 @@ void menu::main::NetcheckJob::Run()
 		thread::Sleep(100);
 	}
 
+	ytutils::Init();
+
+	dialog::Close();
+
 	sceAppMgrAppParamGetString(SCE_KERNEL_PROCESS_ID_SELF, 12, titleid, 12);
 	if (sceAppMgrGetIdByName(&shellPid, "NPXS19999") == SCE_OK &&
 		_vshKernelSearchModuleByName("taihen", sarg) > 0)
@@ -73,10 +77,6 @@ void menu::main::NetcheckJob::Run()
 		string pluginPath = common::FormatString("ux0:app/%s/module/download_enabler_netstream.suprx", titleid);
 		taiLoadStartModuleForPid(shellPid, pluginPath.c_str(), 0, NULL, 0);
 	}
-
-	ytutils::Init();
-
-	dialog::Close();
 }
 
 void pluginLoadCB(Plugin *plugin)
@@ -151,9 +151,9 @@ int main()
 	sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_COMMON_GUI_DIALOG);
 	new Module("vs0:sys/external/libfios2.suprx");
 	new Module("vs0:sys/external/libc.suprx");
+	new Module("app0:module/libcurl.suprx");
 	new Module("app0:module/libInvidious.suprx");
 	new Module("app0:module/libLootkit.suprx");
-	new Module("app0:module/libcurl.suprx");
 
 	curl_global_memmanager_set_np(sce_paf_malloc, sce_paf_free, sce_paf_realloc);
 

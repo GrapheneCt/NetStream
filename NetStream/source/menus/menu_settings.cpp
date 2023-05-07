@@ -23,7 +23,6 @@
 using namespace paf;
 using namespace sce;
 
-const uint32_t k_safeMemIniLimit = 0x400;
 const int32_t k_settingsVersion = 5;
 
 static sce::AppSettings *s_appSet = NULL;
@@ -56,7 +55,7 @@ void menu::Settings::Init()
 	sparam.free_cb = sce_paf_free;
 	sparam.realloc_cb = sce_paf_realloc;
 	sparam.safemem_offset = 0;
-	sparam.safemem_size = k_safeMemIniLimit;
+	sparam.safemem_size = utils::SafememGetSettingsSize();
 
 	sce::AppSettings::GetInstance(sparam, &s_appSet);
 
@@ -75,7 +74,7 @@ void menu::Settings::Init()
 	*verinfo = L"RELEASE ";
 #endif
 	*verinfo += WIDE(__DATE__);
-	*verinfo += L" v 3.10";
+	*verinfo += L" v 3.11";
 	s_verinfo = (wchar_t *)verinfo->c_str();
 }
 

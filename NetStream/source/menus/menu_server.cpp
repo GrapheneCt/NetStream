@@ -214,6 +214,10 @@ void menu::GenericServerMenu::GoToJob::Run()
 	}
 
 	currentPath = workObj->browser->GetPath();
+	if (workObj->GetMenuType() == MenuType_Local)
+	{
+		utils::SafememWrite(currentPath);
+	}
 	common::Utf8ToUtf16(currentPath, &text16);
 
 	thread::RMutex::main_thread_mutex.Lock();
