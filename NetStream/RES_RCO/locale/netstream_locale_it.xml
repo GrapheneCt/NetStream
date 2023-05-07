@@ -84,8 +84,6 @@
 
   <string src="Pulisci Cronologia" id="msg_settings_youtube_clean_history" />
   <string src="Pulisci i preferiti" id="msg_settings_youtube_clean_fav" />
-  <string src="La cronologia è stata pulita." id="msg_settings_youtube_clean_history_done" />
-  <string src="I preferiti sono stati puliti." id="msg_settings_youtube_clean_fav_done" />
   <string src="Tutti i record della cronologia verranno eliminati. Vuoi continuare?" id="msg_settings_youtube_clean_history_confirm" />
   <string src="Tutti i preferiti verranno eliminati. Vuoi continuare?" id="msg_settings_youtube_clean_fav_confirm" />
   <string src="Scaricare" id="msg_settings_youtube_download" />

@@ -138,8 +138,8 @@ namespace menu {
 		ui::Text *stat0;
 		ui::Text *stat1;
 		ui::Text *stat2;
-		ui::Widget *expandButton;
-		ui::Widget *favButton;
+		ui::Button *expandButton;
+		ui::Button *favButton;
 		ui::Widget *companelBase;
 		ui::Widget *commentButton;
 		ui::Widget *descButton;

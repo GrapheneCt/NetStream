@@ -84,8 +84,6 @@
 
   <string src="Effacer l'historique" id="msg_settings_youtube_clean_history" />
   <string src="Effacer les favoris" id="msg_settings_youtube_clean_fav" />
-  <string src="L'historique a été effacé." id="msg_settings_youtube_clean_history_done" />
-  <string src="Les favoris ont été effacés." id="msg_settings_youtube_clean_fav_done" />
   <string src="Tout le contenu de l'historique sera supprimé. Voulez-vous continuer ?" id="msg_settings_youtube_clean_history_confirm" />
   <string src="Tous les favoris seront supprimés. Voulez-vous continuer ?" id="msg_settings_youtube_clean_fav_confirm" />
   <string src="Télécharger" id="msg_settings_youtube_download" />

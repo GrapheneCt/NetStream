@@ -84,8 +84,6 @@
 
   <string src="Borrar historial" id="msg_settings_youtube_clean_history" />
   <string src="Borrar favoritos" id="msg_settings_youtube_clean_fav" />
-  <string src="Se ha borrado el historial." id="msg_settings_youtube_clean_history_done" />
-  <string src="Se han borrado los favoritos." id="msg_settings_youtube_clean_fav_done" />
   <string src="Se borrará todo de historial. ¿Continuar?" id="msg_settings_youtube_clean_history_confirm" />
   <string src="Se borrarán todos los favoritos. ¿Continuar?" id="msg_settings_youtube_clean_fav_confirm" />
   <string src="Descargar" id="msg_settings_youtube_download" />

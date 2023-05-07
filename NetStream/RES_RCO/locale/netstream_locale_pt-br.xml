@@ -84,8 +84,6 @@
 
   <string src="Limpar Histórico" id="msg_settings_youtube_clean_history" />
   <string src="Limpar Favoritos" id="msg_settings_youtube_clean_fav" />
-  <string src="O Histórico foi limpo." id="msg_settings_youtube_clean_history_done" />
-  <string src="Os Favoritos foram limpos." id="msg_settings_youtube_clean_fav_done" />
   <string src="Todo o histórico de vídeos vai ser apagado! Deseja continuar?" id="msg_settings_youtube_clean_history_confirm" />
   <string src="Todos os favoritos vão ser apagados! Deseja continuar?" id="msg_settings_youtube_clean_fav_confirm" />
   <string src="Baixar" id="msg_settings_youtube_download" />

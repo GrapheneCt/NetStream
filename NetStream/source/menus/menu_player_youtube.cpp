@@ -74,7 +74,7 @@ void menu::PlayerYoutube::LoadJob::Run()
 				char *hls = new char[SCE_KERNEL_1KiB];
 				hls[0] = 0;
 				settings->GetInt("yt_hls_quality", (int32_t *)&quality, 0);
-				ret = invGetHlsUrl(workObj->videoId.c_str(), (InvHlsQuality)quality, hls, SCE_KERNEL_1KiB);
+				ret = invGetHlsUrl(invItem, (InvHlsQuality)quality, hls, SCE_KERNEL_1KiB);
 				if (ret != SCE_OK)
 				{
 					if (quality == 0)
@@ -85,7 +85,7 @@ void menu::PlayerYoutube::LoadJob::Run()
 					{
 						quality--;
 					}
-					invGetHlsUrl(workObj->videoId.c_str(), (InvHlsQuality)quality, hls, SCE_KERNEL_1KiB);
+					invGetHlsUrl(invItem, (InvHlsQuality)quality, hls, SCE_KERNEL_1KiB);
 				}
 				workObj->videoLink = hls;
 				workObj->isHls = true;
@@ -110,9 +110,9 @@ void menu::PlayerYoutube::LoadJob::Run()
 					char lastResortAudio[256];
 					lastResort[0] = 0;
 					lastResortAudio[0] = 0;
-					ret = invGetProxyUrl(workObj->videoId.c_str(), (InvProxyType)quality, lastResort, sizeof(lastResort));
+					ret = invGetProxyUrl(invItem, (InvProxyType)quality, lastResort, sizeof(lastResort));
 					workObj->videoLink = lastResort;
-					invGetProxyUrl(workObj->videoId.c_str(), INV_PROXY_AUDIO_HQ, lastResortAudio, sizeof(lastResortAudio));
+					invGetProxyUrl(invItem, INV_PROXY_AUDIO_HQ, lastResortAudio, sizeof(lastResortAudio));
 					workObj->audioLink = lastResortAudio;
 				}
 				else
@@ -678,6 +678,9 @@ void menu::PlayerYoutube::PlayerEventCbFun(int32_t type, ui::Handler *self, ui::
 			common::transition::DoReverse(0.0f, loaderPlane, common::transition::Type_Fadein1, true, false);
 			workObj->EnableInput();
 
+			workObj->favButton->Disable(false);
+			workObj->expandButton->Disable(false);
+
 			dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_EUNSUP, Framework::Instance()->GetCommonString("msg_error_connect_server_peer"));
 		}
 		else
@@ -751,9 +754,9 @@ menu::PlayerYoutube::PlayerYoutube(const char *id, bool isFavourite) :
 	stat0 = (ui::Text *)root->FindChild(text_video_stat_0);
 	stat1 = (ui::Text *)root->FindChild(text_video_stat_1);
 	stat2 = (ui::Text *)root->FindChild(text_video_stat_2);
-	expandButton = root->FindChild(button_youtube_expand);
+	expandButton = (ui::Button *)root->FindChild(button_youtube_expand);
 	expandButton->AddEventCallback(ui::Button::CB_BTN_DECIDE, ExpandButtonCbFun, this);
-	favButton = root->FindChild(button_youtube_fav);
+	favButton = (ui::Button *)root->FindChild(button_youtube_fav);
 	favButton->AddEventCallback(ui::Button::CB_BTN_DECIDE,FavButtonCbFun);
 	if (isFav)
 	{

@@ -74,7 +74,7 @@ void menu::Settings::Init()
 	*verinfo = L"RELEASE ";
 #endif
 	*verinfo += WIDE(__DATE__);
-	*verinfo += L" v 3.11";
+	*verinfo += L" v 3.12";
 	s_verinfo = (wchar_t *)verinfo->c_str();
 }
 

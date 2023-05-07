@@ -84,8 +84,6 @@
 
   <string src="Clear History" id="msg_settings_youtube_clean_history" />
   <string src="Clear Favourites" id="msg_settings_youtube_clean_fav" />
-  <string src="History has been cleared." id="msg_settings_youtube_clean_history_done" />
-  <string src="Favourites has been cleared." id="msg_settings_youtube_clean_fav_done" />
   <string src="All history records will be deleted. Do you want to continue?" id="msg_settings_youtube_clean_history_confirm" />
   <string src="All favourites will be deleted. Do you want to continue?" id="msg_settings_youtube_clean_fav_confirm" />
   <string src="Download" id="msg_settings_youtube_download" />

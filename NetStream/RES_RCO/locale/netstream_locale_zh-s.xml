@@ -84,8 +84,6 @@
 
   <string src="清洁历史" id="msg_settings_youtube_clean_history" />
   <string src="清理收藏夹" id="msg_settings_youtube_clean_fav" />
-  <string src="历史已被清理。" id="msg_settings_youtube_clean_history_done" />
-  <string src="收藏夹已清理。" id="msg_settings_youtube_clean_fav_done" />
   <string src="所有历史记录将被删除。 继续？" id="msg_settings_youtube_clean_history_confirm" />
   <string src="所有收藏夹都将被删除。 继续？" id="msg_settings_youtube_clean_fav_confirm" />
   <string src="下载" id="msg_settings_youtube_download" />

@@ -84,8 +84,6 @@
 
   <string src="履歴の消去" id="msg_settings_youtube_clean_history" />
   <string src="お気に入りの消去" id="msg_settings_youtube_clean_fav" />
-  <string src="履歴が消去されました。" id="msg_settings_youtube_clean_history_done" />
-  <string src="お気に入りが消去されました。" id="msg_settings_youtube_clean_fav_done" />
   <string src="全ての履歴が削除されます。 続けますか？" id="msg_settings_youtube_clean_history_confirm" />
   <string src="全てのお気に入りが削除されます。 続けますか？" id="msg_settings_youtube_clean_fav_confirm" />
   <string src="ダウンロード" id="msg_settings_youtube_download" />

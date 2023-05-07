@@ -84,8 +84,6 @@
 
   <string src="Очистить историю" id="msg_settings_youtube_clean_history" />
   <string src="Очистить избранное" id="msg_settings_youtube_clean_fav" />
-  <string src="История была очищена" id="msg_settings_youtube_clean_history_done" />
-  <string src="Избранное было очищено." id="msg_settings_youtube_clean_fav_done" />
   <string src="Все записи в истории просмотров будут удалены. Продолжить?" id="msg_settings_youtube_clean_history_confirm" />
   <string src="Все записи в списке избранного будут удалены. Продолжить?" id="msg_settings_youtube_clean_fav_confirm" />
   <string src="Загрузить" id="msg_settings_youtube_download" />

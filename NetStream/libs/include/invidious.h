@@ -99,6 +99,7 @@ typedef struct InvItemVideo
 	const char *description;
 	const char *subCount;
 	SceInt32 likeCount;
+	const char *baseHlsUrl;
 } InvItemVideo;
 
 typedef struct InvItemPlaylist
@@ -168,8 +169,8 @@ INV_EXPORT SceInt32 invCleanupComments(InvItemComment *item);
 
 INV_EXPORT SceInt32 invCleanupHlsComments(InvItemComment *item);
 
-INV_EXPORT SceInt32 invGetHlsUrl(const char *videoId, InvHlsQuality quality, char *hlsUrl, SceInt32 sizeOfUrl);
+INV_EXPORT SceInt32 invGetHlsUrl(InvItemVideo *item, InvHlsQuality quality, char *hlsUrl, SceInt32 sizeOfUrl);
 
-INV_EXPORT SceInt32 invGetProxyUrl(const char *videoId, InvProxyType type, char *proxyUrl, SceInt32 sizeOfUrl);
+INV_EXPORT SceInt32 invGetProxyUrl(InvItemVideo *item, InvProxyType type, char *proxyUrl, SceInt32 sizeOfUrl);
 
 SCE_CDECL_END
