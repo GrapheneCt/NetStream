@@ -757,7 +757,7 @@ menu::PlayerYoutube::PlayerYoutube(const char *id, bool isFavourite) :
 	expandButton = (ui::Button *)root->FindChild(button_youtube_expand);
 	expandButton->AddEventCallback(ui::Button::CB_BTN_DECIDE, ExpandButtonCbFun, this);
 	favButton = (ui::Button *)root->FindChild(button_youtube_fav);
-	favButton->AddEventCallback(ui::Button::CB_BTN_DECIDE,FavButtonCbFun);
+	favButton->AddEventCallback(ui::Button::CB_BTN_DECIDE,FavButtonCbFun, this);
 	if (isFav)
 	{
 		intrusive_ptr<graph::Surface> favIcon = g_appPlugin->GetTexture(tex_yt_icon_favourite_for_player_glow);

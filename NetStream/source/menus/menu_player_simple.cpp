@@ -16,8 +16,6 @@
 
 using namespace paf;
 
-static menu::PlayerSimple *s_instance;
-
 void menu::PlayerSimple::BackButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
 	event::BroadcastGlobalEvent(g_appPlugin, PlayerSimpleEvent, PlayerEvent_Back);
@@ -147,7 +145,7 @@ void menu::PlayerSimple::GenericPlayerStateCbFun(int32_t type, ui::Handler *self
 			workObj->isLS = true;
 		}
 
-		inputdevice::pad::SetDeviceHandler(DirectInputCallback);
+		inputdevice::AddInputListener(workObj->padListener);
 
 		ui::Widget *videoPlane = workObj->root->FindChild(button_video_page_control_trigger);
 		videoPlane->AddEventCallback(ui::Button::CB_BTN_DECIDE, VideoPlaneCbFun, userdata);
@@ -162,81 +160,6 @@ void menu::PlayerSimple::GenericPlayerStateCbFun(int32_t type, ui::Handler *self
 	{
 		event::BroadcastGlobalEvent(g_appPlugin, PlayerSimpleEvent, PlayerEvent_InitFail);
 	}
-}
-
-void menu::PlayerSimple::DirectInputCallback(inputdevice::pad::Data *pData)
-{
-#define PRESSED(x) ((pData->paddata & x) && !(s_instance->oldButtons & x))
-
-	if (!s_instance)
-		return;
-
-	if (PRESSED(inputdevice::pad::Data::PAD_ENTER))
-	{
-		if (s_instance->player->GetState() == GenericPlayer::PlayerState_Eof && !s_instance->isLS)
-		{
-			WholeRepeatButtonCbFun(0, NULL, 0, s_instance);
-		}
-		else
-		{
-			PlayButtonCbFun(0, NULL, 0, s_instance);
-		}
-	}
-	else if (PRESSED(inputdevice::pad::Data::PAD_ESCAPE) && !s_instance->progressPlaneShown)
-	{
-		BackButtonCbFun(0, NULL, 0, s_instance);
-		return;
-	}
-	else if (((PRESSED(inputdevice::pad::Data::PAD_RIGHT)) ||
-		(PRESSED(inputdevice::pad::Data::PAD_LEFT)) ||
-		(PRESSED(inputdevice::pad::Data::PAD_R)) ||
-		(PRESSED(inputdevice::pad::Data::PAD_L))) &&
-		!s_instance->isLS)
-	{
-		math::v4 col(0.4f, 0.4f, 0.4f, 1.0f);
-		s_instance->videoPlane->SetColor(col);
-
-		if (PRESSED(inputdevice::pad::Data::PAD_RIGHT))
-		{
-			s_instance->accJumpTime += 5000;
-		}
-		else if (PRESSED(inputdevice::pad::Data::PAD_LEFT))
-		{
-			s_instance->accJumpTime -= 5000;
-		}
-		else if (PRESSED(inputdevice::pad::Data::PAD_R))
-		{
-			s_instance->accJumpTime += (int32_t)((float)s_instance->player->GetTotalTimeMs() * 0.05f);
-		}
-		else if (PRESSED(inputdevice::pad::Data::PAD_L))
-		{
-			s_instance->accJumpTime -= (int32_t)((float)s_instance->player->GetTotalTimeMs() * 0.05f);
-		}
-
-		string text8;
-		wstring text16;
-		utils::ConvertSecondsToString(text8, (uint32_t)(sce_paf_abs(s_instance->accJumpTime) / 1000), false);
-		common::Utf8ToUtf16(text8, &text16);
-		if (s_instance->accJumpTime < 0)
-		{
-			s_instance->leftAccText->SetString(text16);
-		}
-		else if (s_instance->accJumpTime > 0)
-		{
-			s_instance->rightAccText->SetString(text16);
-		}
-
-		s_instance->accStartTime = sceKernelGetProcessTimeLow();
-		s_instance->accJumpState = AccJumpState_Accumulate;
-	}
-	else if (PRESSED(inputdevice::pad::Data::PAD_START))
-	{
-		scePowerRequestDisplayOff();
-	}
-
-	s_instance->oldButtons = pData->paddata;
-
-#undef PRESSED
 }
 
 void menu::PlayerSimple::UpdateTask(void *pArgBlock)
@@ -271,10 +194,10 @@ void menu::PlayerSimple::UpdateTask(void *pArgBlock)
 		if (workObj->accJumpState == AccJumpState_Perform)
 		{
 			math::v4 col(1.0f, 1.0f, 1.0f, 1.0f);
-			s_instance->videoPlane->SetColor(col);
+			workObj->videoPlane->SetColor(col);
 			text16 = L"";
-			s_instance->leftAccText->SetString(text16);
-			s_instance->rightAccText->SetString(text16);
+			workObj->leftAccText->SetString(text16);
+			workObj->rightAccText->SetString(text16);
 			workObj->player->JumpToTimeMs(workObj->player->GetCurrentTimeMs() + workObj->accJumpTime);
 			workObj->accJumpTime = 0;
 			workObj->accJumpState = AccJumpState_None;
@@ -316,6 +239,76 @@ void menu::PlayerSimple::UpdateTask(void *pArgBlock)
 	workObj->oldState = state;
 }
 
+void menu::PlayerSimple::PadUpdate(inputdevice::Data *data)
+{
+#define PRESSED(x) ((data->m_pad_data->paddata & x) && !(data->m_pad_data_pre->paddata & x))
+
+	if (PRESSED(inputdevice::pad::Data::PAD_ENTER))
+	{
+		if (player->GetState() == GenericPlayer::PlayerState_Eof && !isLS)
+		{
+			WholeRepeatButtonCbFun(0, NULL, 0, this);
+		}
+		else
+		{
+			PlayButtonCbFun(0, NULL, 0, this);
+		}
+	}
+	else if (PRESSED(inputdevice::pad::Data::PAD_ESCAPE) && !progressPlaneShown)
+	{
+		BackButtonCbFun(0, NULL, 0, this);
+		return;
+	}
+	else if (((PRESSED(inputdevice::pad::Data::PAD_RIGHT)) ||
+		(PRESSED(inputdevice::pad::Data::PAD_LEFT)) ||
+		(PRESSED(inputdevice::pad::Data::PAD_R)) ||
+		(PRESSED(inputdevice::pad::Data::PAD_L))) &&
+		!isLS)
+	{
+		math::v4 col(0.4f, 0.4f, 0.4f, 1.0f);
+		videoPlane->SetColor(col);
+
+		if (PRESSED(inputdevice::pad::Data::PAD_RIGHT))
+		{
+			accJumpTime += 5000;
+		}
+		else if (PRESSED(inputdevice::pad::Data::PAD_LEFT))
+		{
+			accJumpTime -= 5000;
+		}
+		else if (PRESSED(inputdevice::pad::Data::PAD_R))
+		{
+			accJumpTime += (int32_t)((float)player->GetTotalTimeMs() * 0.05f);
+		}
+		else if (PRESSED(inputdevice::pad::Data::PAD_L))
+		{
+			accJumpTime -= (int32_t)((float)player->GetTotalTimeMs() * 0.05f);
+		}
+
+		string text8;
+		wstring text16;
+		utils::ConvertSecondsToString(text8, (uint32_t)(sce_paf_abs(accJumpTime) / 1000), false);
+		common::Utf8ToUtf16(text8, &text16);
+		if (accJumpTime < 0)
+		{
+			leftAccText->SetString(text16);
+		}
+		else if (accJumpTime > 0)
+		{
+			rightAccText->SetString(text16);
+		}
+
+		accStartTime = sceKernelGetProcessTimeLow();
+		accJumpState = AccJumpState_Accumulate;
+	}
+	else if (PRESSED(inputdevice::pad::Data::PAD_START))
+	{
+		scePowerRequestDisplayOff();
+	}
+
+#undef PRESSED
+}
+
 menu::PlayerSimple::PlayerSimple(const char *url) :
 	GenericMenu("page_player_simple",
 	MenuOpenParam(true, 200.0f, Plugin::TransitionType_None, ui::EnvironmentParam::RESOLUTION_HD_FULL),
@@ -332,11 +325,8 @@ menu::PlayerSimple::PlayerSimple(const char *url) :
 	currentScale = 1.0f;
 	settingsOverride = SettingsOverride_None;
 
-	if (s_instance)
-	{
-		SCE_DBG_LOG_ERROR("[MENU] Attempt to create second singleton instance\n");
-		return;
-	}
+	common::SharedPtr<inputdevice::InputListener> listener(new PadListener(this));
+	padListener = listener;
 
 	progressBar = (ui::ProgressBarTouch *)root->FindChild(progressbar_touch_video_control_panel);
 	elapsedTimeText = (ui::Text *)root->FindChild(text_video_control_panel_progressbar_label_elapsed);
@@ -383,8 +373,6 @@ menu::PlayerSimple::PlayerSimple(const char *url) :
 	sceAppMgrSetInfobarState(SCE_APPMGR_INFOBAR_VISIBILITY_INVISIBLE, SCE_APPMGR_INFOBAR_COLOR_BLACK, SCE_APPMGR_INFOBAR_TRANSPARENCY_TRANSLUCENT);
 	utils::SetPowerTickTask(utils::PowerTick_All);
 	menu::GetMenuAt(menu::GetMenuCount() - 2)->Deactivate();
-
-	s_instance = this;
 }
 
 menu::PlayerSimple::~PlayerSimple()
@@ -393,12 +381,11 @@ menu::PlayerSimple::~PlayerSimple()
 	common::MainThreadCallList::Unregister(UpdateTask, this);
 	scePowerUnregisterCallback(pwCbId);
 	sceKernelDeleteCallback(pwCbId);
-	inputdevice::pad::SetDeviceHandler(NULL);
+	inputdevice::DelInputListener(padListener);
 	delete player;
 	sceAppMgrSetInfobarState(SCE_APPMGR_INFOBAR_VISIBILITY_VISIBLE, SCE_APPMGR_INFOBAR_COLOR_BLACK, SCE_APPMGR_INFOBAR_TRANSPARENCY_TRANSLUCENT);
 	utils::SetPowerTickTask(utils::PowerTick_None);
 	menu::GetTopMenu()->Activate();
-	s_instance = NULL;
 }
 
 float menu::PlayerSimple::GetScale()
@@ -545,7 +532,7 @@ void menu::PlayerSimple::SetScale(float scale)
 
 	if (scale == 1.0f)
 	{
-		inputdevice::pad::SetDeviceHandler(DirectInputCallback);
+		inputdevice::AddInputListener(padListener);
 		sceAppMgrSetInfobarState(SCE_APPMGR_INFOBAR_VISIBILITY_INVISIBLE, SCE_APPMGR_INFOBAR_COLOR_BLACK, SCE_APPMGR_INFOBAR_TRANSPARENCY_TRANSLUCENT);
 		backButton->Show(common::transition::Type_Reset);
 		triggerPlane->Show(common::transition::Type_Fadein1);
@@ -553,7 +540,7 @@ void menu::PlayerSimple::SetScale(float scale)
 	}
 	else
 	{
-		inputdevice::pad::SetDeviceHandler(NULL);
+		inputdevice::DelInputListener(padListener);
 		sceAppMgrSetInfobarState(SCE_APPMGR_INFOBAR_VISIBILITY_VISIBLE, SCE_APPMGR_INFOBAR_COLOR_BLACK, SCE_APPMGR_INFOBAR_TRANSPARENCY_TRANSLUCENT);
 		backButton->Hide(common::transition::Type_Reset);
 		triggerPlane->Hide(common::transition::Type_Fadein1);

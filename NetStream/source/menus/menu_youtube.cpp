@@ -839,15 +839,21 @@ void menu::YouTube::DialogHandlerCbFun(int32_t type, ui::Handler *self, ui::Even
 
 	if (e->GetValue(0) == dialog::ButtonCode_Yes)
 	{
+		LogClearJob::Type clearType = LogClearJob::Type_Hist;
 		switch (workObj->dialogIdx)
 		{
 		case 1:
-			ytutils::HistLog::Clean();
+			clearType = LogClearJob::Type_Hist;
 			break;
 		case 2:
-			ytutils::FavLog::Clean();
+			clearType = LogClearJob::Type_Fav;
 			break;
 		}
+
+		LogClearJob *job = new LogClearJob("YouTube::LogClearJob");
+		job->type = clearType;
+		common::SharedPtr<job::JobItem> itemParam(job);
+		job::JobQueue::default_queue->Enqueue(itemParam);
 	}
 }
 
@@ -863,6 +869,23 @@ void menu::YouTube::SubmenuButtonCbFun(int32_t type, ui::Handler *self, ui::Even
 	YouTube *workObj = (YouTube *)userdata;
 	ui::Widget *wdg = (ui::Widget *)self;
 	workObj->SwitchSubmenu((Submenu::SubmenuType)wdg->GetName().GetIDHash());
+}
+
+void menu::YouTube::LogClearJob::Run()
+{
+	dialog::OpenPleaseWait(g_appPlugin, NULL, Framework::Instance()->GetCommonString("msg_wait"));
+
+	switch (type)
+	{
+	case Type_Hist:
+		ytutils::HistLog::Clean();
+		break;
+	case Type_Fav:
+		ytutils::FavLog::Clean();
+		break;
+	}
+
+	dialog::Close();
 }
 
 menu::YouTube::YouTube() :

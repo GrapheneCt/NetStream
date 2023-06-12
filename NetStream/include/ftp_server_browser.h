@@ -27,7 +27,7 @@ public:
 
 	string GetPath();
 
-	string GetBEAVUrl(string *in);
+	string GetBEAVUrl(string const& in);
 
 	vector<FtpServerBrowser::Entry *> *GoTo(const char *ref, int32_t *result);
 

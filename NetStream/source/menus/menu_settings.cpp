@@ -74,7 +74,7 @@ void menu::Settings::Init()
 	*verinfo = L"RELEASE ";
 #endif
 	*verinfo += WIDE(__DATE__);
-	*verinfo += L" v 3.12";
+	*verinfo += L" v 3.13";
 	s_verinfo = (wchar_t *)verinfo->c_str();
 }
 
@@ -188,7 +188,7 @@ int32_t menu::Settings::CBOnPress(const char *elementId, const char *newValue)
 	IDParam elem(elementId);
 	IDParam val(newValue);
 
-	event::BroadcastGlobalEvent(g_appPlugin, SettingsEvent, SettingsEvent_ValueChange, elem.GetIDHash(), val.GetIDHash());
+	event::BroadcastGlobalEvent(g_appPlugin, SettingsEvent, SettingsEvent_ValueChange, elem.GetIDHash(), val.GetIDHash(), newValue[0] - '0');
 
 	return ret;
 }

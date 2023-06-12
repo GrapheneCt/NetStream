@@ -48,7 +48,7 @@ void menu::GenericServerMenu::PlayerCreateTimeoutFun(void *userdata1, void *user
 {
 	GenericServerMenu *workObj = (GenericServerMenu *)userdata1;
 	GenericServerBrowser::Entry *entry = (GenericServerBrowser::Entry *)userdata2;
-	workObj->player = new menu::PlayerSimple(workObj->browser->GetBEAVUrl(&entry->ref).c_str());
+	workObj->player = new menu::PlayerSimple(workObj->browser->GetBEAVUrl(entry->ref).c_str());
 }
 
 void menu::GenericServerMenu::ListButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
@@ -71,7 +71,7 @@ void menu::GenericServerMenu::ListButtonCbFun(int32_t type, ui::Handler *self, u
 		}
 		else
 		{
-			workObj->player = new menu::PlayerSimple(workObj->browser->GetBEAVUrl(&entry->ref).c_str());
+			workObj->player = new menu::PlayerSimple(workObj->browser->GetBEAVUrl(entry->ref).c_str());
 		}
 	}
 }

@@ -97,11 +97,11 @@ string HttpServerBrowser::GetPath()
 	return ret;
 }
 
-string HttpServerBrowser::GetBEAVUrl(string *in)
+string HttpServerBrowser::GetBEAVUrl(string const& in)
 {
 	string ret;
 	CURLU *turl = curl_url_dup(url);
-	curl_url_set(turl, CURLUPART_URL, in->c_str(), 0);
+	curl_url_set(turl, CURLUPART_URL, in.c_str(), 0);
 	char *result;
 	curl_url_get(turl, CURLUPART_URL, &result, 0);
 	ret = result;

@@ -199,6 +199,27 @@ namespace menu {
 			string request;
 		};
 
+		class LogClearJob : public job::JobItem
+		{
+		public:
+
+			enum Type
+			{
+				Type_Fav,
+				Type_Hist
+			};
+
+			using job::JobItem::JobItem;
+
+			~LogClearJob() {}
+
+			void Run();
+
+			void Finish() {}
+
+			Type type;
+		};
+
 		static void BackButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 		static void ListButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
 		static void SubmenuButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
