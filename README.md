@@ -1,4 +1,3 @@
-# NetStream
 ![](https://github.com/GrapheneCt/NetStream/raw/main/logo.PNG)
 
 ### Universal video streaming client for PS Vita
