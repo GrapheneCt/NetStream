@@ -322,7 +322,10 @@ void FMODPlayer::PreInit()
 	new Module("app0:module/libfmodstudio.suprx");
 	new Module("app0:module/libfmodngpext.suprx");
 	FMOD::System_Create(&s_system);
-	FMOD_NGP_System_Init((FMOD_SYSTEM *)s_system, true);
+	FMOD_NGPEXT_PARAM param;
+	sce_paf_memset(&param, 0, sizeof(FMOD_NGPEXT_PARAM));
+	param.at9prio = 1;
+	FMOD_NGP_System_Init((FMOD_SYSTEM *)s_system, &param);
 	s_system->setSoftwareFormat(48000, FMOD_SPEAKERMODE_STEREO, 2);
 	s_system->setStreamBufferSize(SCE_KERNEL_256KiB, FMOD_TIMEUNIT_RAWBYTES);
 	s_system->setFileSystem(HybridInterface::Open, HybridInterface::Close, HybridInterface::Read, HybridInterface::Seek, NULL, NULL, -1);

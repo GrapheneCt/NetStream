@@ -5,10 +5,17 @@
 
 #include "tex_pool.h"
 
-TexPool::TexPool(Plugin *_cbPlugin)
+TexPool::TexPool(Plugin *_cbPlugin, bool useDefaultQueue)
 {
 	storMtx = new thread::RMutex("TexPool::StorMtx");
-	addAsyncQueue = new job::JobQueue("TexPool::AddAsyncJobQueue");
+	if (useDefaultQueue)
+	{
+		addAsyncQueue = job::JobQueue::default_queue;
+	}
+	else
+	{
+		addAsyncQueue = new job::JobQueue("TexPool::AddAsyncJobQueue");
+	}
 	share = NULL;
 	alive = true;
 	cbPlugin = _cbPlugin;
@@ -19,7 +26,10 @@ TexPool::~TexPool()
 	SetAlive(false);
 	AddAsyncWaitComplete();
 	RemoveAll();
-	delete addAsyncQueue;
+	if (addAsyncQueue != job::JobQueue::default_queue)
+	{
+		delete addAsyncQueue;
+	}
 	delete storMtx;
 }
 

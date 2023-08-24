@@ -40,6 +40,25 @@ namespace menu {
 			SettingsOverride_YouTube
 		};
 
+		class PadListener : public inputdevice::InputListener
+		{
+		public:
+
+			PadListener(PlayerSimple *work) : InputListener(inputdevice::DEVICE_TYPE_PAD), workObj(work)
+			{
+
+			}
+
+			void OnUpdate(inputdevice::Data *data)
+			{
+				workObj->PadUpdate(data);
+			}
+
+		private:
+
+			PlayerSimple *workObj;
+		};
+
 		typedef void(*PlayerSimpleCallback)(PlayerSimple *player, void *pUserArg);
 
 		static void VideoPlaneCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
@@ -83,7 +102,7 @@ namespace menu {
 		}
 
 		static void UpdateTask(void *pArgBlock);
-		static void DirectInputCallback(inputdevice::pad::Data *pData);
+		void PadUpdate(inputdevice::Data *data);
 
 		ui::Widget *videoPlane;
 		ui::BusyIndicator *loadIndicator;
@@ -109,6 +128,7 @@ namespace menu {
 		float currentScale;
 		SettingsOverride settingsOverride;
 		SceUID pwCbId;
+		common::SharedPtr<inputdevice::InputListener> padListener;
 
 		GenericPlayer *player;
 

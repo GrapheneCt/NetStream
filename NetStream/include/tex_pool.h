@@ -15,7 +15,7 @@ public:
 
 	typedef void(*OnAddAsyncComplete)(uint32_t hash, bool result, void *pArgBlock);
 
-	TexPool(Plugin *_cbPlugin = NULL);
+	TexPool(Plugin *_cbPlugin = NULL, bool useDefaultQueue = false);
 
 	~TexPool();
 

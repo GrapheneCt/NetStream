@@ -45,14 +45,14 @@ string LocalServerBrowser::GetPath()
 	return path;
 }
 
-string LocalServerBrowser::GetBEAVUrl(string *in)
+string LocalServerBrowser::GetBEAVUrl(string const& in)
 {
-	string fullPath = path + *in;
+	string fullPath = path + in;
 	string ret;
 
-	if (!sce_paf_strncmp(in->c_str(), "http", 4) || !sce_paf_strncmp(in->c_str(), "ftp", 3) || !sce_paf_strncmp(in->c_str(), "smb", 3))
+	if (!sce_paf_strncmp(in.c_str(), "http", 4) || !sce_paf_strncmp(in.c_str(), "ftp", 3) || !sce_paf_strncmp(in.c_str(), "smb", 3))
 	{
-		ret = *in;
+		ret = in;
 	}
 	else
 	{

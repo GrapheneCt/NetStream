@@ -98,11 +98,11 @@ string FtpServerBrowser::GetPath()
 	return ret;
 }
 
-string FtpServerBrowser::GetBEAVUrl(string *in)
+string FtpServerBrowser::GetBEAVUrl(string const& in)
 {
 	string ret = "http://";
 	CURLU *turl = curl_url_dup(url);
-	curl_url_set(turl, CURLUPART_URL, in->c_str(), 0);
+	curl_url_set(turl, CURLUPART_URL, in.c_str(), 0);
 	char *result;
 	curl_url_get(turl, CURLUPART_URL, &result, 0);
 	ret += result;
