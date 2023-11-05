@@ -86,8 +86,8 @@
   <string src="お気に入りの消去" id="msg_settings_youtube_clean_fav" />
   <string src="全ての履歴が削除されます。 続けますか？" id="msg_settings_youtube_clean_history_confirm" />
   <string src="全てのお気に入りが削除されます。 続けますか？" id="msg_settings_youtube_clean_fav_confirm" />
-  <string src="ダウンロード" id="msg_settings_youtube_download" />
-  <string src="ダウンロードオーディオ" id="msg_settings_youtube_download_audio" />
+  <string src="動画をダウンロードする" id="msg_settings_youtube_download" />
+  <string src="音声をダウンロードする" id="msg_settings_youtube_download_audio" />
   <string src="ダウンロードがキューに追加されました。" id="msg_settings_youtube_download_begin" />
 
 </stringset>
