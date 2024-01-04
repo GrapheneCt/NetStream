@@ -12,7 +12,7 @@
   <string src="さらにコメントを読み込む..." id="msg_youtube_comment_more" />
   <string src="コメントの詳細" id="msg_youtube_comment_detail" />
   <string src="コメントの返信" id="msg_youtube_comment_reply" />
-  <string src=" 好き" id="msg_youtube_comment_like_count" />
+  <string src="いいね数" id="msg_youtube_comment_like_count" />
 
   <string src="次のページ" id="msg_next_page" />
   <string src="前のページ" id="msg_previous_page" />
@@ -29,32 +29,32 @@
   
   <string src="ホストアドレス" id="msg_http_host" />
   <string src="ポート" id="msg_http_port" />
-  <string src="ユーザー" id="msg_http_user" />
+  <string src="ユーザー名" id="msg_http_user" />
   <string src="パスワード" id="msg_http_password" />
 
   <string src="ホストアドレス" id="msg_ftp_host" />
   <string src="ポート" id="msg_ftp_port" />
-  <string src="ユーザー" id="msg_ftp_user" />
+  <string src="ユーザー名" id="msg_ftp_user" />
   <string src="パスワード" id="msg_ftp_password" />
   <string src="NLSTを使用する" id="msg_ftp_nlst" />
   <string src="このオプションを有効にすると、NetStreamはLISTコマンドの代わりにNLSTコマンドをFTPサーバーに送信するようになります。このオプションは動作を高速化しますが、一部のFTPサーバーではサポートされていない場合があります。" id="msg_ftp_nlst_hint" />
 
-  <string src="Prefix For Relative .m3u8 Playlists" id="msg_local_playlist_prefix" />
-  <string src="Sort By Name" id="msg_local_sort_name" />
-  <string src="Sort By Type" id="msg_local_sort_type" />
-  <string src="Ascending" id="msg_option_local_sort_name_0" />
-  <string src="Descending" id="msg_option_local_sort_name_1" />
-  <string src="Folders First" id="msg_option_local_sort_type_0" />
-  <string src="Files First" id="msg_option_local_sort_type_1" />
+  <string src="相対的な.m3u8プレイリストのプレフィックス" id="msg_local_playlist_prefix" />
+  <string src="名前順の並べ替え" id="msg_local_sort_name" />
+  <string src="タイプ別の並べ替え" id="msg_local_sort_type" />
+  <string src="昇順" id="msg_option_local_sort_name_0" />
+  <string src="降順" id="msg_option_local_sort_name_1" />
+  <string src="フォルダーを先に" id="msg_option_local_sort_type_0" />
+  <string src="ファイルを先に" id="msg_option_local_sort_type_1" />
   
   <string src="優先するビデオの画質" id="msg_youtube_quality" />
-  <string src="優先するライブストリームの画質" id="msg_youtube_hls_quality" />
+  <string src="優先するライブ配信の画質" id="msg_youtube_hls_quality" />
 
-  <string src="邪悪な実例" id="msg_youtube_inv_instance" />
+  <string src="Invidiousインスタンス" id="msg_youtube_inv_instance" />
   <string src="地域" id="msg_youtube_region" />
-  <string src="ソート" id="msg_youtube_search_sort" />
+  <string src="並べ替え" id="msg_youtube_search_sort" />
   <string src="日付" id="msg_youtube_search_date" />
-  <string src="ソート" id="msg_youtube_comment_sort" />
+  <string src="並べ替え" id="msg_youtube_comment_sort" />
   
   <string src="関連性" id="msg_option_search_sort_0" />
   <string src="評価" id="msg_option_search_sort_1" />
@@ -68,26 +68,26 @@
   <string src="年" id="msg_option_search_date_4" />
   <string src="全て" id="msg_option_search_date_5" />
   
-  <string src="トップ" id="msg_option_comment_sort_0" />
-  <string src="新しい" id="msg_option_comment_sort_1" />
+  <string src="評価順" id="msg_option_comment_sort_0" />
+  <string src="新しい順" id="msg_option_comment_sort_1" />
   
-  <string src="360P" id="msg_option_youtube_quality_0" />
-  <string src="720P" id="msg_option_youtube_quality_1" />
+  <string src="360p" id="msg_option_youtube_quality_0" />
+  <string src="720p" id="msg_option_youtube_quality_1" />
   
-  <string src="144P" id="msg_option_youtube_hls_quality_0" />
-  <string src="240P" id="msg_option_youtube_hls_quality_1" />
-  <string src="360P" id="msg_option_youtube_hls_quality_2" />
-  <string src="480P" id="msg_option_youtube_hls_quality_3" />
-  <string src="720P" id="msg_option_youtube_hls_quality_4" />
+  <string src="144p" id="msg_option_youtube_hls_quality_0" />
+  <string src="240p" id="msg_option_youtube_hls_quality_1" />
+  <string src="360p" id="msg_option_youtube_hls_quality_2" />
+  <string src="480p" id="msg_option_youtube_hls_quality_3" />
+  <string src="720p" id="msg_option_youtube_hls_quality_4" />
 
-  <string src="最小化して開始" id="msg_toggle_youtube_min" />
+  <string src="最小化して開始する" id="msg_toggle_youtube_min" />
 
   <string src="履歴の消去" id="msg_settings_youtube_clean_history" />
   <string src="お気に入りの消去" id="msg_settings_youtube_clean_fav" />
   <string src="全ての履歴が削除されます。 続けますか？" id="msg_settings_youtube_clean_history_confirm" />
   <string src="全てのお気に入りが削除されます。 続けますか？" id="msg_settings_youtube_clean_fav_confirm" />
-  <string src="ダウンロード" id="msg_settings_youtube_download" />
-  <string src="ダウンロードオーディオ" id="msg_settings_youtube_download_audio" />
+  <string src="動画をダウンロードする" id="msg_settings_youtube_download" />
+  <string src="音声をダウンロードする" id="msg_settings_youtube_download_audio" />
   <string src="ダウンロードがキューに追加されました。" id="msg_settings_youtube_download_begin" />
 
 </stringset>
