@@ -75,7 +75,7 @@ void menu::Settings::Init()
 #endif
 	*verinfo += WIDE(__DATE__);
 	*verinfo += L" v 3.13";
-	s_verinfo = (wchar_t *)verinfo->c_str();
+	s_verinfo = verinfo->c_str();
 }
 
 menu::Settings::~Settings()
@@ -99,7 +99,8 @@ menu::Settings::Settings()
 	}
 
 	menu::GenericMenu *topMenu = menu::GetTopMenu();
-	if (topMenu) {
+	if (topMenu)
+	{
 		topMenu->DisableInput();
 	}
 
@@ -118,7 +119,7 @@ menu::Settings::Settings()
 	ifCb.onGetSurfaceCb = CBOnGetSurface;
 
 	Plugin *appSetPlug = paf::Plugin::Find("app_settings_plugin");
-	const AppSettings::Interface *appSetIf = (const sce::AppSettings::Interface *)appSetPlug->GetInterface(1);
+	const AppSettings::Interface *appSetIf = static_cast<const sce::AppSettings::Interface *>(appSetPlug->GetInterface(1));
 	appSetIf->Show(&ifCb);
 
 	s_instance = this;

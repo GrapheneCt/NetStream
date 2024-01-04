@@ -44,34 +44,28 @@ namespace menu {
 		{
 		public:
 
-			PadListener(PlayerSimple *work) : InputListener(inputdevice::DEVICE_TYPE_PAD), workObj(work)
+			PadListener(PlayerSimple *parent) : InputListener(inputdevice::DEVICE_TYPE_PAD), m_parent(parent)
 			{
 
 			}
 
 			void OnUpdate(inputdevice::Data *data)
 			{
-				workObj->PadUpdate(data);
+				m_parent->OnPadUpdate(data);
 			}
 
 		private:
 
-			PlayerSimple *workObj;
+			PlayerSimple *m_parent;
 		};
 
 		typedef void(*PlayerSimpleCallback)(PlayerSimple *player, void *pUserArg);
 
-		static void VideoPlaneCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void ProgressBarCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void BackButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void PlayButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void WholeRepeatButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void GenericPlayerStateCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static int32_t PowerCallback(SceUID notifyId, int32_t notifyCount, int32_t notifyArg, void *pCommon);
-
 		PlayerSimple(const char *url);
 
 		~PlayerSimple();
+
+		GenericPlayer *GetPlayer();
 
 		void SetScale(float scale);
 
@@ -88,49 +82,59 @@ namespace menu {
 
 		const uint32_t *GetSupportedSettingsItems(int32_t *count)
 		{
-			switch (settingsOverride)
+			switch (m_settingsOverride)
 			{
 			case SettingsOverride_None:
 				*count = 0;
-				return NULL;
+				return nullptr;
 			case SettingsOverride_YouTube:
 				*count = sizeof(k_settingsIdListYoutubeOverride) / sizeof(char*);
 				return k_settingsIdListYoutubeOverride;
 			}
 
-			return NULL;
+			return nullptr;
 		}
 
+	private:
+
+		static int32_t PowerCallback(SceUID notifyId, int32_t notifyCount, int32_t notifyArg, void *pCommon);
 		static void UpdateTask(void *pArgBlock);
-		void PadUpdate(inputdevice::Data *data);
+		void OnVideoPlaneTouch();
+		void OnProgressBarStateChange(int32_t type);
+		void OnBackButton();
+		void OnPlayButton();
+		void OnWholeRepeatButton();
+		void OnPowerCallback(int32_t notifyArg);
+		void OnGenericPlayerStateChange(int32_t state);
+		void OnUpdate();
+		void OnPadUpdate(inputdevice::Data *data);
 
-		ui::Widget *videoPlane;
-		ui::BusyIndicator *loadIndicator;
-		ui::Widget *leftAccText;
-		ui::Widget *rightAccText;
-		ui::Widget *statPlane;
-		ui::Widget *backButton;
-		ui::Widget *wholeRepeatButton;
+		ui::Widget *m_videoPlane;
+		ui::BusyIndicator *m_loadIndicator;
+		ui::Widget *m_leftAccText;
+		ui::Widget *m_rightAccText;
+		ui::Widget *m_statPlane;
+		ui::Widget *m_backButton;
+		ui::Widget *m_wholeRepeatButton;
 		ui::Text *elapsedTimeText;
-		ui::ProgressBarTouch *progressBar;
-		ui::Widget *progressPlane;
-		ui::Widget *playButton;
-		uint32_t oldCurrTime;
-		bool progressPlaneShown;
-		uint32_t progressPlaneShownTime;
-		bool isSeeking;
-		bool isLS;
-		uint32_t oldButtons;
-		GenericPlayer::PlayerState oldState;
-		int32_t accJumpTime;
-		uint32_t accStartTime;
-		AccJumpState accJumpState;
-		float currentScale;
-		SettingsOverride settingsOverride;
-		SceUID pwCbId;
-		common::SharedPtr<inputdevice::InputListener> padListener;
-
-		GenericPlayer *player;
+		ui::ProgressBarTouch *m_progressBar;
+		ui::Widget *m_progressPlane;
+		ui::Widget *m_playButton;
+		uint32_t m_oldCurrTime;
+		bool m_progressPlaneShown;
+		uint32_t m_progressPlaneShownTime;
+		bool m_isSeeking;
+		bool m_isLS;
+		uint32_t m_oldButtons;
+		GenericPlayer::PlayerState m_oldState;
+		int32_t m_accJumpTime;
+		uint32_t m_accStartTime;
+		AccJumpState m_accJumpState;
+		float m_currentScale;
+		SettingsOverride m_settingsOverride;
+		SceUID m_pwCbId;
+		common::SharedPtr<inputdevice::InputListener> m_padListener;
+		GenericPlayer *m_player;
 
 		const uint32_t k_settingsIdListYoutubeOverride[4] = {
 			youtube_search_setting,

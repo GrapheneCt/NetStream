@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\np_utils.cpp" />
     <ClCompile Include="source\player_beav.cpp" />
     <ClCompile Include="source\debug.cpp" />
     <ClCompile Include="source\dialog.cpp" />
@@ -37,6 +38,7 @@
     <ClCompile Include="source\yt_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\np_utils.h" />
     <ClInclude Include="include\player_beav.h" />
     <ClInclude Include="include\common.h" />
     <ClInclude Include="include\debug.h" />
@@ -129,7 +131,7 @@
       <AdditionalOptions>--no-standard-libraries </AdditionalOptions>
       <AdditionalLibraryDirectories>$(SCE_PSP2_SDK_DIR)\target\lib\vdsuite;$(ProjectDir)libs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateSnMapFile>FullMapFile</GenerateSnMapFile>
-      <AdditionalDependencies>-lSceIpmi_stub;-lSceSysmem_stub;-lSceThreadMgr_stub;-lSceThreadmgrCoredumpTime_stub;-lSceModuleMgr_stub;-lSceProcessMgr_stub;-lSceTouch_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceAppUtil_stub;-lSceAudio_stub;-lSceCtrl_stub;-lSceDisplay_stub;-lScePower_stub;-lSceSysmodule_stub;-lSceGxm_stub;-lSceDbg_stub;-lScePafThread_stub;-lScePafStdc_stub;-lScePafToplevel_stub;-lScePafResource_stub;-lScePafWidget_stub;-lScePafMisc_stub;-lScePafCommon_stub;-lScePafGraphics_stub;-lSceLibKernel_stub;-lSceNet_stub;-lSceNetCtl_stub;-lSceAppSettings_stub;-lSceCommonGuiDialog_stub;-lSceIniFileProcessor_stub;-lSceBEAVCorePlayer_stub;-lSceDmacmgr_stub;-lSceFiber_stub;-lSceVshBridge_stub;-ltaihenUnsafe_stub;-lInvidious_stub;-lLootkit_stub;-lcurl_stub;-lfmodstudio_stub;-lfmodngpext_stub;-lsnc;-lPafFileExt;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>-lSceIpmi_stub;-lSceSysmem_stub;-lSceThreadMgr_stub;-lSceThreadmgrCoredumpTime_stub;-lSceModuleMgr_stub;-lSceProcessMgr_stub;-lSceTouch_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceAppUtil_stub;-lSceAudio_stub;-lSceCtrl_stub;-lSceDisplay_stub;-lScePower_stub;-lSceSysmodule_stub;-lSceGxm_stub;-lSceDbg_stub;-lScePafThread_stub;-lScePafStdc_stub;-lScePafToplevel_stub;-lScePafResource_stub;-lScePafWidget_stub;-lScePafMisc_stub;-lScePafCommon_stub;-lScePafGraphics_stub;-lSceLibKernel_stub;-lSceNet_stub;-lSceNetCtl_stub;-lSceAppSettings_stub;-lSceCommonGuiDialog_stub;-lSceIniFileProcessor_stub;-lSceBEAVCorePlayer_stub;-lSceDmacmgr_stub;-lSceFiber_stub;-lSceVshBridge_stub;-lSceNpManager_stub;-lSceNpCommon_stub;-lSceNpBasic_stub;-lSceNpTus_stub;-ltaihenUnsafe_stub;-lInvidious_stub;-lLootkit_stub;-lcurl_stub;-lfmodstudio_stub;-lfmodngpext_stub;-lsnc;-lPafFileExt;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>"$(SCE_PSP2_SDK_DIR)/host_tools/build/bin/vdsuite-pubprx.exe" --boot-param "$(ProjectDir)ebootparam.bin" "$(LocalDebuggerCommand)" "$(OutDir)eboot.bin"</Command>
@@ -162,7 +164,7 @@
     <Link>
       <DuplicateStripping>true</DuplicateStripping>
       <AdditionalOptions>--no-standard-libraries</AdditionalOptions>
-      <AdditionalDependencies>-lSceIpmi_stub;-lSceSysmem_stub;-lSceThreadMgr_stub;-lSceThreadmgrCoredumpTime_stub;-lSceModuleMgr_stub;-lSceProcessMgr_stub;-lSceTouch_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceAppUtil_stub;-lSceAudio_stub;-lSceCtrl_stub;-lSceDisplay_stub;-lScePower_stub;-lSceSysmodule_stub;-lSceGxm_stub;-lSceDbg_stub;-lScePafThread_stub;-lScePafStdc_stub;-lScePafToplevel_stub;-lScePafResource_stub;-lScePafWidget_stub;-lScePafMisc_stub;-lScePafCommon_stub;-lScePafGraphics_stub;-lSceLibKernel_stub;-lSceNet_stub;-lSceNetCtl_stub;-lSceAppSettings_stub;-lSceCommonGuiDialog_stub;-lSceIniFileProcessor_stub;-lSceBEAVCorePlayer_stub;-lSceDmacmgr_stub;-lSceFiber_stub;-lSceVshBridge_stub;-ltaihenUnsafe_stub;-lInvidious_stub;-lLootkit_stub;-lcurl_stub;-lfmodstudio_stub;-lfmodngpext_stub;-lsnc;-lPafFileExt;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>-lSceIpmi_stub;-lSceSysmem_stub;-lSceThreadMgr_stub;-lSceThreadmgrCoredumpTime_stub;-lSceModuleMgr_stub;-lSceProcessMgr_stub;-lSceTouch_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceAppUtil_stub;-lSceAudio_stub;-lSceCtrl_stub;-lSceDisplay_stub;-lScePower_stub;-lSceSysmodule_stub;-lSceGxm_stub;-lSceDbg_stub;-lScePafThread_stub;-lScePafStdc_stub;-lScePafToplevel_stub;-lScePafResource_stub;-lScePafWidget_stub;-lScePafMisc_stub;-lScePafCommon_stub;-lScePafGraphics_stub;-lSceLibKernel_stub;-lSceNet_stub;-lSceNetCtl_stub;-lSceAppSettings_stub;-lSceCommonGuiDialog_stub;-lSceIniFileProcessor_stub;-lSceBEAVCorePlayer_stub;-lSceDmacmgr_stub;-lSceFiber_stub;-lSceVshBridge_stub;-lSceNpManager_stub;-lSceNpCommon_stub;-lSceNpBasic_stub;-lSceNpTus_stub;-ltaihenUnsafe_stub;-lInvidious_stub;-lLootkit_stub;-lcurl_stub;-lfmodstudio_stub;-lfmodngpext_stub;-lsnc;-lPafFileExt;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>call "$(ProjectDir)gen_rco.bat"

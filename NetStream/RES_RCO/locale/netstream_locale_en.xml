@@ -90,4 +90,6 @@
   <string src="Download Audio" id="msg_settings_youtube_download_audio" />
   <string src="Download has been added to the download queue." id="msg_settings_youtube_download_begin" />
 
+  <string src="PlayStation™Network error has occured. Cloud data sync will not be available. Make sure you are signed in to PlayStation™Network account." id="msg_error_psn_connection" />
+
 </stringset>

@@ -40,7 +40,7 @@ public:
 		PlayerState_Eof = 0x23
 	};
 
-	GenericPlayer() : target(NULL), initState(InitState_NotInit), limitFps(false), powerSaving(false)
+	GenericPlayer() : m_target(NULL), m_initState(InitState_NotInit), m_limitFps(false), m_powerSaving(false)
 	{
 
 	}
@@ -74,11 +74,11 @@ public:
 
 protected:
 
-	ui::Widget *target;
-	string path;
-	InitState initState;
-	bool limitFps;
-	bool powerSaving;
+	ui::Widget *m_target;
+	string m_path;
+	InitState m_initState;
+	bool m_limitFps;
+	bool m_powerSaving;
 };
 
 #endif

@@ -31,7 +31,10 @@ public:
 	{
 	public:
 
-		using job::JobItem::JobItem;
+		BootJob(FMODPlayer *parent) : job::JobItem("FMODPlayer::BootJob", NULL), m_parent(parent)
+		{
+
+		}
 
 		~BootJob() {}
 
@@ -39,7 +42,9 @@ public:
 
 		void Finish() {}
 
-		FMODPlayer *workObj;
+	private:
+
+		FMODPlayer *m_parent;
 	};
 
 	FMODPlayer(ui::Widget *targetPlane, const char *url);
@@ -78,8 +83,8 @@ private:
 
 	void SetInitState(InitState state);
 
-	FMOD::Sound *snd;
-	FMOD::Channel *ch;
+	FMOD::Sound *m_snd;
+	FMOD::Channel *m_ch;
 };
 
 #endif

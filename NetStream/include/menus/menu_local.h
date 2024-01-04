@@ -18,7 +18,7 @@ namespace menu {
 
 		Local()
 		{
-			browser = new LocalServerBrowser();
+			m_browser = new LocalServerBrowser();
 		}
 
 		MenuType GetMenuType()

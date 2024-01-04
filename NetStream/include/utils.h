@@ -13,8 +13,6 @@ using namespace paf;
 
 namespace utils
 {
-	typedef void(*TimeoutFunc)(void *userdata1, void *userdata2);
-
 	enum PowerTick
 	{
 		PowerTick_None,
@@ -50,20 +48,22 @@ namespace utils
 
 	string SafememRead(uint32_t offset = 0);
 
+	typedef void(*TimeoutFunc)(void *userdata1, void *userdata2);
+
 	class TimeoutListener : public TimerListener
 	{
 	public:
 
-		TimeoutListener(Timer *t, TimeoutFunc _func) : TimerListener(t, NULL), func(_func)
+		TimeoutListener(Timer *t, TimeoutFunc _func) : TimerListener(t, NULL), m_func(_func)
 		{
 
 		}
 
 		void OnFinish(void *data1, void *data2)
 		{
-			if (func)
+			if (m_func)
 			{
-				func(data1, data2);
+				m_func(data1, data2);
 			}
 			TimerListenerList::s_default_list->Unregister(this);
 			delete this;
@@ -71,10 +71,14 @@ namespace utils
 
 	private:
 
-		TimeoutFunc func;
+		TimeoutFunc m_func;
 	};
 
-	void SetTimeout(TimeoutFunc func, float timeoutMs, void *userdata1 = NULL, void *userdata2 = NULL);
+	typedef TimeoutListener* TimeoutID;
+
+	TimeoutID SetTimeout(TimeoutFunc func, float timeoutMs, void *userdata1 = NULL, void *userdata2 = NULL);
+
+	void ClearTimeout(TimeoutID id);
 };
 
 

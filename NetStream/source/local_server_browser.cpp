@@ -37,17 +37,17 @@ bool LocalServerBrowser::IsAtRoot(string *current)
 
 bool LocalServerBrowser::IsAtRoot()
 {
-	return path.empty();
+	return m_path.empty();
 }
 
 string LocalServerBrowser::GetPath()
 {
-	return path;
+	return m_path;
 }
 
 string LocalServerBrowser::GetBEAVUrl(string const& in)
 {
-	string fullPath = path + in;
+	string fullPath = m_path + in;
 	string ret;
 
 	if (!sce_paf_strncmp(in.c_str(), "http", 4) || !sce_paf_strncmp(in.c_str(), "ftp", 3) || !sce_paf_strncmp(in.c_str(), "smb", 3))
@@ -69,12 +69,12 @@ void LocalServerBrowser::SetPath(const char *ref)
 	{
 		if (!sce_paf_strcmp(ref, ".."))
 		{
-			char *tmp = (char *)sce_paf_malloc(path.length() + 1);
-			sce_paf_strcpy(tmp, path.c_str());
+			char *tmp = static_cast<char *>(sce_paf_malloc(m_path.length() + 1));
+			sce_paf_strcpy(tmp, m_path.c_str());
 			char *sptr = sce_paf_strrchr(tmp, '/');
 			if (!sptr)
 			{
-				path.clear();
+				m_path.clear();
 				sce_paf_free(tmp);
 				return;
 			}
@@ -86,17 +86,17 @@ void LocalServerBrowser::SetPath(const char *ref)
 			}
 			sptr += 1;
 			*sptr = 0;
-			path = tmp;
+			m_path = tmp;
 			sce_paf_free(tmp);
 		}
 		else
 		{
-			path += ref;
+			m_path += ref;
 		}
 	}
 	else
 	{
-		path.clear();
+		m_path.clear();
 	}
 }
 
@@ -170,7 +170,7 @@ vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, i
 
 	SetPath(ref);
 
-	SCE_DBG_LOG_INFO("[LOCAL] Attempt to open %s\n", path.c_str());
+	SCE_DBG_LOG_INFO("[LOCAL] Attempt to open %s\n", m_path.c_str());
 
 	if (ref)
 	{
@@ -255,7 +255,7 @@ vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, i
 			Dir dir;
 			DirEnt dentry;
 
-			if (dir.Open(path.c_str()) >= 0)
+			if (dir.Open(m_path.c_str()) >= 0)
 			{
 				while (dir.Read(&dentry) >= 0)
 				{

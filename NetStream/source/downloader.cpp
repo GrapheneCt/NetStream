@@ -19,7 +19,7 @@ Downloader::Downloader()
 	sce_paf_memset(&dw, 0, sizeof(sce::Download));
 	sce_paf_memset(&conf, 0, sizeof(IPMI::Client::Config));
 
-	sce_paf_strncpy((char *)conf.serviceName, "SceDownload", sizeof(conf.serviceName));
+	sce_paf_strncpy(reinterpret_cast<char *>(conf.serviceName), "SceDownload", sizeof(conf.serviceName));
 	conf.pipeBudgetType = IPMI::BudgetType_Default;
 	conf.numResponses = 1;
 	conf.requestQueueSize = 0x1E00;
@@ -101,10 +101,10 @@ int32_t Downloader::Enqueue(Plugin *workPlugin, const char *url, const char *nam
 	}
 
 	sce_paf_memset(&minfo.name, 0, sizeof(minfo.name));
-	sce_paf_strcpy((char *)minfo.name, name);
+	sce_paf_strcpy(reinterpret_cast<char *>(minfo.name), name);
 
 	dparam.bgdlLocation = 1;
-	sce_paf_strcpy((char *)dparam.url, url);
+	sce_paf_strcpy(reinterpret_cast<char *>(dparam.url), url);
 
 	dtInfo[0].data = &dparam;
 	dtInfo[0].dataSize = sizeof(sce::Download::DownloadParam);
@@ -123,7 +123,7 @@ int32_t Downloader::Enqueue(Plugin *workPlugin, const char *url, const char *nam
 		//invalid filename?
 		sce_paf_memset(&minfo.name, 0, sizeof(minfo.name));
 		char *ext = sce_paf_strrchr(name, '.');
-		sce_paf_snprintf((char *)minfo.name, sizeof(minfo.name), "DefaultFilename_%u%s", sceKernelGetProcessTimeLow(), ext);
+		sce_paf_snprintf(reinterpret_cast<char *>(minfo.name), sizeof(minfo.name), "DefaultFilename_%u%s", sceKernelGetProcessTimeLow(), ext);
 
 		ret2 = SCE_OK;
 		ret = dw.client->invokeSyncMethod(sce::Download::Method_Download, dtInfo, 3, &ret2, bfInfo, 1);
@@ -143,12 +143,7 @@ end:
 
 int32_t Downloader::EnqueueAsync(Plugin *workPlugin, const char *url, const char *name)
 {
-	AsyncEnqueue *dwJob = new AsyncEnqueue("Downloader::AsyncEnqueue");
-	dwJob->downloader = this;
-	dwJob->url8 = url;
-	dwJob->name8 = name;
-	dwJob->plugin = workPlugin;
-
+	AsyncEnqueue *dwJob = new AsyncEnqueue(workPlugin, this, url, name);
 	common::SharedPtr<job::JobItem> itemParam(dwJob);
 
 	return job::JobQueue::default_queue->Enqueue(itemParam);

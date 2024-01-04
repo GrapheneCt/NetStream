@@ -12,7 +12,7 @@ static paf::vector<menu::GenericMenu*> s_menuStack;
 
 void menu::SettingsButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
-	menu::Settings *set = new menu::Settings();
+	new menu::Settings();
 }
 
 menu::GenericMenu::GenericMenu(const char *name, MenuOpenParam const& oparam, MenuCloseParam const& cparam)
@@ -22,10 +22,10 @@ menu::GenericMenu::GenericMenu(const char *name, MenuOpenParam const& oparam, Me
 		return;
 	}
 
-	closeParam = cparam;
+	m_closeParam = cparam;
 
-	root = g_appPlugin->PageOpen(name, oparam);
-	root->SetName(name);
+	m_root = g_appPlugin->PageOpen(name, oparam);
+	m_root->SetName(name);
 
 	if (!s_menuStack.empty())
 	{
@@ -39,7 +39,7 @@ menu::GenericMenu::~GenericMenu()
 {
 	s_menuStack.pop_back();
 
-	g_appPlugin->PageClose(root->GetName(), closeParam);
+	g_appPlugin->PageClose(m_root->GetName(), m_closeParam);
 
 	if (!s_menuStack.empty())
 	{
@@ -49,34 +49,34 @@ menu::GenericMenu::~GenericMenu()
 
 void menu::GenericMenu::Deactivate(bool withDelay)
 {
-	Timer *t = NULL;
-	root->SetActivate(false);
+	Timer *t = nullptr;
+	m_root->SetActivate(false);
 	if (withDelay)
 	{
 		t = new Timer(200.0f);
 	}
-	root->Hide(t);
+	m_root->Hide(t);
 }
 
 void menu::GenericMenu::Activate()
 {
-	root->Show();
-	root->SetActivate(true);
+	m_root->Show();
+	m_root->SetActivate(true);
 }
 
 void menu::GenericMenu::DisableInput()
 {
-	root->SetActivate(false);
+	m_root->SetActivate(false);
 }
 
 void menu::GenericMenu::EnableInput()
 {
-	root->SetActivate(true);
+	m_root->SetActivate(true);
 }
 
-ui::Scene *menu::GenericMenu::GetRoot()
+ui::Scene *menu::GenericMenu::GetRoot() const
 {
-	return root;
+	return m_root;
 }
 
 void menu::DeactivateAll(uint32_t endMargin)
@@ -89,9 +89,9 @@ void menu::DeactivateAll(uint32_t endMargin)
 
 void menu::ActivateAll()
 {
-	for (int i = 0; i < s_menuStack.size(); i++)
+	for (auto menu : s_menuStack)
 	{
-		s_menuStack.at(i)->Activate();
+		menu->Activate();
 	}
 }
 
@@ -112,7 +112,7 @@ menu::GenericMenu *menu::GetTopMenu()
 		return s_menuStack.back();
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 uint32_t menu::GetMenuCount()

@@ -6,6 +6,7 @@
 #include "common.h"
 #include "downloader.h"
 #include "yt_utils.h"
+#include "np_utils.h"
 #include "invidious.h"
 
 using namespace paf;
@@ -21,7 +22,7 @@ int32_t ytutils::Log::GetNext(char *data)
 	char *sptr;
 	char val[2];
 
-	ret = ini->parse(data, val, sizeof(val));
+	ret = m_ini->parse(data, val, sizeof(val));
 
 	if (ret == SCE_OK)
 	{
@@ -52,22 +53,22 @@ int32_t ytutils::Log::Get(const char *data)
 		sptr = sce_paf_strchr(sptr, '=');
 	}
 
-	return  ini->get(dataCopy, val, sizeof(val), 0);
+	return  m_ini->get(dataCopy, val, sizeof(val), 0);
 }
 
 void ytutils::Log::Flush()
 {
-	ini->flush();
+	m_ini->flush();
 }
 
 int32_t ytutils::Log::GetSize()
 {
-	return ini->size();
+	return m_ini->size();
 }
 
 void ytutils::Log::Reset()
 {
-	ini->reset();
+	m_ini->reset();
 }
 
 void ytutils::Log::Add(const char *data)
@@ -85,8 +86,15 @@ void ytutils::Log::Add(const char *data)
 		sptr = sce_paf_strchr(sptr, '=');
 	}
 
-	ini->add(dataCopy, "");
-	ini->flush();
+	m_ini->add(dataCopy, "");
+	m_ini->flush();
+
+	if (m_tus != UINT_MAX)
+	{
+		sceClibPrintf("add of %u\n", m_tus);
+		UploadToTUS();
+		sceClibPrintf("add complete\n");
+	}
 }
 
 void ytutils::Log::AddAsyncJob::Run()
@@ -94,7 +102,7 @@ void ytutils::Log::AddAsyncJob::Run()
 	char *sptr;
 
 	// Replace '=' in playlists with '}' to not confuse INI processor
-	sptr = sce_paf_strchr(data.c_str(), '=');
+	sptr = sce_paf_strchr(m_data.c_str(), '=');
 
 	while (sptr)
 	{
@@ -102,15 +110,20 @@ void ytutils::Log::AddAsyncJob::Run()
 		sptr = sce_paf_strchr(sptr, '=');
 	}
 
-	workObj->ini->add(data.c_str(), "");
-	workObj->ini->flush();
+	m_parent->m_ini->add(m_data.c_str(), "");
+	m_parent->m_ini->flush();
+
+	if (m_parent->m_tus != UINT_MAX)
+	{
+		sceClibPrintf("add async of %u\n", m_parent->m_tus);
+		m_parent->UploadToTUS();
+		sceClibPrintf("add async\n");
+	}
 }
 
 void ytutils::Log::AddAsync(const char *data)
 {
-	AddAsyncJob *job = new AddAsyncJob("utils::AddAsyncJob");
-	job->workObj = this;
-	job->data = data;
+	AddAsyncJob *job = new AddAsyncJob(this, data);
 	common::SharedPtr<job::JobItem> itemParam(job);
 	job::JobQueue::default_queue->Enqueue(itemParam);
 }
@@ -130,11 +143,21 @@ void ytutils::Log::Remove(const char *data)
 		sptr = sce_paf_strchr(sptr, '=');
 	}
 
-	ini->del(dataCopy);
-	ini->flush();
+	m_ini->del(dataCopy);
+	m_ini->flush();
 }
 
-ytutils::HistLog::HistLog()
+int32_t ytutils::Log::UpdateFromTUS()
+{
+	return SCE_OK;
+}
+
+int32_t ytutils::Log::UploadToTUS()
+{
+	return SCE_OK;
+}
+
+ytutils::HistLog::HistLog(uint32_t tus) : Log(tus)
 {
 	uint32_t i = 0;
 	char val[2];
@@ -148,11 +171,11 @@ ytutils::HistLog::HistLog()
 	param.unk_0x4 = SCE_KERNEL_4KiB;
 	param.allocator = &alloc;
 
-	ini = new Ini::IniFileProcessor();
-	ini->initialize(&param);
-	ini->open("savedata0:yt_hist_log.ini", "rw", 0);
+	m_ini = new Ini::IniFileProcessor();
+	m_ini->initialize(&param);
+	m_ini->open("savedata0:yt_hist_log.ini", "rw", 0);
 
-	i = ini->size();
+	i = m_ini->size();
 	if (i <= k_maxHistItems)
 		return;
 
@@ -160,15 +183,77 @@ ytutils::HistLog::HistLog()
 
 	while (i != 0)
 	{
-		ini->parse(data, val, sizeof(val));
-		ini->del(data);
+		m_ini->parse(data, val, sizeof(val));
+		m_ini->del(data);
 		i--;
 	}
 
-	ini->reset();
+	m_ini->reset();
 }
 
-ytutils::FavLog::FavLog()
+int32_t ytutils::HistLog::UpdateFromTUS()
+{
+	int32_t ret = SCE_OK;
+
+	ret = nputils::GetTUS()->DownloadFile(m_tus, "savedata0:yt_hist_log_tus.ini");
+	if (ret < 0)
+	{
+		sceClibPrintf("update failed, uploading...\n");
+		LocalFile::RemoveFile("savedata0:yt_hist_log_tus.ini");
+		return UploadToTUS();
+	}
+
+	m_ini->close();
+	m_ini->terminate();
+	delete m_ini;
+
+	LocalFile::RemoveFile("savedata0:yt_hist_log.ini");
+	LocalFile::RenameFile("savedata0:yt_hist_log_tus.ini", "savedata0:yt_hist_log.ini");
+
+	uint32_t i = 0;
+	char val[2];
+	char data[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
+	Ini::InitParameter param;
+	Ini::MemAllocator alloc;
+	alloc.allocate = sce_paf_malloc;
+	alloc.deallocate = sce_paf_free;
+
+	param.workmemSize = SCE_KERNEL_4KiB;
+	param.unk_0x4 = SCE_KERNEL_4KiB;
+	param.allocator = &alloc;
+
+	m_ini = new Ini::IniFileProcessor();
+	m_ini->initialize(&param);
+	m_ini->open("savedata0:yt_hist_log.ini", "rw", 0);
+
+	i = m_ini->size();
+	if (i <= k_maxHistItems)
+		return;
+
+	i = i - k_maxHistItems;
+
+	while (i != 0)
+	{
+		m_ini->parse(data, val, sizeof(val));
+		m_ini->del(data);
+		i--;
+	}
+
+	m_ini->reset();
+}
+
+int32_t ytutils::HistLog::UploadToTUS()
+{
+	int32_t ret = SCE_OK;
+
+	m_ini->flush();
+
+	ret = nputils::GetTUS()->UploadFile(m_tus, "savedata0:yt_hist_log.ini");
+
+	return ret;
+}
+
+ytutils::FavLog::FavLog(uint32_t tus) : Log(tus)
 {
 	Ini::InitParameter param;
 	Ini::MemAllocator alloc;
@@ -179,18 +264,63 @@ ytutils::FavLog::FavLog()
 	param.unk_0x4 = SCE_KERNEL_4KiB;
 	param.allocator = &alloc;
 
-	ini = new Ini::IniFileProcessor();
-	ini->initialize(&param);
-	ini->open("savedata0:yt_fav_log.ini", "rw", 0);
+	m_ini = new Ini::IniFileProcessor();
+	m_ini->initialize(&param);
+	m_ini->open("savedata0:yt_fav_log.ini", "rw", 0);
+}
+
+int32_t ytutils::FavLog::UpdateFromTUS()
+{
+	int32_t ret = SCE_OK;
+
+	ret = nputils::GetTUS()->DownloadFile(m_tus, "savedata0:yt_fav_log_tus.ini");
+	if (ret < 0)
+	{
+		LocalFile::RemoveFile("savedata0:yt_fav_log_tus.ini");
+		return UploadToTUS();
+	}
+
+	m_ini->close();
+	m_ini->terminate();
+	delete m_ini;
+
+	LocalFile::RemoveFile("savedata0:yt_fav_log.ini");
+	LocalFile::RenameFile("savedata0:yt_fav_log_tus.ini", "savedata0:yt_fav_log.ini");
+
+	Ini::InitParameter param;
+	Ini::MemAllocator alloc;
+	alloc.allocate = sce_paf_malloc;
+	alloc.deallocate = sce_paf_free;
+
+	param.workmemSize = SCE_KERNEL_4KiB;
+	param.unk_0x4 = SCE_KERNEL_4KiB;
+	param.allocator = &alloc;
+
+	m_ini = new Ini::IniFileProcessor();
+	m_ini->initialize(&param);
+	m_ini->open("savedata0:yt_fav_log.ini", "rw", 0);
+}
+
+int32_t ytutils::FavLog::UploadToTUS()
+{
+	int32_t ret = SCE_OK;
+
+	m_ini->flush();
+
+	ret = nputils::GetTUS()->UploadFile(m_tus, "savedata0:yt_fav_log.ini");
+
+	return ret;
 }
 
 void ytutils::FavLog::Clean()
 {
 	if (s_favLog)
 	{
+		uint32_t oldTus = s_favLog->m_tus;
+		nputils::GetTUS()->UploadString(s_favLog->m_tus, " ");
 		delete s_favLog;
 		LocalFile::RemoveFile("savedata0:yt_fav_log.ini");
-		s_favLog = new ytutils::FavLog();
+		s_favLog = new ytutils::FavLog(oldTus);
 	}
 }
 
@@ -198,20 +328,22 @@ void ytutils::HistLog::Clean()
 {
 	if (s_histLog)
 	{
+		uint32_t oldTus = s_histLog->m_tus;
+		nputils::GetTUS()->UploadString(s_histLog->m_tus, " ");
 		delete s_histLog;
 		LocalFile::RemoveFile("savedata0:yt_hist_log.ini");
-		s_histLog = new ytutils::HistLog();
+		s_histLog = new ytutils::HistLog(oldTus);
 	}
 }
 
-void ytutils::Init()
+void ytutils::Init(uint32_t histTUS, uint32_t favTUS)
 {
 	invInit(sce_paf_malloc, sce_paf_free, NULL);
 
 	if (!s_histLog)
-		s_histLog = new ytutils::HistLog();
+		s_histLog = new ytutils::HistLog(histTUS);
 	if (!s_favLog)
-		s_favLog = new ytutils::FavLog();
+		s_favLog = new ytutils::FavLog(favTUS);
 
 	s_downloader = new Downloader();
 }

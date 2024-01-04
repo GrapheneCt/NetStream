@@ -19,7 +19,7 @@ int32_t twutils::Log::GetNext(char *data)
 	char *sptr;
 	char val[2];
 
-	ret = ini->parse(data, val, sizeof(val));
+	ret = m_ini->parse(data, val, sizeof(val));
 
 	if (ret == SCE_OK)
 	{
@@ -50,22 +50,22 @@ int32_t twutils::Log::Get(const char *data)
 		sptr = sce_paf_strchr(sptr, '=');
 	}
 
-	return  ini->get(dataCopy, val, sizeof(val), 0);
+	return  m_ini->get(dataCopy, val, sizeof(val), 0);
 }
 
 void twutils::Log::Flush()
 {
-	ini->flush();
+	m_ini->flush();
 }
 
 int32_t twutils::Log::GetSize()
 {
-	return ini->size();
+	return m_ini->size();
 }
 
 void twutils::Log::Reset()
 {
-	ini->reset();
+	m_ini->reset();
 }
 
 void twutils::Log::Add(const char *data)
@@ -83,8 +83,8 @@ void twutils::Log::Add(const char *data)
 		sptr = sce_paf_strchr(sptr, '=');
 	}
 
-	ini->add(dataCopy, "");
-	ini->flush();
+	m_ini->add(dataCopy, "");
+	m_ini->flush();
 }
 
 void twutils::Log::AddAsyncJob::Run()
@@ -92,7 +92,7 @@ void twutils::Log::AddAsyncJob::Run()
 	char *sptr;
 
 	// Replace '=' in playlists with '}' to not confuse INI processor
-	sptr = sce_paf_strchr(data.c_str(), '=');
+	sptr = sce_paf_strchr(m_data.c_str(), '=');
 
 	while (sptr)
 	{
@@ -100,15 +100,13 @@ void twutils::Log::AddAsyncJob::Run()
 		sptr = sce_paf_strchr(sptr, '=');
 	}
 
-	workObj->ini->add(data.c_str(), "");
-	workObj->ini->flush();
+	m_parent->m_ini->add(m_data.c_str(), "");
+	m_parent->m_ini->flush();
 }
 
 void twutils::Log::AddAsync(const char *data)
 {
-	AddAsyncJob *job = new AddAsyncJob("utils::AddAsyncJob");
-	job->workObj = this;
-	job->data = data;
+	AddAsyncJob *job = new AddAsyncJob(this, data);
 	common::SharedPtr<job::JobItem> itemParam(job);
 	job::JobQueue::default_queue->Enqueue(itemParam);
 }
@@ -128,8 +126,8 @@ void twutils::Log::Remove(const char *data)
 		sptr = sce_paf_strchr(sptr, '=');
 	}
 
-	ini->del(dataCopy);
-	ini->flush();
+	m_ini->del(dataCopy);
+	m_ini->flush();
 }
 
 twutils::HistLog::HistLog()
@@ -146,11 +144,11 @@ twutils::HistLog::HistLog()
 	param.unk_0x4 = SCE_KERNEL_4KiB;
 	param.allocator = &alloc;
 
-	ini = new Ini::IniFileProcessor();
-	ini->initialize(&param);
-	ini->open("savedata0:tw_hist_log.ini", "rw", 0);
+	m_ini = new Ini::IniFileProcessor();
+	m_ini->initialize(&param);
+	m_ini->open("savedata0:tw_hist_log.ini", "rw", 0);
 
-	i = ini->size();
+	i = m_ini->size();
 	if (i <= k_maxHistItems)
 		return;
 
@@ -158,12 +156,12 @@ twutils::HistLog::HistLog()
 
 	while (i != 0)
 	{
-		ini->parse(data, val, sizeof(val));
-		ini->del(data);
+		m_ini->parse(data, val, sizeof(val));
+		m_ini->del(data);
 		i--;
 	}
 
-	ini->reset();
+	m_ini->reset();
 }
 
 twutils::FavLog::FavLog()
@@ -177,9 +175,9 @@ twutils::FavLog::FavLog()
 	param.unk_0x4 = SCE_KERNEL_4KiB;
 	param.allocator = &alloc;
 
-	ini = new Ini::IniFileProcessor();
-	ini->initialize(&param);
-	ini->open("savedata0:tw_fav_log.ini", "rw", 0);
+	m_ini = new Ini::IniFileProcessor();
+	m_ini->initialize(&param);
+	m_ini->open("savedata0:tw_fav_log.ini", "rw", 0);
 }
 
 void twutils::FavLog::Clean()

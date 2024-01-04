@@ -92,6 +92,9 @@
     <ClCompile Include="source\player_fmod.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\np_utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\common.h">
@@ -179,6 +182,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\player_fmod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\np_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

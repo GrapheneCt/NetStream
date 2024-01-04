@@ -5,7 +5,7 @@
 //This file was generated automatically by psp2pafhshgen.exe
 //
 
-#define empva_plugin (0x58087ba2)
+#define netstream_plugin (0xb2fabc6f)
 #define page_first (0xe63e6133)
 #define plane_base_bg_page_first (0x94c4a1ca)
 #define template_ref_top_title_bar_page_first (0x3f9ee201)

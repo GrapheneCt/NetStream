@@ -31,22 +31,28 @@ private:
 	{
 	public:
 
-		using job::JobItem::JobItem;
+		AsyncEnqueue(Plugin *workPlugin, Downloader *downloader, const char *url, const char *name) :
+		job::JobItem("Downloader::AsyncEnqueue", NULL), m_plugin(workPlugin), m_downloader(downloader), m_url8(url), m_name8(name)
+		{
+
+		}
 
 		~AsyncEnqueue() {}
 
 		void Run()
 		{
-			Downloader *pdownloader = (Downloader *)downloader;
-			pdownloader->Enqueue(plugin, url8.c_str(), name8.c_str());
+			Downloader *pdownloader = (Downloader *)m_downloader;
+			pdownloader->Enqueue(m_plugin, m_url8.c_str(), m_name8.c_str());
 		}
 
 		void Finish() {}
 
-		string url8;
-		string name8;
-		void *downloader;
-		Plugin *plugin;
+	private:
+
+		string m_url8;
+		string m_name8;
+		void *m_downloader;
+		Plugin *m_plugin;
 	};
 
 	sce::Download dw;

@@ -11,6 +11,9 @@
 
 #define USER_AGENT "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
 
+#define NP_TUS_FAV_LOG_SLOT		(2)
+#define NP_TUS_HIST_LOG_SLOT	(1)
+
 using namespace paf;
 
 extern Plugin *g_appPlugin;

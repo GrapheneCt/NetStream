@@ -14,23 +14,37 @@ namespace menu {
 	{
 	public:
 
-		static void ListButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-
 		class ListViewFactory : public ui::listview::ItemFactory
 		{
 		public:
+
+			ListViewFactory(menu::First *parent) : m_parent(parent)
+			{
+
+			}
 
 			~ListViewFactory()
 			{
 
 			}
 
-			ui::ListItem* Create(CreateParam& param);
+			ui::ListItem* Create(CreateParam& param)
+			{
+				return m_parent->CreateListItem(param);
+			}
+
+		private:
+
+			menu::First *m_parent;
 		};
 
 		First();
 
 		~First();
+
+		ui::ListItem* CreateListItem(ui::listview::ItemFactory::CreateParam& param);
+
+		void OnListButton(ui::Widget *self);
 
 		MenuType GetMenuType()
 		{
@@ -40,7 +54,7 @@ namespace menu {
 		const uint32_t *GetSupportedSettingsItems(int32_t *count)
 		{
 			*count = 0;
-			return NULL;
+			return nullptr;
 		}
 	};
 }

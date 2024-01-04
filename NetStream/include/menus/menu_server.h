@@ -16,55 +16,69 @@ namespace menu {
 	{
 	public:
 
-		static void BackButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void ListButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void SettingsButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void PlayerEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void OptionMenuEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void ConnectionFailedDialogHandler(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-
-		static void PlayerCreateTimeoutFun(void *userdata1, void *userdata2);
-
 		class ListViewCb : public ui::listview::ItemFactory
 		{
 		public:
+
+			ListViewCb(GenericServerMenu *parent) : m_parent(parent)
+			{
+
+			}
 
 			~ListViewCb()
 			{
 
 			}
 
-			ui::ListItem *Create(CreateParam& param);
+			ui::ListItem *Create(CreateParam& param)
+			{
+				return m_parent->CreateListItem(param);
+			}
 
 			void Start(StartParam& param)
 			{
 				param.list_item->Show(common::transition::Type_Popup1);
 			}
 
-			GenericServerMenu *workObj;
+		private:
+
+			GenericServerMenu *m_parent;
 		};
 
 		class GoToJob : public job::JobItem
 		{
 		public:
 
-			using job::JobItem::JobItem;
+			GoToJob(GenericServerMenu *parent) : job::JobItem("Server::GoToJob", NULL), m_parent(parent)
+			{
+
+			}
 
 			~GoToJob() {}
 
-			void Run();
+			void Run()
+			{
+				m_parent->GoTo(m_targetRef);
+			}
 
 			void Finish() {}
 
-			GenericServerMenu *workObj;
-			string targetRef;
+			void SetRef(const string& ref)
+			{
+				m_targetRef = ref;
+			}
+
+		private:
+
+			GenericServerMenu *m_parent;
+			string m_targetRef;
 		};
 
 		class BrowserPage
 		{
 		public:
 
-			BrowserPage() : isLoaded(false)
+			BrowserPage() : m_isLoaded(false)
 			{
 
 			}
@@ -74,9 +88,9 @@ namespace menu {
 
 			}
 
-			vector<GenericServerBrowser::Entry *> *itemList;
-			ui::ListView *list;
-			bool isLoaded;
+			vector<GenericServerBrowser::Entry *> *m_itemList;
+			ui::ListView *m_list;
+			bool m_isLoaded;
 		};
 
 		GenericServerMenu();
@@ -87,18 +101,35 @@ namespace menu {
 
 		virtual const uint32_t *GetSupportedSettingsItems(int32_t *count) = 0;
 
+		ui::ListItem* CreateListItem(ui::listview::ItemFactory::CreateParam& param);
+
+		void GoTo(const string& ref);
+
 		bool PushBrowserPage(string *ref);
 
 		bool PopBrowserPage();
 
-		GenericServerBrowser *browser;
-		ui::Widget *browserRoot;
-		ui::BusyIndicator *loaderIndicator;
-		ui::Text *topText;
-		vector<BrowserPage *> pageList;
-		menu::PlayerSimple *player;
-		bool firstBoot;
-		bool playerFailed;
+	protected:
+
+		GenericServerBrowser *m_browser;
+
+	private:
+
+		void OnBackButton();
+		void OnListButton(ui::Widget *wdg);
+		void OnSettingsButton();
+		void OnPlayerEvent(int32_t type);
+		void OnOptionMenuEvent(int32_t type);
+		void OnConnectionFailedDialogEvent();
+		void OnPlayerCreateTimeout(GenericServerBrowser::Entry *entry);
+
+		ui::Widget *m_browserRoot;
+		ui::BusyIndicator *m_loaderIndicator;
+		ui::Text *m_topText;
+		vector<BrowserPage *> m_pageList;
+		menu::PlayerSimple *m_player;
+		bool m_firstBoot;
+		bool m_playerFailed;
 	};
 }
 

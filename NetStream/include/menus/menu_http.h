@@ -30,7 +30,7 @@ namespace menu {
 			settings->GetString("http_user", user, sizeof(user), "");
 			settings->GetString("http_password", password, sizeof(password), "");
 
-			browser = new HttpServerBrowser(host, port, user, password);
+			m_browser = new HttpServerBrowser(host, port, user, password);
 		}
 
 		MenuType GetMenuType()

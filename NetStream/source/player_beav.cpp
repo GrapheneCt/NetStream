@@ -79,13 +79,13 @@ void BEAVPlayer::LibLSInterface::Term()
 
 size_t BEAVPlayer::LibLSInterface::DownloadCore(char *buffer, size_t size, size_t nitems, void *userdata)
 {
-	CurlLsHandle *obj = (CurlLsHandle *)userdata;
+	CurlLsHandle *obj = static_cast<CurlLsHandle *>(userdata);
 	size_t toCopy = size * nitems;
 
 	if (toCopy != 0) {
-		obj->buf = sce_paf_realloc(obj->buf, obj->pos + toCopy);
-		sce_paf_memcpy(obj->buf + obj->pos, buffer, toCopy);
-		obj->pos += toCopy;
+		obj->m_buf = sce_paf_realloc(obj->m_buf, obj->m_pos + toCopy);
+		sce_paf_memcpy(static_cast<char *>(obj->m_buf) + obj->m_pos, buffer, toCopy);
+		obj->m_pos += toCopy;
 	}
 
 	return toCopy;
@@ -142,46 +142,47 @@ LSInputResult BEAVPlayer::LibLSInterface::Open(char *pcURI, uint64_t uOffset, ui
 	{
 		if (!sce_paf_strncmp(ext, ".m3u8", 5))
 		{
-			obj->curl = s_plCurl;
+			obj->m_curl = s_plCurl;
 			hasCurl = true;
 		}
 		else if (!sce_paf_strncmp(ext, ".ts", 3))
 		{
-			obj->curl = s_fileCurl;
+			obj->m_curl = s_fileCurl;
 			hasCurl = true;
 		}
 	}
 
 	if (!hasCurl)
 	{
-		obj->curl = curl_easy_init();
-		curl_easy_setopt(obj->curl, CURLOPT_WRITEFUNCTION, DownloadCore);
-		curl_easy_setopt(obj->curl, CURLOPT_USERAGENT, USER_AGENT);
-		curl_easy_setopt(obj->curl, CURLOPT_ACCEPT_ENCODING, "");
-		curl_easy_setopt(obj->curl, CURLOPT_SSL_VERIFYHOST, 0L);
-		curl_easy_setopt(obj->curl, CURLOPT_SSL_VERIFYPEER, 0L);
-		curl_easy_setopt(obj->curl, CURLOPT_FOLLOWLOCATION, 1L);
-		curl_easy_setopt(obj->curl, CURLOPT_TCP_KEEPALIVE, 1L);
-		curl_easy_setopt(obj->curl, CURLOPT_NOPROGRESS, 1L);
+		obj->m_curl = curl_easy_init();
+		curl_easy_setopt(obj->m_curl, CURLOPT_WRITEFUNCTION, DownloadCore);
+		curl_easy_setopt(obj->m_curl, CURLOPT_USERAGENT, USER_AGENT);
+		curl_easy_setopt(obj->m_curl, CURLOPT_ACCEPT_ENCODING, "");
+		curl_easy_setopt(obj->m_curl, CURLOPT_SSL_VERIFYHOST, 0L);
+		curl_easy_setopt(obj->m_curl, CURLOPT_SSL_VERIFYPEER, 0L);
+		curl_easy_setopt(obj->m_curl, CURLOPT_FOLLOWLOCATION, 1L);
+		curl_easy_setopt(obj->m_curl, CURLOPT_TCP_KEEPALIVE, 1L);
+		curl_easy_setopt(obj->m_curl, CURLOPT_NOPROGRESS, 1L);
 	}
 
-	curl_easy_setopt(obj->curl, CURLOPT_WRITEDATA, obj);
-	curl_easy_setopt(obj->curl, CURLOPT_URL, pcURI);
-	curl_easy_setopt(obj->curl, CURLOPT_CONNECTTIMEOUT_MS, uTimeOutMSecs);
+	curl_easy_setopt(obj->m_curl, CURLOPT_WRITEDATA, obj);
+	curl_easy_setopt(obj->m_curl, CURLOPT_URL, pcURI);
+	curl_easy_setopt(obj->m_curl, CURLOPT_CONNECTTIMEOUT_MS, uTimeOutMSecs);
 
 	if (uOffset)
 	{
-		curl_easy_setopt(obj->curl, CURLOPT_RESUME_FROM_LARGE, uOffset);
+		curl_easy_setopt(obj->m_curl, CURLOPT_RESUME_FROM_LARGE, uOffset);
 	}
 
-	CURLcode ret = curl_easy_perform(obj->curl);
-	if (ret != CURLE_OK) {
+	CURLcode ret = curl_easy_perform(obj->m_curl);
+	if (ret != CURLE_OK)
+	{
 		SCE_DBG_LOG_ERROR("[BEAV] LibLSInterface: curl_easy_perform returned %d\n", ret);
-		obj->lastError = ret;
+		obj->m_lastError = ret;
 		return ConvertError(ret);
 	}
 
-	*pHandle = (LSInputHandle)obj;
+	*pHandle = static_cast<LSInputHandle>(obj);
 
 	return LS_INPUT_OK;
 }
@@ -198,9 +199,9 @@ LSInputResult BEAVPlayer::LibLSInterface::GetSize(LSInputHandle handle, uint64_t
 		return LS_INPUT_ERROR_INVALID_SIZE_PTR;
 	}
 
-	CurlLsHandle *obj = (CurlLsHandle *)handle;
+	CurlLsHandle *obj = static_cast<CurlLsHandle *>(handle);
 
-	*pSize = (uint64_t)obj->pos;
+	*pSize = static_cast<uint64_t>(obj->m_pos);
 
 	return LS_INPUT_OK;
 }
@@ -222,24 +223,24 @@ LSInputResult BEAVPlayer::LibLSInterface::Read(LSInputHandle handle, void *pBuff
 		return LS_INPUT_ERROR_INVALID_SIZE_PTR;
 	}
 
-	CurlLsHandle *obj = (CurlLsHandle *)handle;
+	CurlLsHandle *obj = static_cast<CurlLsHandle *>(handle);
 
-	if (obj->readPos + uSize > obj->pos)
+	if (obj->m_readPos + uSize > obj->m_pos)
 	{
-		uSize = obj->pos - obj->readPos;
+		uSize = obj->m_pos - obj->m_readPos;
 	}
 	if (uSize != 0)
 	{
-		sce_paf_memcpy(pBuffer, obj->buf + obj->readPos, uSize);
+		sce_paf_memcpy(pBuffer, static_cast<char *>(obj->m_buf) + obj->m_readPos, uSize);
 	}
 	else
 	{
-		sce_paf_free(obj->buf);
-		obj->buf = NULL;
-		obj->pos = 0;
-		obj->readPos = 0;
+		sce_paf_free(obj->m_buf);
+		obj->m_buf = NULL;
+		obj->m_pos = 0;
+		obj->m_readPos = 0;
 	}
-	obj->readPos += uSize;
+	obj->m_readPos += uSize;
 
 	*pReadSize = uSize;
 
@@ -253,14 +254,14 @@ LSInputResult BEAVPlayer::LibLSInterface::Abort(LSInputHandle handle)
 		return LS_INPUT_ERROR_INVALID_HANDLE;
 	}
 
-	CurlLsHandle *obj = (CurlLsHandle *)handle;
+	CurlLsHandle *obj = static_cast<CurlLsHandle *>(handle);
 
-	if (obj->buf)
+	if (obj->m_buf)
 	{
-		sce_paf_free(obj->buf);
-		obj->buf = NULL;
-		obj->pos = 0;
-		obj->readPos = 0;
+		sce_paf_free(obj->m_buf);
+		obj->m_buf = NULL;
+		obj->m_pos = 0;
+		obj->m_readPos = 0;
 	}
 
 	return LS_INPUT_OK;
@@ -278,12 +279,12 @@ LSInputResult BEAVPlayer::LibLSInterface::Close(LSInputHandle *pHandle)
 		return LS_INPUT_ERROR_INVALID_HANDLE;
 	}
 
-	CurlLsHandle *obj = (CurlLsHandle *)*pHandle;
+	CurlLsHandle *obj = static_cast<CurlLsHandle *>(*pHandle);
 
 	Abort(*pHandle);
-	if (obj->curl != s_plCurl && obj->curl != s_fileCurl)
+	if (obj->m_curl != s_plCurl && obj->m_curl != s_fileCurl)
 	{
-		curl_easy_cleanup(obj->curl);
+		curl_easy_cleanup(obj->m_curl);
 	}
 	sce_paf_free(*pHandle);
 
@@ -302,9 +303,9 @@ LSInputResult BEAVPlayer::LibLSInterface::GetLastError(LSInputHandle handle, uin
 		return LS_INPUT_ERROR_INVALID_HANDLE;
 	}
 
-	CurlLsHandle *obj = (CurlLsHandle *)handle;
+	CurlLsHandle *obj = static_cast<CurlLsHandle *>(handle);
 
-	*pNativeError = obj->lastError;
+	*pNativeError = obj->m_lastError;
 
 	return LS_INPUT_OK;
 }
@@ -318,7 +319,7 @@ void BEAVPlayer::BEAVAudioThread::EntryFunction()
 
 	while (err != true)
 	{
-		err = sceBeavCorePlayerGetAudioData(playerCore, &data);
+		err = sceBeavCorePlayerGetAudioData(m_playerCore, &data);
 		if (IsCanceled())
 		{
 			Cancel();
@@ -329,7 +330,7 @@ void BEAVPlayer::BEAVAudioThread::EntryFunction()
 
 	SCE_DBG_LOG_INFO("[BEAV] Audio: uSampleRate: %u, uChannelCount: %u\n", data.uSampleRate, data.uChannelCount);
 
-	workObj->SetInitState(InitState_InitOk);
+	m_parent->SetInitState(InitState_InitOk);
 
 	void *silence = sce_paf_malloc(data.uBufSize);
 	sce_paf_memset(silence, 0, data.uBufSize);
@@ -340,7 +341,7 @@ void BEAVPlayer::BEAVAudioThread::EntryFunction()
 
 	while (!IsCanceled())
 	{
-		err = sceBeavCorePlayerGetAudioData(playerCore, &data);
+		err = sceBeavCorePlayerGetAudioData(m_playerCore, &data);
 		if (err == true)
 			sceAudioOutOutput(port, data.pBuffer);
 		else
@@ -359,31 +360,31 @@ void BEAVPlayer::BEAVVideoThread::SurfaceUpdateTask(void *pArgBlock)
 	SceBeavCorePlayerVideoData data;
 	SceBeavCorePlayerAdvanceInfo adata;
 	int32_t err = false;
-	BEAVPlayer::BEAVVideoThread *vthread = (BEAVPlayer::BEAVVideoThread *)pArgBlock;
+	BEAVVideoThread *vthread = static_cast<BEAVVideoThread *>(pArgBlock);
 
-	err = sceBeavCorePlayerGetVideoData(vthread->playerCore, &data);
-	if (vthread->limitFps || vthread->workObj->powerSaving)
+	err = sceBeavCorePlayerGetVideoData(vthread->m_playerCore, &data);
+	if (vthread->m_limitFps || vthread->m_parent->m_powerSaving)
 	{
 		sceDisplayWaitVblankStartMulti(2);
 	}
 	if (data.pFrameBuffer != NULL && !vthread->IsCanceled())
 	{
-		sceBeavCorePlayerAdvance(vthread->playerCore, data.pObj, &adata);
-		if ((err == true || vthread->limitFps) && !vthread->workObj->powerSaving)
+		sceBeavCorePlayerAdvance(vthread->m_playerCore, data.pObj, &adata);
+		if ((err == true || vthread->m_limitFps) && !vthread->m_parent->m_powerSaving)
 		{
-			int32_t currIdx = vthread->surfIdx;
+			int32_t currIdx = vthread->m_surfIdx;
 			void *dst = NULL;
 			if (data.uTexWidth == data.uTexPitch)
 			{
-				dst = vthread->drawSurf[currIdx]->Lock();
+				dst = vthread->m_drawSurf[currIdx]->Lock();
 				sceDmacMemcpy(dst, data.pFrameBuffer, data.uTexWidth * data.uTexHeight * 4);
-				vthread->drawSurf[currIdx]->Unlock();
+				vthread->m_drawSurf[currIdx]->Unlock();
 			}
 			else
 			{
 				if (Framework::Instance()->GetMode() == Framework::Mode_Normal)
 				{
-					dst = vthread->drawSurf[currIdx]->Lock();
+					dst = vthread->m_drawSurf[currIdx]->Lock();
 					sceGxmTransferCopy(
 						data.uTexWidth,
 						data.uTexHeight,
@@ -407,15 +408,15 @@ void BEAVPlayer::BEAVVideoThread::SurfaceUpdateTask(void *pArgBlock)
 						NULL
 					);
 					sceGxmTransferFinish();
-					vthread->drawSurf[currIdx]->Unlock();
+					vthread->m_drawSurf[currIdx]->Unlock();
 				}
 				else
 				{
-					vthread->drawSurf[currIdx]->Copy(0, data.pFrameBuffer, ImageOrder_Linear, data.uTexPitch * 4);
+					vthread->m_drawSurf[currIdx]->Copy(0, data.pFrameBuffer, ImageOrder_Linear, data.uTexPitch * 4);
 				}
 			}
-			vthread->target->SetTexture(vthread->drawSurf[currIdx]);
-			vthread->surfIdx ^= 1;
+			vthread->m_target->SetTexture(vthread->m_drawSurf[currIdx]);
+			vthread->m_surfIdx ^= 1;
 		}
 	}
 }
@@ -424,7 +425,7 @@ void BEAVPlayer::BEAVVideoThread::EntryFunction()
 {
 	int32_t err = false;
 	SceBeavCorePlayerVideoData data;
-	surfIdx = 0;
+	m_surfIdx = 0;
 
 	SCE_DBG_LOG_INFO("[BEAV] BEAVVideoThread start\n");
 
@@ -432,8 +433,8 @@ void BEAVPlayer::BEAVVideoThread::EntryFunction()
 
 	while (err == false || data.pFrameBuffer == NULL)
 	{
-		sceBeavCorePlayerGetVideoData(playerCore, &data);
-		err = sceBeavCorePlayerIsReady(playerCore);
+		sceBeavCorePlayerGetVideoData(m_playerCore, &data);
+		err = sceBeavCorePlayerIsReady(m_playerCore);
 		if (IsCanceled())
 		{
 			Cancel();
@@ -448,13 +449,13 @@ void BEAVPlayer::BEAVVideoThread::EntryFunction()
 	//if (aspect > 1.78f || aspect < 1.76f)
 	{
 		//SCE_DBG_LOG_INFO("[BEAV] Suspicious aspect ratio (%.03f), so respect it\n", aspect);
-		graph::PlaneObj *po = (graph::PlaneObj *)target->GetDrawObj(ui::Plane::OBJ_PLANE);
+		graph::PlaneObj *po = static_cast<graph::PlaneObj *>(m_target->GetDrawObj(ui::Plane::OBJ_PLANE));
 		po->SetScaleMode(graph::PlaneObj::SCALE_ASPECT_SIZE, graph::PlaneObj::SCALE_ASPECT_SIZE);
 	}
 
 	for (int i = 0; i < BEAV_SURFACE_COUNT; i++)
 	{
-		drawSurf[i] = new graph::Surface(s_beavSurfacePool, data.uTexWidth, data.uTexHeight, ImageMode_RGBA8888, ImageOrder_Linear, 1, 1, 0);
+		m_drawSurf[i] = new graph::Surface(s_beavSurfacePool, data.uTexWidth, data.uTexHeight, ImageMode_RGBA8888, ImageOrder_Linear, 1, 1, 0);
 	}
 
 	common::MainThreadCallList::Register(SurfaceUpdateTask, this);
@@ -466,11 +467,11 @@ void BEAVPlayer::BEAVVideoThread::EntryFunction()
 
 	common::MainThreadCallList::Unregister(SurfaceUpdateTask, this);
 
-	target->SetTexture(g_texTransparent);
+	m_target->SetTexture(g_texTransparent);
 
 	for (int i = 0; i < BEAV_SURFACE_COUNT; i++)
 	{
-		drawSurf[i].clear();
+		m_drawSurf[i].clear();
 	}
 
 	Cancel();
@@ -479,77 +480,70 @@ void BEAVPlayer::BEAVVideoThread::EntryFunction()
 void BEAVPlayer::BootJob::Run()
 {
 	int32_t ret = false;
-	workObj->playerCore = 0;
-	workObj->videoThread = NULL;
-	workObj->audioThread = NULL;
-	workObj->notifyCbMem = NULL;
+	m_parent->m_playerCore = 0;
+	m_parent->m_videoThread = NULL;
+	m_parent->m_audioThread = NULL;
+	m_parent->m_notifyCbMem = NULL;
 
 	ret = sceBeavCorePlayerInitialize();
 	if (!ret)
 	{
-		workObj->SetInitState(InitState_InitFail);
+		m_parent->SetInitState(InitState_InitFail);
 		return;
 	}
 
-	workObj->playerCore = sceBeavCorePlayerCreate();
-	if (!workObj->playerCore)
+	m_parent->m_playerCore = sceBeavCorePlayerCreate();
+	if (!m_parent->m_playerCore)
 	{
-		workObj->SetInitState(InitState_InitFail);
+		m_parent->SetInitState(InitState_InitFail);
 		return;
 	}
 
-	workObj->notifyCbMem = sce_paf_malloc(64);
-	sceBeavCorePlayerSetNotifyCallback(workObj->playerCore, workObj->notifyCbMem, PlayerNotifyCb);
+	m_parent->m_notifyCbMem = sce_paf_malloc(64);
+	sceBeavCorePlayerSetNotifyCallback(m_parent->m_playerCore, m_parent->m_notifyCbMem, PlayerNotifyCb);
 
-	sceBeavCorePlayerSetAgent(workObj->playerCore, USER_AGENT);
+	sceBeavCorePlayerSetAgent(m_parent->m_playerCore, USER_AGENT);
 
-	ret = sceBeavCorePlayerSetVideoBuffer(workObj->playerCore, BEAV_VIDEO_BUFFER_WIDTH, BEAV_VIDEO_BUFFER_HEIGHT, BEAV_VIDEO_BUFFER_COUNT, s_beavDecodeMem);
+	ret = sceBeavCorePlayerSetVideoBuffer(m_parent->m_playerCore, BEAV_VIDEO_BUFFER_WIDTH, BEAV_VIDEO_BUFFER_HEIGHT, BEAV_VIDEO_BUFFER_COUNT, s_beavDecodeMem);
 	if (ret != 0)
 	{
-		workObj->SetInitState(InitState_InitFail);
+		m_parent->SetInitState(InitState_InitFail);
 		return;
 	}
 
-	ret = sceBeavCorePlayerSetPgdCachePath(workObj->playerCore, "", SCE_KERNEL_16MiB, 0x21, SCE_KERNEL_64KiB, -1);
+	ret = sceBeavCorePlayerSetPgdCachePath(m_parent->m_playerCore, "", SCE_KERNEL_16MiB, 0x21, SCE_KERNEL_64KiB, -1);
 	if (ret != 0)
 	{
-		workObj->SetInitState(InitState_InitFail);
+		m_parent->SetInitState(InitState_InitFail);
 		return;
 	}
 
-	sceBeavCorePlayerSetHlsBandwidthOpt(workObj->playerCore, SCE_BEAV_CORE_PLAYER_BW_SELECT_HIGHEST, 2920, 2000, 4000);
+	sceBeavCorePlayerSetHlsBandwidthOpt(m_parent->m_playerCore, SCE_BEAV_CORE_PLAYER_BW_SELECT_HIGHEST, 2920, 2000, 4000);
 
-	ret = sceBeavCorePlayerOpenTargetUrl(workObj->playerCore, workObj->path.c_str(), true);
+	ret = sceBeavCorePlayerOpenTargetUrl(m_parent->m_playerCore, m_parent->m_path.c_str(), true);
 	if (ret != 1)
 	{
-		workObj->SetInitState(InitState_InitFail);
+		m_parent->SetInitState(InitState_InitFail);
 		return;
 	}
 
 	thread::Thread::Option opt;
-	opt.affinity = SCE_KERNEL_CPU_MASK_USER_1;
 
-	workObj->videoThread = new BEAVVideoThread(SCE_KERNEL_HIGHEST_PRIORITY_USER + 10, SCE_KERNEL_16KiB, "BEAVVideoThread", &opt);
-	workObj->videoThread->target = workObj->target;
-	workObj->videoThread->playerCore = workObj->playerCore;
-	workObj->videoThread->limitFps = workObj->limitFps;
-	workObj->videoThread->workObj = workObj;
+	opt.affinity = SCE_KERNEL_CPU_MASK_USER_1;
+	m_parent->m_videoThread = new BEAVVideoThread(m_parent, m_parent->m_target, m_parent->m_playerCore, m_parent->m_limitFps, &opt);
 
 	opt.affinity = SCE_KERNEL_CPU_MASK_USER_2;
+	m_parent->m_audioThread = new BEAVAudioThread(m_parent, m_parent->m_playerCore, &opt);
 
-	workObj->audioThread = new BEAVAudioThread(SCE_KERNEL_HIGHEST_PRIORITY_USER + 1, SCE_KERNEL_16KiB, "BEAVAudioThread", &opt);
-	workObj->audioThread->playerCore = workObj->playerCore;
-	workObj->audioThread->workObj = workObj;
-
-	workObj->videoThread->Start();
-	workObj->audioThread->Start();
+	m_parent->m_videoThread->Start();
+	m_parent->m_audioThread->Start();
 }
 
 BEAVPlayer::BEAVPlayer(ui::Widget *targetPlane, const char *url)
 {
 	SCE_DBG_LOG_INFO("[BEAV] Open url: %s\n", url);
-	target = targetPlane;
-	path = url;
+	m_target = targetPlane;
+	m_path = url;
 }
 
 BEAVPlayer::~BEAVPlayer()
@@ -559,8 +553,7 @@ BEAVPlayer::~BEAVPlayer()
 
 void BEAVPlayer::InitAsync()
 {
-	BootJob *job = new BootJob("BEAVPlayer::BootJob");
-	job->workObj = this;
+	BootJob *job = new BootJob(this);
 	common::SharedPtr<job::JobItem> itemParam(job);
 	utils::GetJobQueue()->Enqueue(itemParam);
 	SetInitState(InitState_InProgress);
@@ -568,37 +561,37 @@ void BEAVPlayer::InitAsync()
 
 void BEAVPlayer::Term()
 {
-	if (initState != InitState_NotInit)
+	if (m_initState != InitState_NotInit)
 	{
-		if (playerCore)
+		if (m_playerCore)
 		{
-			sceBeavCorePlayerStop(playerCore);
+			sceBeavCorePlayerStop(m_playerCore);
 		}
 
-		if (videoThread)
+		if (m_videoThread)
 		{
-			videoThread->Cancel();
-			videoThread->Join();
-			delete videoThread;
+			m_videoThread->Cancel();
+			m_videoThread->Join();
+			delete m_videoThread;
 		}
 
-		if (audioThread)
+		if (m_audioThread)
 		{
-			audioThread->Cancel();
-			audioThread->Join();
-			delete audioThread;
+			m_audioThread->Cancel();
+			m_audioThread->Join();
+			delete m_audioThread;
 		}
 
-		if (playerCore)
+		if (m_playerCore)
 		{
-			sceBeavCorePlayerDestroy(playerCore);
+			sceBeavCorePlayerDestroy(m_playerCore);
 		}
 
 		sceBeavCorePlayerFinalize();
 
-		if (notifyCbMem)
+		if (m_notifyCbMem)
 		{
-			sce_paf_free(notifyCbMem);
+			sce_paf_free(m_notifyCbMem);
 		}
 	}
 
@@ -607,55 +600,55 @@ void BEAVPlayer::Term()
 
 GenericPlayer::InitState BEAVPlayer::GetInitState()
 {
-	return initState;
+	return m_initState;
 }
 
 void BEAVPlayer::SetInitState(GenericPlayer::InitState state)
 {
-	initState = state;
+	m_initState = state;
 	SCE_DBG_LOG_INFO("[BEAV] State changed to: %d\n", state);
-	event::BroadcastGlobalEvent(g_appPlugin, GenericPlayerChangeState, initState);
+	event::BroadcastGlobalEvent(g_appPlugin, GenericPlayerChangeState, m_initState);
 }
 
 uint32_t BEAVPlayer::GetTotalTimeMs()
 {
-	return sceBeavCorePlayerGetTotalTime(playerCore);
+	return sceBeavCorePlayerGetTotalTime(m_playerCore);
 }
 
 uint32_t BEAVPlayer::GetCurrentTimeMs()
 {
-	return sceBeavCorePlayerGetElapsedTime(playerCore);
+	return sceBeavCorePlayerGetElapsedTime(m_playerCore);
 }
 
 bool BEAVPlayer::JumpToTimeMs(uint32_t time)
 {
 	SCE_DBG_LOG_INFO("[BEAV] JumpToTime | seconds: %u\n", time / 1000);
-	return sceBeavCorePlayerJumpToTimeCode(playerCore, time / 1000);
+	return sceBeavCorePlayerJumpToTimeCode(m_playerCore, time / 1000);
 }
 
 GenericPlayer::PlayerState BEAVPlayer::GetState()
 {
-	return (GenericPlayer::PlayerState)sceBeavCorePlayerGetPlayerState(playerCore);
+	return static_cast<GenericPlayer::PlayerState>(sceBeavCorePlayerGetPlayerState(m_playerCore));
 }
 
 void BEAVPlayer::SetPowerSaving(bool enable)
 {
-	powerSaving = enable;
+	m_powerSaving = enable;
 }
 
 void BEAVPlayer::LimitFPS(bool enable)
 {
-	limitFps = enable;
+	m_limitFps = enable;
 }
 
 void BEAVPlayer::SwitchPlaybackState()
 {
-	sceBeavCorePlayerSwitchPlayState(playerCore);
+	sceBeavCorePlayerSwitchPlayState(m_playerCore);
 }
 
 bool BEAVPlayer::IsPaused()
 {
-	return sceBeavCorePlayerIsPaused(playerCore);
+	return sceBeavCorePlayerIsPaused(m_playerCore);
 }
 
 uint32_t BEAVPlayer::GetFreeHeapSize()
@@ -689,7 +682,7 @@ void BEAVPlayer::PreInit()
 #endif
 
 	LibLSInterface::Init();
-	sceBeavCorePlayerLsHttpSetInputPluginInterface((SceBeavCorePlayerLsInputPluginInterface *)new LibLSInterface());
+	sceBeavCorePlayerLsHttpSetInputPluginInterface(reinterpret_cast<SceBeavCorePlayerLsInputPluginInterface *>(new LibLSInterface()));
 
 	uint32_t surfacePoolSize = BEAV_VIDEO_BUFFER_WIDTH * BEAV_VIDEO_BUFFER_HEIGHT * 4 * BEAV_VIDEO_BUFFER_COUNT * BEAV_SURFACE_COUNT;
 	void *poolMem = GraphMem::AllocOSMemory(GraphMem::DeviceType_VideoMemory, surfacePoolSize + SCE_KERNEL_1KiB, "BEAVPlayer::DecodeMemoryPool");

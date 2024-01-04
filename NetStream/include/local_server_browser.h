@@ -35,7 +35,7 @@ public:
 
 private:
 
-	string path;
+	string m_path;
 };
 
 #endif

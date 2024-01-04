@@ -12,56 +12,56 @@ using namespace paf;
 
 HttpServerBrowser::HttpServerBrowser(const char *host, const char *port, const char *user, const char *password)
 {
-	url = curl_url();
+	m_url = curl_url();
 
 	SCE_DBG_LOG_INFO("[HTTP] %s : %s : %s : %s\n", host, port, user, password);
 
 	if (host)
-		curl_url_set(url, CURLUPART_URL, host, 0);
+		curl_url_set(m_url, CURLUPART_URL, host, 0);
 	if (port)
-		curl_url_set(url, CURLUPART_PORT, port, 0);
+		curl_url_set(m_url, CURLUPART_PORT, port, 0);
 	if (user)
-		curl_url_set(url, CURLUPART_USER, user, 0);
+		curl_url_set(m_url, CURLUPART_USER, user, 0);
 	if (password)
-		curl_url_set(url, CURLUPART_PASSWORD, password, 0);
+		curl_url_set(m_url, CURLUPART_PASSWORD, password, 0);
 
-	curl = curl_easy_init();
+	m_curl = curl_easy_init();
 
 	char *addr;
-	if (!curl_url_get(url, CURLUPART_URL, &addr, 0))
+	if (!curl_url_get(m_url, CURLUPART_URL, &addr, 0))
 	{
-		root = addr;
-		curl_easy_setopt(curl, CURLOPT_URL, addr);
+		m_root = addr;
+		curl_easy_setopt(m_curl, CURLOPT_URL, addr);
 		curl_free(addr);
 	}
 
-	curl_easy_setopt(curl, CURLOPT_USERAGENT, USER_AGENT);
-	curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, NULL);
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-	curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
-	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L);
-	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L);
-	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, DownloadCore);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, this);
-	curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
+	curl_easy_setopt(m_curl, CURLOPT_USERAGENT, USER_AGENT);
+	curl_easy_setopt(m_curl, CURLOPT_ACCEPT_ENCODING, NULL);
+	curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYHOST, 0L);
+	curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, 0L);
+	curl_easy_setopt(m_curl, CURLOPT_FOLLOWLOCATION, 1L);
+	curl_easy_setopt(m_curl, CURLOPT_TCP_KEEPALIVE, 1L);
+	curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, 5L);
+	curl_easy_setopt(m_curl, CURLOPT_TIMEOUT, 5L);
+	curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, 1L);
+	curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, DownloadCore);
+	curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, this);
+	curl_easy_setopt(m_curl, CURLOPT_HTTPGET, 1L);
 }
 
 HttpServerBrowser::~HttpServerBrowser()
 {
-	curl_url_cleanup(url);
-	curl_easy_cleanup(curl);
+	curl_url_cleanup(m_url);
+	curl_easy_cleanup(m_curl);
 }
 
 bool HttpServerBrowser::Probe()
 {
-	curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
+	curl_easy_setopt(m_curl, CURLOPT_NOBODY, 1L);
 
-	CURLcode ret = curl_easy_perform(curl);
-	curl_easy_setopt(curl, CURLOPT_NOBODY, 0L);
-	curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
+	CURLcode ret = curl_easy_perform(m_curl);
+	curl_easy_setopt(m_curl, CURLOPT_NOBODY, 0L);
+	curl_easy_setopt(m_curl, CURLOPT_HTTPGET, 1L);
 
 	if (ret != CURLE_OK)
 	{
@@ -73,22 +73,22 @@ bool HttpServerBrowser::Probe()
 
 bool HttpServerBrowser::IsAtRoot(string *current)
 {
-	return (root == *current);
+	return (m_root == *current);
 }
 
 bool HttpServerBrowser::IsAtRoot()
 {
-	return (root == GetPath());
+	return (m_root == GetPath());
 }
 
 string HttpServerBrowser::GetPath()
 {
 	string ret;
 	char *path;
-	curl_url_get(url, CURLUPART_URL, &path, 0);
+	curl_url_get(m_url, CURLUPART_URL, &path, 0);
 	if (path)
 	{
-		char *decoded = curl_easy_unescape(curl, path, 0, NULL);
+		char *decoded = curl_easy_unescape(m_curl, path, 0, NULL);
 		ret = decoded;
 		curl_free(decoded);
 		curl_free(path);
@@ -100,7 +100,7 @@ string HttpServerBrowser::GetPath()
 string HttpServerBrowser::GetBEAVUrl(string const& in)
 {
 	string ret;
-	CURLU *turl = curl_url_dup(url);
+	CURLU *turl = curl_url_dup(m_url);
 	curl_url_set(turl, CURLUPART_URL, in.c_str(), 0);
 	char *result;
 	curl_url_get(turl, CURLUPART_URL, &result, 0);
@@ -115,13 +115,13 @@ void HttpServerBrowser::SetPath(const char *ref)
 {
 	if (ref)
 	{
-		char *encoded = curl_easy_escape(curl, ref, 0);
+		char *encoded = curl_easy_escape(m_curl, ref, 0);
 		char *current;
-		curl_url_get(url, CURLUPART_URL, &current, 0);
+		curl_url_get(m_url, CURLUPART_URL, &current, 0);
 		string full = current;
 		full += encoded;
 		full += "/";
-		curl_url_set(url, CURLUPART_URL, full.c_str(), 0);
+		curl_url_set(m_url, CURLUPART_URL, full.c_str(), 0);
 		curl_free(encoded);
 		curl_free(current);
 	}
@@ -135,27 +135,27 @@ vector<HttpServerBrowser::Entry *> *HttpServerBrowser::GoTo(const char *ref, int
 	SetPath(ref);
 
 	char *addr;
-	curl_url_get(url, CURLUPART_URL, &addr, 0);
+	curl_url_get(m_url, CURLUPART_URL, &addr, 0);
 	SCE_DBG_LOG_INFO("[HTTP] Attempt to open %s\n", addr);
-	curl_easy_setopt(curl, CURLOPT_URL, addr);
+	curl_easy_setopt(m_curl, CURLOPT_URL, addr);
 	curl_free(addr);
 
-	buffer = NULL;
-	posInBuf = 0;
+	m_buffer = NULL;
+	m_posInBuf = 0;
 
-	cret = curl_easy_perform(curl);
+	cret = curl_easy_perform(m_curl);
 	if (cret != CURLE_OK)
 	{
 		*result = cret;
 		return ret;
 	}
 
-	if (buffer && posInBuf > 2)
+	if (m_buffer && m_posInBuf > 2)
 	{
-		buffer[posInBuf - 1] = 0;
+		m_buffer[m_posInBuf - 1] = 0;
 
 		char *href = NULL;
-		char *refEnd = buffer;
+		char *refEnd = m_buffer;
 		while (1)
 		{
 			href = sce_paf_strstr(refEnd + 1, "<a href=\"");
@@ -174,7 +174,7 @@ vector<HttpServerBrowser::Entry *> *HttpServerBrowser::GoTo(const char *ref, int
 
 			if (supportType != GenericPlayer::SupportType_NotSupported)
 			{
-				char *decoded = curl_easy_unescape(curl, href, 0, NULL);
+				char *decoded = curl_easy_unescape(m_curl, href, 0, NULL);
 				HttpServerBrowser::Entry *entry = new HttpServerBrowser::Entry();
 				entry->ref = decoded;
 				entry->type = HttpServerBrowser::Entry::Type_UnsupportedFile;
@@ -200,22 +200,22 @@ vector<HttpServerBrowser::Entry *> *HttpServerBrowser::GoTo(const char *ref, int
 		*result = SCE_ERROR_ERRNO_ENOENT;
 	}
 
-	if (buffer)
-		sce_paf_free(buffer);
+	if (m_buffer)
+		sce_paf_free(m_buffer);
 
 	return ret;
 }
 
 size_t HttpServerBrowser::DownloadCore(char *buffer, size_t size, size_t nitems, void *userdata)
 {
-	HttpServerBrowser *obj = (HttpServerBrowser *)userdata;
+	HttpServerBrowser *obj = static_cast<HttpServerBrowser *>(userdata);
 	size_t toCopy = size * nitems;
 
 	if (toCopy != 0)
 	{
-		obj->buffer = (char *)sce_paf_realloc(obj->buffer, obj->posInBuf + toCopy);
-		sce_paf_memcpy(obj->buffer + obj->posInBuf, buffer, toCopy);
-		obj->posInBuf += toCopy;
+		obj->m_buffer = static_cast<char *>(sce_paf_realloc(obj->m_buffer, obj->m_posInBuf + toCopy));
+		sce_paf_memcpy(obj->m_buffer + obj->m_posInBuf, buffer, toCopy);
+		obj->m_posInBuf += toCopy;
 		return toCopy;
 	}
 

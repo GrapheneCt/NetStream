@@ -30,7 +30,7 @@ namespace menu {
 			settings->GetString("ftp_user", user, sizeof(user), "");
 			settings->GetString("ftp_password", password, sizeof(password), "");
 
-			browser = new FtpServerBrowser(host, port, user, password);
+			m_browser = new FtpServerBrowser(host, port, user, password);
 		}
 
 		MenuType GetMenuType()

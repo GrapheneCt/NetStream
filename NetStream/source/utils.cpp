@@ -165,10 +165,20 @@ string utils::SafememRead(uint32_t offset)
 	return ret;
 }
 
-void utils::SetTimeout(TimeoutFunc func, float timeoutMs, void *userdata1, void *userdata2)
+utils::TimeoutID utils::SetTimeout(TimeoutFunc func, float timeoutMs, void *userdata1, void *userdata2)
 {
 	Timer *t = new Timer(timeoutMs);
 	TimeoutListener *listener = new TimeoutListener(t, func);
 	TimerListenerList::ListenerParam lparam(listener, true, userdata1, userdata2);
 	TimerListenerList::s_default_list->Register(lparam);
+	return listener;
+}
+
+void utils::ClearTimeout(utils::TimeoutID id)
+{
+	if (id)
+	{
+		TimerListenerList::s_default_list->Unregister(id);
+		delete id;
+	}
 }

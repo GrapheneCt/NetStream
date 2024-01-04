@@ -73,11 +73,10 @@
 #define msg_toggle_youtube_min (0x9236786a)
 #define msg_settings_youtube_clean_history (0xce0c7a4d)
 #define msg_settings_youtube_clean_fav (0x0342b229)
-#define msg_settings_youtube_clean_history_done (0x02cf66da)
-#define msg_settings_youtube_clean_fav_done (0xf3a0ac4f)
 #define msg_settings_youtube_clean_history_confirm (0xd3225a4e)
 #define msg_settings_youtube_clean_fav_confirm (0x68a1ba57)
 #define msg_settings_youtube_download (0x8449e69c)
 #define msg_settings_youtube_download_audio (0x99364cad)
 #define msg_settings_youtube_download_begin (0x5ed1d900)
+#define msg_error_psn_connection (0x56f0c03c)
 #endif

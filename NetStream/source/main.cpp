@@ -16,6 +16,7 @@
 #include "utils.h"
 #include "yt_utils.h"
 #include "tw_utils.h"
+#include "np_utils.h"
 #include "player_beav.h"
 #include "player_fmod.h"
 #include "invidious.h"
@@ -66,9 +67,21 @@ void menu::main::NetcheckJob::Run()
 		thread::Sleep(100);
 	}
 
-	ytutils::Init();
+	vector<uint32_t> tusSlots;
+	tusSlots.push_back(NP_TUS_HIST_LOG_SLOT);
+	tusSlots.push_back(NP_TUS_FAV_LOG_SLOT);
+
+	ret = SCE_OK;
+	ret = nputils::Init("NetStream", true, &tusSlots);
+
+	ytutils::Init(NP_TUS_HIST_LOG_SLOT, NP_TUS_FAV_LOG_SLOT);
 
 	dialog::Close();
+
+	if (ret < 0)
+	{
+		dialog::OpenError(g_appPlugin, ret, g_appPlugin->GetString(msg_error_psn_connection));
+	}
 
 	sceAppMgrAppParamGetString(SCE_KERNEL_PROCESS_ID_SELF, 12, titleid, 12);
 	if (sceAppMgrGetIdByName(&shellPid, "NPXS19999") == SCE_OK &&
@@ -146,6 +159,8 @@ int main()
 	// Module init
 	sceSysmoduleLoadModule(SCE_SYSMODULE_FIBER);
 	sceSysmoduleLoadModule(SCE_SYSMODULE_NET);
+	sceSysmoduleLoadModule(SCE_SYSMODULE_NP);
+	sceSysmoduleLoadModule(SCE_SYSMODULE_NP_TUS);
 	sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_BXCE);
 	sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_INI_FILE_PROCESSOR);
 	sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_COMMON_GUI_DIALOG);

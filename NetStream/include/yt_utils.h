@@ -19,7 +19,10 @@ namespace ytutils
 		{
 		public:
 
-			using job::JobItem::JobItem;
+			AddAsyncJob(Log *parent, const char *data) : job::JobItem("ytutils::AddAsyncJob", NULL), m_parent(parent), m_data(data)
+			{
+
+			}
 
 			~AddAsyncJob() {}
 
@@ -27,20 +30,22 @@ namespace ytutils
 
 			void Finish() {}
 
-			Log *workObj;
-			string data;
+		private:
+
+			Log *m_parent;
+			string m_data;
 		};
 
-		Log()
+		Log(uint32_t tus = UINT_MAX) : m_tus(tus)
 		{
 
 		}
 
 		virtual ~Log()
 		{
-			ini->flush();
-			ini->close();
-			delete ini;
+			m_ini->flush();
+			m_ini->close();
+			delete m_ini;
 		}
 
 		virtual int32_t GetNext(char *data);
@@ -59,16 +64,25 @@ namespace ytutils
 
 		virtual int32_t GetSize();
 
+		virtual int32_t UpdateFromTUS();
+
+		virtual int32_t UploadToTUS();
+
 	protected:
 
-		sce::Ini::IniFileProcessor *ini;
+		sce::Ini::IniFileProcessor *m_ini;
+		uint32_t m_tus;
 	};
 
 	class HistLog : public Log
 	{
 	public:
 
-		HistLog();
+		HistLog(uint32_t tus = UINT_MAX);
+
+		virtual int32_t UpdateFromTUS();
+
+		virtual int32_t UploadToTUS();
 
 		static void Clean();
 
@@ -79,7 +93,11 @@ namespace ytutils
 	{
 	public:
 
-		FavLog();
+		FavLog(uint32_t tus = UINT_MAX);
+
+		virtual int32_t UpdateFromTUS();
+
+		virtual int32_t UploadToTUS();
 
 		static void Clean();
 	};
@@ -92,7 +110,7 @@ namespace ytutils
 		uint32_t pos;
 	};
 
-	void Init();
+	void Init(uint32_t histTUS = UINT_MAX, uint32_t favTUS = UINT_MAX);
 
 	void Term();
 

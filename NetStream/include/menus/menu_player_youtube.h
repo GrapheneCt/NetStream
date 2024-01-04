@@ -31,15 +31,23 @@ namespace menu {
 		{
 		public:
 
-			using job::JobItem::JobItem;
+			LoadJob(PlayerYoutube *parent) : job::JobItem("YouTube::LoadJob", NULL), m_parent(parent)
+			{
+
+			}
 
 			~LoadJob() {}
 
-			void Run();
+			void Run()
+			{
+				m_parent->Load();
+			}
 
 			void Finish() {}
 
-			PlayerYoutube *workObj;
+		private:
+
+			PlayerYoutube *m_parent;
 		};
 
 		class CommentItem
@@ -58,66 +66,91 @@ namespace menu {
 		{
 		public:
 
+			HlsCommentListViewCb(menu::PlayerYoutube *parent) : m_parent(parent)
+			{
+
+			}
+
 			~HlsCommentListViewCb()
 			{
 
 			}
 
-			ui::ListItem* Create(CreateParam& param);
+			ui::ListItem* Create(CreateParam& param)
+			{
+				return m_parent->CreateHlsCommentListItem(param);
+			}
+
+		private:
+
+			menu::PlayerYoutube *m_parent;
 		};
 
 		class CommentListViewCb : public ui::listview::ItemFactory
 		{
 		public:
 
+			CommentListViewCb(menu::PlayerYoutube *parent) : m_parent(parent)
+			{
+
+			}
+
 			~CommentListViewCb()
 			{
 
 			}
 
-			ui::ListItem* Create(CreateParam& param);
+			ui::ListItem* Create(CreateParam& param)
+			{
+				return m_parent->CreateCommentListItem(param);
+			}
 
-			PlayerYoutube *workObj;
+		private:
+
+			PlayerYoutube *m_parent;
 		};
 
 		class HlsCommentParseThread : public thread::Thread
 		{
 		public:
 
-			using thread::Thread::Thread;
+			HlsCommentParseThread(PlayerYoutube *parent) : thread::Thread(SCE_KERNEL_DEFAULT_PRIORITY_USER + 20, SCE_KERNEL_64KiB, "YouTube::CommentParseThread", NULL), m_parent(parent)
+			{
 
-			void EntryFunction();
+			}
 
-			PlayerYoutube *workObj;
+			void EntryFunction()
+			{
+				m_parent->ParseHlsComments(this);
+			}
+
+		private:
+
+			PlayerYoutube *m_parent;
 		};
 
 		class CommentParseJob : public job::JobItem
 		{
 		public:
 
-			using job::JobItem::JobItem;
+			CommentParseJob(PlayerYoutube *parent) : job::JobItem("YouTube::CommentParseJob", NULL), m_parent(parent)
+			{
+
+			}
 
 			~CommentParseJob() {}
 
-			void Run();
+			void Run()
+			{
+				m_parent->ParseComments();
+			}
 
 			void Finish() {}
 
-			PlayerYoutube *workObj;
-		};
+		private:
 
-		static void TaskLoadSecondStage(void *pArgBlock);
-		static void DwAddCompleteCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void BackButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void SettingsButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void ExpandButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void FavButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void CommentButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void DescButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void CommentBodyButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void PlayerEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void OptionMenuEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void SettingsEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+			PlayerYoutube *m_parent;
+		};
 
 		PlayerYoutube(const char *id, bool isFavourite);
 
@@ -134,28 +167,50 @@ namespace menu {
 			return k_settingsIdList;
 		}
 
-		ui::Text *title;
-		ui::Text *stat0;
-		ui::Text *stat1;
-		ui::Text *stat2;
-		ui::Button *expandButton;
-		ui::Button *favButton;
-		ui::Widget *companelBase;
-		ui::Widget *commentButton;
-		ui::Widget *descButton;
-		ui::Widget *companelRoot;
-		menu::PlayerSimple *player;
-		string videoLink;
-		string audioLink;
-		string videoId;
-		bool isHls;
-		bool isHighHls;
-		bool isFav;
-		string description;
-		string commentCont;
-		vector<CommentItem> commentItems;
-		HlsCommentParseThread *hlsCommentThread;
-		bool lastAttempt;
+	private:
+
+		static void LoadSecondStageTask(void *pArgBlock);
+		void OnLoadSecondStage();
+		void OnDwAddComplete(int32_t result);
+		void OnBackButton();
+		void OnSettingsButton();
+		void OnExpandButton();
+		void OnFavButton();
+		void OnCommentButton();
+		void OnDescButton();
+		void OnCommentBodyButton(ui::Widget *wdg);
+		void OnPlayerEvent(int32_t type);
+		void OnOptionMenuEvent(int32_t type, int32_t subtype);
+		void OnSettingsEvent(int32_t type);
+
+		void Load();
+		void ParseComments();
+		ui::ListItem *CreateHlsCommentListItem(ui::listview::ItemFactory::CreateParam& param);
+		ui::ListItem *CreateCommentListItem(ui::listview::ItemFactory::CreateParam& param);
+		void ParseHlsComments(thread::Thread *thrd);
+
+		ui::Text *m_title;
+		ui::Text *m_stat0;
+		ui::Text *m_stat1;
+		ui::Text *m_stat2;
+		ui::Button *m_expandButton;
+		ui::Button *m_favButton;
+		ui::Widget *m_companelBase;
+		ui::Widget *m_commentButton;
+		ui::Widget *m_descButton;
+		ui::ListView *m_companelRoot;
+		menu::PlayerSimple *m_player;
+		string m_videoLink;
+		string m_audioLink;
+		string m_videoId;
+		bool m_isHls;
+		bool m_isHighHls;
+		bool m_isFav;
+		string m_description;
+		string m_commentCont;
+		vector<CommentItem> m_commentItems;
+		HlsCommentParseThread *m_hlsCommentThread;
+		bool m_lastAttempt;
 
 		const uint32_t k_settingsIdList[4] = {
 			youtube_search_setting,

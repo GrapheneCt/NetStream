@@ -24,13 +24,11 @@ using namespace paf;
 
 const float k_minBtLen = 202.0f;
 
-void OptionMenu::ButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
+void OptionMenu::OnButton(ui::Widget *wdg)
 {
-	ui::Widget *wdg = (ui::Widget*)self;
 	uint32_t hash = wdg->GetName().GetIDHash();
-	OptionMenu *workObj = (OptionMenu *)userdata;
-	Plugin *plugin = workObj->plugin;
-	delete workObj;
+	Plugin *plugin = m_plugin;
+	delete this;
 
 	if (hash == button_option_menu_close)
 	{
@@ -42,12 +40,12 @@ void OptionMenu::ButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void
 	}
 }
 
-void OptionMenu::SizeAdjustEventHandler(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
+void OptionMenu::OnSizeAdjust(int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 {
 	ui::Widget *button = NULL;
 	float len = 0.0f;
-	ui::Text *wdg = (ui::Text*)self;
-	OptionMenu *workObj = (OptionMenu *)userdata;
+	ui::Text *wdg = static_cast<ui::Text *>(self);
+	OptionMenu *workObj = static_cast<OptionMenu *>(userdata);
 
 	len = wdg->GetDrawObj(ui::Text::OBJ_ROOT)->GetSize().extract_x() + 40.0f;
 
@@ -57,23 +55,23 @@ void OptionMenu::SizeAdjustEventHandler(int32_t type, ui::Handler *self, ui::Eve
 	}
 
 	math::v4 btSz(len, 60.0f);
-	math::v4 plSz(len + 12.0f, 12.0f + 60.0f * workObj->buttonCount);
+	math::v4 plSz(len + 12.0f, 12.0f + 60.0f * workObj->m_buttonCount);
 	math::v4 plPos(264.0f + ((202.0f - plSz.extract_x()) / 2.0f), 43.0f);
 
-	ui::Widget *optRoot = workObj->optPlaneRoot->FindChild(box_option_menu);
+	ui::Widget *optRoot = workObj->m_optPlaneRoot->FindChild(box_option_menu);
 
-	for (int i = 0; i < workObj->buttonCount; i++)
+	for (int i = 0; i < workObj->m_buttonCount; i++)
 	{
 		button = optRoot->FindChild(OPTION_MENU_BUTTON_MAGIC + i);
 		button->SetAdjust(ui::Widget::ADJUST_NONE, ui::Widget::ADJUST_NONE, ui::Widget::ADJUST_NONE);
 		button->SetSize(btSz);
 	}
 
-	workObj->optPlaneRoot->SetSize(plSz);
-	workObj->optPlaneRoot->SetPos(plPos);
-	workObj->optPlaneRoot->Show(common::transition::Type_Popup4, 0.0f);
+	workObj->m_optPlaneRoot->SetSize(plSz);
+	workObj->m_optPlaneRoot->SetPos(plPos);
+	workObj->m_optPlaneRoot->Show(common::transition::Type_Popup4, 0.0f);
 
-	self->DeleteEventCallback(ui::Handler::CB_STATE_READY, SizeAdjustEventHandler, userdata);
+	self->DeleteEventCallback(ui::Handler::CB_STATE_READY, OnSizeAdjust, userdata);
 }
 
 OptionMenu::OptionMenu(Plugin *workPlugin, ui::Widget *root, vector<Button> *buttons)
@@ -82,44 +80,49 @@ OptionMenu::OptionMenu(Plugin *workPlugin, ui::Widget *root, vector<Button> *but
 	ui::Widget *closeButton = NULL;
 	ui::Widget *button = NULL;
 
-	parentRoot = root;
-	plugin = workPlugin;
-	buttonCount = buttons->size();
+	m_parentRoot = root;
+	m_plugin = workPlugin;
+	m_buttonCount = buttons->size();
 
 	Plugin::PageOpenParam openParam;
 	openParam.option = Plugin::PageOption_Create;
 	openParam.overwrite_draw_priority = 8;
 	openParam.graphics_flag = 0x80;
-	rootScene = plugin->PageOpen(page_option_menu, openParam);
-	if (!rootScene)
+	m_rootScene = m_plugin->PageOpen(page_option_menu, openParam);
+	if (!m_rootScene)
 	{
 		SCE_DBG_LOG_ERROR("[OPTION_MENU] Attempt to create option menu twice!\n");
 		return;
 	}
 
-	parentRoot->SetActivate(false);
+	m_parentRoot->SetActivate(false);
 
-	plugin->TemplateOpen(rootScene, template_option_menu_base, tmpParam);
+	m_plugin->TemplateOpen(m_rootScene, template_option_menu_base, tmpParam);
 
-	closeButton = rootScene->FindChild(button_option_menu_close);
-	closeButton->AddEventCallback(ui::Button::CB_BTN_DECIDE, ButtonCbFun, this);
+	closeButton = m_rootScene->FindChild(button_option_menu_close);
+	closeButton->AddEventCallback(ui::Button::CB_BTN_DECIDE,
+	[](int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
+	{
+		reinterpret_cast<OptionMenu *>(userdata)->OnButton(static_cast<ui::Widget *>(self));
+	}, this);
+
 	closeButton->SetKeycode(inputdevice::pad::Data::PAD_ESCAPE | inputdevice::pad::Data::PAD_MENU);
 
-	optPlaneRoot = closeButton->FindChild(plane_option_menu_base);
-	ui::Widget *optRoot = optPlaneRoot->FindChild(box_option_menu);
+	m_optPlaneRoot = closeButton->FindChild(plane_option_menu_base);
+	ui::Widget *optRoot = m_optPlaneRoot->FindChild(box_option_menu);
 
 	uint32_t maxLen = 0;
 	uint32_t curLen = 0;
 	uint32_t maxLenIdx = 0;
 	uint32_t idhash = 0;
 
-	for (int i = 0; i < buttonCount; i++)
+	for (int i = 0; i < m_buttonCount; i++)
 	{
 		Button btItem = buttons->at(i);
 
 		if (i == 0)
 		{
-			if (buttonCount == 1)
+			if (m_buttonCount == 1)
 			{
 				idhash = template_option_menu_button_single;
 			}
@@ -128,7 +131,7 @@ OptionMenu::OptionMenu(Plugin *workPlugin, ui::Widget *root, vector<Button> *but
 				idhash = template_option_menu_button_top;
 			}
 		}
-		else if (i == buttonCount - 1)
+		else if (i == m_buttonCount - 1)
 		{
 			idhash = template_option_menu_button_bottom;
 		}
@@ -137,11 +140,15 @@ OptionMenu::OptionMenu(Plugin *workPlugin, ui::Widget *root, vector<Button> *but
 			idhash = template_option_menu_button_middle;
 		}
 
-		plugin->TemplateOpen(optRoot, idhash, tmpParam);
+		m_plugin->TemplateOpen(optRoot, idhash, tmpParam);
 		button = optRoot->GetChild(optRoot->GetChildrenNum() - 1);
 		button->SetName(OPTION_MENU_BUTTON_MAGIC + i);
 		button->SetString(btItem.label);
-		button->AddEventCallback(ui::Button::CB_BTN_DECIDE, ButtonCbFun, this);
+		button->AddEventCallback(ui::Button::CB_BTN_DECIDE,
+		[](int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
+		{
+			reinterpret_cast<OptionMenu *>(userdata)->OnButton(static_cast<ui::Widget *>(self));
+		}, this);
 
 		curLen = btItem.label.length();
 		if (curLen > maxLen)
@@ -151,20 +158,20 @@ OptionMenu::OptionMenu(Plugin *workPlugin, ui::Widget *root, vector<Button> *but
 		}
 	}
 
-	ui::Widget *ruler = optPlaneRoot->FindChild(text_option_menu_ruler);
+	ui::Widget *ruler = m_optPlaneRoot->FindChild(text_option_menu_ruler);
 	ruler->SetString(buttons->at(maxLenIdx).label);
-	ruler->AddEventCallback(ui::Handler::CB_STATE_READY, SizeAdjustEventHandler, this);
+	ruler->AddEventCallback(ui::Handler::CB_STATE_READY, OnSizeAdjust, this);
 }
 
 OptionMenu::~OptionMenu()
 {
 	Plugin::PageCloseParam closeParam;
 
-	optPlaneRoot->Hide(common::transition::Type_Popup4, 0.0f);
+	m_optPlaneRoot->Hide(common::transition::Type_Popup4, 0.0f);
 
 	closeParam.fade = true;
 	closeParam.fade_time_ms = 1000;
-	plugin->PageClose(page_option_menu, closeParam);
+	m_plugin->PageClose(page_option_menu, closeParam);
 
-	parentRoot->SetActivate(true);
+	m_parentRoot->SetActivate(true);
 }

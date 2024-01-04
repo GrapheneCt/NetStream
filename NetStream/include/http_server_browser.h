@@ -35,11 +35,11 @@ private:
 
 	static size_t DownloadCore(char *buffer, size_t size, size_t nitems, void *userdata);
 
-	CURLU *url;
-	CURL *curl;
-	string root;
-	char *buffer;
-	uint32_t posInBuf;
+	CURLU *m_url;
+	CURL *m_curl;
+	string m_root;
+	char *m_buffer;
+	uint32_t m_posInBuf;
 };
 
 #endif

@@ -37,7 +37,7 @@ static int ExportFilePatched(uint32_t *data)
 		uint16_t url_length = 0;
 		uint32_t count = 0;
 
-		uint32_t num = *(uint32_t *)data[0];
+		uint32_t num = *reinterpret_cast<uint32_t *>(data[0]);
 
 		bgdl_path = paf::common::FormatString("ux0:bgdl/t/%08x/d0.pdb", num);
 

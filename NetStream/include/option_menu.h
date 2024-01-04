@@ -36,15 +36,14 @@ public:
 
 private:
 
-	static void ButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+	static void OnSizeAdjust(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+	void OnButton(ui::Widget *wdg);
 
-	static void SizeAdjustEventHandler(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-
-	Plugin *plugin;
-	ui::Scene *rootScene;
-	ui::Widget *parentRoot;
-	ui::Widget *optPlaneRoot;
-	uint32_t buttonCount;
+	Plugin *m_plugin;
+	ui::Scene *m_rootScene;
+	ui::Widget *m_parentRoot;
+	ui::Widget *m_optPlaneRoot;
+	uint32_t m_buttonCount;
 };
 
 #endif

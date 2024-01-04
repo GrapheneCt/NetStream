@@ -17,7 +17,10 @@ namespace twutils
 		{
 		public:
 
-			using job::JobItem::JobItem;
+			AddAsyncJob(Log *parent, const char *data) : job::JobItem("twutils::AddAsyncJob", NULL), m_parent(parent), m_data(data)
+			{
+
+			}
 
 			~AddAsyncJob() {}
 
@@ -25,8 +28,10 @@ namespace twutils
 
 			void Finish() {}
 
-			Log *workObj;
-			string data;
+		private:
+
+			Log *m_parent;
+			string m_data;
 		};
 
 		Log()
@@ -36,9 +41,9 @@ namespace twutils
 
 		virtual ~Log()
 		{
-			ini->flush();
-			ini->close();
-			delete ini;
+			m_ini->flush();
+			m_ini->close();
+			delete m_ini;
 		}
 
 		virtual int32_t GetNext(char *data);
@@ -59,7 +64,7 @@ namespace twutils
 
 	protected:
 
-		sce::Ini::IniFileProcessor *ini;
+		sce::Ini::IniFileProcessor *m_ini;
 	};
 
 	class HistLog : public Log

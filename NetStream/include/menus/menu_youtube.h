@@ -39,25 +39,35 @@ namespace menu {
 
 			virtual SubmenuType GetType() = 0;
 
+			ui::ListItem* CreateListItem(ui::listview::ItemFactory::CreateParam& param);
+
 			class ListViewCb : public ui::listview::ItemFactory
 			{
 			public:
 
-				static void TexPoolAddCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+				ListViewCb(Submenu *parent) : m_parent(parent)
+				{
+
+				}
 
 				~ListViewCb()
 				{
 
 				}
 
-				ui::ListItem *Create(CreateParam& param);
+				ui::ListItem *Create(CreateParam& param)
+				{
+					return m_parent->CreateListItem(param);
+				}
 
 				void Start(StartParam& param)
 				{
 					param.list_item->Show(common::transition::Type_Popup1);
 				}
 
-				Submenu *workObj;
+			private:
+
+				Submenu *m_parent;
 			};
 
 			class Item
@@ -78,13 +88,21 @@ namespace menu {
 				TexPool *texPool;
 			};
 
-			YouTube *parent;
-			ui::Widget *submenuRoot;
-			ui::ListView *list;
-			bool interrupted;
-			bool allJobsComplete;
-			vector<Item> results;
-			uint32_t currentPage;
+		protected:
+
+			YouTube *m_baseParent;
+			ui::Widget *m_submenuRoot;
+			ui::ListView *m_list;
+			bool m_interrupted;
+			bool m_allJobsComplete;
+			vector<Item> m_results;
+			uint32_t m_currentPage;
+
+		private:
+
+			static void OnTexPoolAdd(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+
+			void OnListButton(ui::Widget *wdg);
 		};
 
 		class SearchSubmenu : public Submenu
@@ -95,23 +113,30 @@ namespace menu {
 			{
 			public:
 
-				using job::JobItem::JobItem;
+				SearchJob(SearchSubmenu *parent) : job::JobItem("YouTube::SearchJob", NULL), m_parent(parent)
+				{
+
+				}
 
 				~SearchJob() {}
 
-				void Run();
+				void Run()
+				{
+					m_parent->Search();
+				}
 
 				void Finish() {}
 
-				SearchSubmenu *workObj;
-				bool isId;
-			};
+			private:
 
-			static void SearchButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+				SearchSubmenu *m_parent;
+			};
 
 			SearchSubmenu(YouTube *parentObj);
 
 			~SearchSubmenu();
+
+			void Search();
 
 			void GoToNextPage();
 
@@ -122,9 +147,13 @@ namespace menu {
 				return SubmenuType_Search;
 			}
 
-			ui::TextBox *searchBox;
-			ui::Widget *searchButton;
-			string request;
+		private:
+
+			void OnSearchButton();
+
+			ui::TextBox *m_searchBox;
+			ui::Widget *m_searchButton;
+			string m_request;
 		};
 
 		class HistorySubmenu : public Submenu
@@ -135,20 +164,30 @@ namespace menu {
 			{
 			public:
 
-				using job::JobItem::JobItem;
+				HistoryJob(HistorySubmenu *parent) : job::JobItem("YouTube::HistoryJob", NULL), m_parent(parent)
+				{
+
+				}
 
 				~HistoryJob() {}
 
-				void Run();
+				void Run()
+				{
+					m_parent->Parse();
+				}
 
 				void Finish() {}
 
-				HistorySubmenu *workObj;
+			private:
+
+				HistorySubmenu *m_parent;
 			};
 
 			HistorySubmenu(YouTube *parentObj);
 
 			~HistorySubmenu();
+
+			void Parse();
 
 			void GoToNextPage();
 
@@ -168,22 +207,30 @@ namespace menu {
 			{
 			public:
 
-				using job::JobItem::JobItem;
+				FavouriteJob(FavouriteSubmenu *parent) : job::JobItem("YouTube::FavouriteJob", NULL), m_parent(parent)
+				{
+
+				}
 
 				~FavouriteJob() {}
 
-				void Run();
+				void Run()
+				{
+					m_parent->Parse();
+				}
 
 				void Finish() {}
 
-				FavouriteSubmenu *workObj;
-			};
+			private:
 
-			static void SearchButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+				FavouriteSubmenu *m_parent;
+			};
 
 			FavouriteSubmenu(YouTube *parentObj);
 
 			~FavouriteSubmenu();
+
+			void Parse();
 
 			void GoToNextPage();
 
@@ -194,9 +241,13 @@ namespace menu {
 				return SubmenuType_Favourites;
 			}
 
-			ui::TextBox *searchBox;
-			ui::Widget *searchButton;
-			string request;
+		private:
+
+			void OnSearchButton();
+
+			ui::TextBox *m_searchBox;
+			ui::Widget *m_searchButton;
+			string m_request;
 		};
 
 		class LogClearJob : public job::JobItem
@@ -209,7 +260,10 @@ namespace menu {
 				Type_Hist
 			};
 
-			using job::JobItem::JobItem;
+			LogClearJob(Type type) : job::JobItem("YouTube::LogClearJob", NULL), m_type(type)
+			{
+
+			}
 
 			~LogClearJob() {}
 
@@ -217,15 +271,10 @@ namespace menu {
 
 			void Finish() {}
 
-			Type type;
-		};
+		private:
 
-		static void BackButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void ListButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void SubmenuButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void SettingsButtonCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void OptionMenuEventCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
-		static void DialogHandlerCbFun(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+			Type m_type;
+		};
 
 		YouTube();
 
@@ -244,16 +293,25 @@ namespace menu {
 			return k_settingsIdList;
 		}
 
-		ui::Widget *browserRoot;
-		ui::BusyIndicator *loaderIndicator;
-		ui::Text *topText;
-		ui::Box *btMenu;
-		ui::Widget *searchBt;
-		ui::Widget *histBt;
-		ui::Widget *favBt;
-		Submenu *currentSubmenu;
-		int32_t dialogIdx;
-		TexPool *texPool;
+	private:
+
+		void OnBackButton();
+		void OnSubmenuButton(ui::Widget *wdg);
+		void OnSettingsButton();
+		void OnOptionMenuEvent(int32_t type, int32_t subtype);
+		void OnDialogEvent(int32_t type);
+		void OnSettingsEvent(int32_t type);
+
+		ui::Widget *m_browserRoot;
+		ui::BusyIndicator *m_loaderIndicator;
+		ui::Text *m_topText;
+		ui::Box *m_btMenu;
+		ui::Widget *m_searchBt;
+		ui::Widget *m_histBt;
+		ui::Widget *m_favBt;
+		Submenu *m_currentSubmenu;
+		int32_t m_dialogIdx;
+		TexPool *m_texPool;
 
 		const uint32_t k_settingsIdList[4] = {
 			youtube_search_setting,

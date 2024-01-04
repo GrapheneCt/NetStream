@@ -43,17 +43,17 @@ public:
 
 	inline void SetShare(CurlFile::Share *sh)
 	{
-		share = sh;
+		m_share = sh;
 	}
 
 	inline bool IsAlive()
 	{
-		return alive;
+		return m_alive;
 	}
 
 	inline void SetAlive(bool value)
 	{
-		alive = value;
+		m_alive = value;
 	}
 
 private:
@@ -62,7 +62,17 @@ private:
 	{
 	public:
 
-		using job::JobItem::JobItem;
+		AddAsyncJob(TexPool *parent, uint32_t hash, uint8_t *buf, size_t bufSize) :
+			job::JobItem("TexPool::AddAsyncJob", NULL), m_parent(parent), m_hash(hash), m_buf(buf), m_bufSize(bufSize)
+		{
+
+		}
+
+		AddAsyncJob(TexPool *parent, uint32_t hash, const string& path) :
+			job::JobItem("TexPool::AddAsyncJob", NULL), m_parent(parent), m_hash(hash), m_buf(NULL), m_path(path)
+		{
+
+		}
 
 		~AddAsyncJob()
 		{
@@ -73,18 +83,18 @@ private:
 		{
 			bool result = false;
 
-			if (buf)
+			if (m_buf)
 			{
-				result = workObj->Add(hash, buf, bufSize, true);
+				result = m_parent->Add(m_hash, m_buf, m_bufSize, true);
 			}
 			else
 			{
-				result = workObj->Add(hash, path.c_str(), true);
+				result = m_parent->Add(m_hash, m_path.c_str(), true);
 			}
 
-			if (result && workObj->IsAlive() && workObj->cbPlugin)
+			if (result && m_parent->IsAlive() && m_parent->m_cbPlugin)
 			{
-				event::BroadcastGlobalEvent(workObj->cbPlugin, ui::Handler::CB_STATE_READY_CACHEIMAGE, hash);
+				event::BroadcastGlobalEvent(m_parent->m_cbPlugin, ui::Handler::CB_STATE_READY_CACHEIMAGE, m_hash);
 			}
 		}
 
@@ -93,18 +103,23 @@ private:
 
 		}
 
-		TexPool *workObj;
-		uint8_t *buf;
-		size_t bufSize;
-		uint32_t hash;
-		string path;
+	private:
+
+		TexPool *m_parent;
+		uint8_t *m_buf;
+		size_t m_bufSize;
+		uint32_t m_hash;
+		string m_path;
 	};
 
 	class DestroyJob : public job::JobItem
 	{
 	public:
 
-		using job::JobItem::JobItem;
+		DestroyJob(TexPool *parent) : job::JobItem("TexPool::DestroyJob", NULL), m_parent(parent)
+		{
+
+		}
 
 		~DestroyJob()
 		{
@@ -113,7 +128,7 @@ private:
 
 		void Run()
 		{
-			delete pool;
+			delete m_parent;
 		}
 
 		void Finish()
@@ -121,7 +136,9 @@ private:
 
 		}
 
-		TexPool *pool;
+	private:
+
+		TexPool *m_parent;
 	};
 
 	void RemoveForReplace(IDParam const& id);
@@ -130,12 +147,12 @@ private:
 
 	bool AddLocal(IDParam const& id, const char *path);
 
-	map<uint32_t, intrusive_ptr<graph::Surface>> stor;
-	CurlFile::Share *share;
-	thread::RMutex *storMtx;
-	job::JobQueue *addAsyncQueue;
-	bool alive;
-	Plugin *cbPlugin;
+	map<uint32_t, intrusive_ptr<graph::Surface>> m_stor;
+	CurlFile::Share *m_share;
+	thread::RMutex *m_storMtx;
+	job::JobQueue *m_addAsyncQueue;
+	bool m_alive;
+	Plugin *m_cbPlugin;
 };
 
 #endif

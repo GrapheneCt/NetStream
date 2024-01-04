@@ -15,7 +15,7 @@ using namespace paf;
 #define BEAV_VIDEO_BUFFER_COUNT		4
 #define BEAV_VIDEO_BUFFER_WIDTH		1280
 #define BEAV_VIDEO_BUFFER_HEIGHT	720
-#define BEAV_USER_AGENT				
+#define BEAV_USER_AGENT USER_AGENT		
 
 class BEAVPlayer : public GenericPlayer
 {
@@ -31,20 +31,20 @@ public:
 
 			CurlLsHandle()
 			{
-				curl = NULL;
-				readPos = 0;
-				buf = NULL;
-				pos = 0;
-				lastError = 0;
+				m_curl = NULL;
+				m_readPos = 0;
+				m_buf = NULL;
+				m_pos = 0;
+				m_lastError = 0;
 			}
 
 			~CurlLsHandle() {};
 
-			void *curl;
-			int64_t readPos;
-			void *buf;
-			uint32_t pos;
-			int32_t lastError;
+			void *m_curl;
+			int64_t m_readPos;
+			void *m_buf;
+			uint32_t m_pos;
+			int32_t m_lastError;
 		};
 
 		LibLSInterface();
@@ -73,7 +73,10 @@ public:
 	{
 	public:
 
-		using job::JobItem::JobItem;
+		BootJob(BEAVPlayer *parent) : job::JobItem("BEAVPlayer::BootJob", NULL), m_parent(parent)
+		{
+
+		}
 
 		~BootJob() {}
 
@@ -81,7 +84,9 @@ public:
 
 		void Finish() {}
 
-		BEAVPlayer *workObj;
+	private:
+
+		BEAVPlayer *m_parent;
 	};
 
 	BEAVPlayer(ui::Widget *targetPlane, const char *url);
@@ -120,30 +125,46 @@ private:
 	{
 	public:
 
-		using thread::Thread::Thread;
+		BEAVVideoThread(BEAVPlayer *parent, ui::Widget *target, SceBeavCorePlayerHandle core, bool limitFps, Option *option) :
+			thread::Thread(SCE_KERNEL_HIGHEST_PRIORITY_USER + 10, SCE_KERNEL_16KiB, "BEAVVideoThread", option)
+		{
+			m_parent = parent;
+			m_target = target;
+			m_playerCore = core;
+			m_limitFps = limitFps;
+		}
 
 		void EntryFunction();
 
+	private:
+
 		static void SurfaceUpdateTask(void *pArgBlock);
 
-		BEAVPlayer *workObj;
-		ui::Widget *target;
-		intrusive_ptr<graph::Surface> drawSurf[BEAV_SURFACE_COUNT];
-		int32_t surfIdx;
-		SceBeavCorePlayerHandle playerCore;
-		bool limitFps;
+		BEAVPlayer *m_parent;
+		ui::Widget *m_target;
+		intrusive_ptr<graph::Surface> m_drawSurf[BEAV_SURFACE_COUNT];
+		int32_t m_surfIdx;
+		SceBeavCorePlayerHandle m_playerCore;
+		bool m_limitFps;
 	};
 
 	class BEAVAudioThread : public thread::Thread
 	{
 	public:
 
-		using thread::Thread::Thread;
+		BEAVAudioThread(BEAVPlayer *parent, SceBeavCorePlayerHandle core, Option *option) :
+			thread::Thread(SCE_KERNEL_HIGHEST_PRIORITY_USER + 1, SCE_KERNEL_16KiB, "BEAVAudioThread", option)
+		{
+			m_parent = parent;
+			m_playerCore = core;
+		}
 
 		void EntryFunction();
 
-		BEAVPlayer *workObj;
-		SceBeavCorePlayerHandle playerCore;
+	private:
+
+		BEAVPlayer *m_parent;
+		SceBeavCorePlayerHandle m_playerCore;
 	};
 
 	static uint32_t GetFreeHeapSize();
@@ -152,10 +173,10 @@ private:
 
 	void SetInitState(InitState state);
 
-	SceBeavCorePlayerHandle playerCore;
-	BEAVVideoThread *videoThread;
-	BEAVAudioThread *audioThread;
-	void *notifyCbMem;
+	SceBeavCorePlayerHandle m_playerCore;
+	BEAVVideoThread *m_videoThread;
+	BEAVAudioThread *m_audioThread;
+	void *m_notifyCbMem;
 };
 
 #endif

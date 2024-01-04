@@ -25,10 +25,14 @@ namespace menu {
 	{
 	public:
 
-		MenuOpenParam(bool useFadeIn = false, float fadeinTimeMs = 200.0f, Plugin::TransitionType effectType = Plugin::TransitionType_None, uint32_t openFlags = 0, int32_t priority = -1)
+		MenuOpenParam(
+			bool useFadeIn = false,
+			float fadeinTimeMs = 200.0f,
+			Plugin::TransitionType effectType = Plugin::TransitionType_None,
+			uint32_t openFlags = 0,
+			int32_t priority = -1) :
+			m_envOpt(nullptr)
 		{
-			envOpt = NULL;
-
 			fade = useFadeIn;
 			fade_time_ms = fadeinTimeMs;
 			transition_type = effectType;
@@ -41,34 +45,37 @@ namespace menu {
 				{
 					if (SCE_PAF_IS_DOLCE)
 					{
-						envOpt = new ui::EnvironmentParam(openFlags);
+						m_envOpt = new ui::EnvironmentParam(openFlags);
 					}
 				}
 				else
 				{
-					envOpt = new ui::EnvironmentParam(openFlags);
+					m_envOpt = new ui::EnvironmentParam(openFlags);
 				}
 			}
 
-			env_param = envOpt;
+			env_param = m_envOpt;
 			graphics_flag = 0x80;
 		}
 
 		~MenuOpenParam()
 		{
-			delete envOpt;
+			delete m_envOpt;
 		}
 
 	private:
 
-		ui::EnvironmentParam *envOpt;
+		ui::EnvironmentParam *m_envOpt;
 	};
 
 	class MenuCloseParam : public Plugin::PageCloseParam
 	{
 	public:
 
-		MenuCloseParam(bool useFadeOut = false, float fadeoutTimeMs = 200.0f, Plugin::TransitionType effectType = Plugin::TransitionType_None)
+		MenuCloseParam(
+			bool useFadeOut = false,
+			float fadeoutTimeMs = 200.0f,
+			Plugin::TransitionType effectType = Plugin::TransitionType_None)
 		{
 			fade = useFadeOut;
 			fade_time_ms = fadeoutTimeMs;
@@ -101,15 +108,15 @@ namespace menu {
 
 		virtual const uint32_t *GetSupportedSettingsItems(int32_t *count) = 0;
 
-		ui::Scene *GetRoot();
+		ui::Scene *GetRoot() const;
 
 	protected:
 
-		ui::Scene *root;
+		ui::Scene *m_root;
 
 	private:
 
-		MenuCloseParam closeParam;
+		MenuCloseParam m_closeParam;
 	};
 
 	void InitMenuSystem();
