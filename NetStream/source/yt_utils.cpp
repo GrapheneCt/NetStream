@@ -185,7 +185,7 @@ int32_t ytutils::HistLog::UpdateFromTUS()
 {
 	int32_t ret = SCE_OK;
 
-	if (m_tus == UINT_MAX)
+	if (m_tus == UINT_MAX || !nputils::IsAllGreen())
 	{
 		return ret;
 	}
@@ -240,7 +240,7 @@ int32_t ytutils::HistLog::UploadToTUS()
 {
 	int32_t ret = SCE_OK;
 
-	if (m_tus == UINT_MAX)
+	if (m_tus == UINT_MAX || !nputils::IsAllGreen())
 	{
 		return ret;
 	}
@@ -272,7 +272,7 @@ int32_t ytutils::FavLog::UpdateFromTUS()
 {
 	int32_t ret = SCE_OK;
 
-	if (m_tus == UINT_MAX)
+	if (m_tus == UINT_MAX || !nputils::IsAllGreen())
 	{
 		return ret;
 	}
@@ -309,7 +309,7 @@ int32_t ytutils::FavLog::UploadToTUS()
 {
 	int32_t ret = SCE_OK;
 
-	if (m_tus == UINT_MAX)
+	if (m_tus == UINT_MAX || !nputils::IsAllGreen())
 	{
 		return ret;
 	}

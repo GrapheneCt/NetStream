@@ -384,6 +384,18 @@ int32_t nputils::Term()
 	return sceNpTerm();
 }
 
+bool nputils::IsAllGreen()
+{
+	SceNpId id;
+
+	if (sceNpManagerGetNpId(&id) == SCE_OK)
+	{
+		return true;
+	}
+	
+	return false;
+}
+
 nputils::TUS *nputils::GetTUS()
 {
 	return s_tus;

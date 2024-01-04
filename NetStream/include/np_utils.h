@@ -45,6 +45,8 @@ namespace nputils
 
 	int32_t Term();
 
+	bool IsAllGreen();
+
 	TUS *GetTUS();
 };
 
