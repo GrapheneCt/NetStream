@@ -38,6 +38,7 @@ intrusive_ptr<graph::Surface> g_texTransparent;
 void menu::main::NetcheckJob::Run()
 {
 	int32_t ret = SCE_OK;
+	int32_t sync = 0;
 	SceUID shellPid = SCE_UID_INVALID_UID;
 	char titleid[12];
 	int sarg[2];
@@ -67,14 +68,25 @@ void menu::main::NetcheckJob::Run()
 		thread::Sleep(100);
 	}
 
-	vector<uint32_t> tusSlots;
-	tusSlots.push_back(NP_TUS_HIST_LOG_SLOT);
-	tusSlots.push_back(NP_TUS_FAV_LOG_SLOT);
+	menu::Settings::Init();
 
 	ret = SCE_OK;
-	ret = nputils::Init("NetStream", true, &tusSlots);
 
-	ytutils::Init(NP_TUS_HIST_LOG_SLOT, NP_TUS_FAV_LOG_SLOT);
+	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
+	settings->GetInt("cloud_sync_auto", static_cast<int32_t *>(&sync), 0);
+	if (sync)
+	{
+		vector<uint32_t> tusSlots;
+		tusSlots.push_back(NP_TUS_HIST_LOG_SLOT);
+		tusSlots.push_back(NP_TUS_FAV_LOG_SLOT);
+
+		ret = nputils::Init("NetStream", true, &tusSlots);
+		ytutils::Init(NP_TUS_HIST_LOG_SLOT, NP_TUS_FAV_LOG_SLOT);
+	}
+	else
+	{
+		ytutils::Init();
+	}
 
 	dialog::Close();
 
@@ -111,7 +123,6 @@ void pluginLoadCB(Plugin *plugin)
 	job::JobQueue::default_queue->Enqueue(itemParam);
 
 	menu::InitMenuSystem();
-	menu::Settings::Init();
 
 	g_texCheckMark = fw->GetCommonTexture("_common_texture_check_mark");
 	g_texTransparent = fw->GetCommonTexture("_common_texture_transparent");

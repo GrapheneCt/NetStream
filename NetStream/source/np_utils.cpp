@@ -114,8 +114,6 @@ int32_t nputils::TUS::UploadFile(uint32_t slot, const char *path)
 	int32_t request = 0;
 	SceNpTusDataInfo labelInfo;
 
-	sceClibPrintf("[TUS] UP: begin %u\n", slot);
-
 	ret = sceNpTusCreateRequest(m_ctx);
 	if (ret < 0)
 	{
@@ -142,18 +140,14 @@ int32_t nputils::TUS::UploadFile(uint32_t slot, const char *path)
 	file->Close();
 
 	sce_paf_memset(&labelInfo, 0, sizeof(SceNpTusDataInfo));
-	sce_paf_strncpy((char*)labelInfo.data, s_tag.c_str(), sizeof(labelInfo.data) - 1);
-	labelInfo.infoSize = sce_paf_strlen((char*)labelInfo.data) + 1;
-
-	sceClibPrintf("[TUS] UP: sceNpTusSetData() start with %s\n", common::FormatBytesize(fsz, 0).c_str());
+	sce_paf_strncpy(reinterpret_cast<char*>(labelInfo.data), s_tag.c_str(), sizeof(labelInfo.data) - 1);
+	labelInfo.infoSize = sce_paf_strlen(reinterpret_cast<char*>(labelInfo.data)) + 1;
 
 	ret = sceNpTusSetData(request, &m_npid, slot, fsz, fsz, fbuf, &labelInfo, sizeof(SceNpTusDataInfo), NULL, NULL, NULL);
 
 	sce_paf_free(fbuf);
 
 	sceNpTusDeleteRequest(request);
-
-	sceClibPrintf("[TUS] UP: %u OK!, error 0x%08X\n", slot, ret);
 
 	return ret;
 }
@@ -164,8 +158,6 @@ int32_t nputils::TUS::DownloadFile(uint32_t slot, const char *path)
 	int32_t request = 0;
 	int32_t recvedSize = 0;
 	SceNpTusDataStatus dataStatus;
-
-	sceClibPrintf("[TUS] DW: begin %u\n", slot);
 
 	ret = sceNpTusCreateRequest(m_ctx);
 	if (ret < 0)
@@ -194,7 +186,6 @@ int32_t nputils::TUS::DownloadFile(uint32_t slot, const char *path)
 			recvedSize = -1;
 			break;
 		}
-		sceClibPrintf("[TUS] DW: sceNpTusGetData() end with %s\n", common::FormatBytesize(ret, 0).c_str());
 
 		file->Write(s_opbuf, ret);
 		recvedSize += ret;
@@ -204,8 +195,6 @@ int32_t nputils::TUS::DownloadFile(uint32_t slot, const char *path)
 	file->Close();
 
 	sceNpTusDeleteRequest(request);
-
-	sceClibPrintf("[TUS] DW: %u OK!, error 0x%08X\n", slot, ret);
 
 	return recvedSize;
 }
@@ -224,14 +213,12 @@ int32_t nputils::TUS::UploadString(uint32_t slot, const string& data)
 	request = ret;
 
 	sce_paf_memset(&labelInfo, 0, sizeof(SceNpTusDataInfo));
-	sce_paf_strncpy((char*)labelInfo.data, s_tag.c_str(), sizeof(labelInfo.data) - 1);
-	labelInfo.infoSize = sce_paf_strlen((char*)labelInfo.data) + 1;
+	sce_paf_strncpy(reinterpret_cast<char*>(labelInfo.data), s_tag.c_str(), sizeof(labelInfo.data) - 1);
+	labelInfo.infoSize = sce_paf_strlen(reinterpret_cast<char*>(labelInfo.data)) + 1;
 
 	ret = sceNpTusSetData(request, &m_npid, slot, data.length(), data.length(), data.c_str(), &labelInfo, sizeof(SceNpTusDataInfo), NULL, NULL, NULL);
 
 	sceNpTusDeleteRequest(request);
-
-	sceClibPrintf("[TUS] UP: %u OK!, error 0x%08X\n", slot, ret);
 
 	return ret;
 }
@@ -367,7 +354,6 @@ int32_t nputils::Init(const char *tag, bool needTUS, const vector<uint32_t> *use
 			ret = s_tus->GetDataStatus(usedTUSSlots->at(0), &status);
 			if (ret < 0)
 			{
-				sceClibPrintf("[TUS] Init: data not found, all good\n");
 				Term();
 				return ret;
 			}
@@ -376,17 +362,8 @@ int32_t nputils::Init(const char *tag, bool needTUS, const vector<uint32_t> *use
 			{
 				if ((status.info.infoSize != s_tag.length() + 1) || sce_paf_strcmp(reinterpret_cast<char*>(status.info.data), s_tag.c_str()))
 				{
-					sceClibPrintf("[TUS] Init: data clean, previously were: %s\n", status.info.data);
 					s_tus->DeleteData(usedTUSSlots);
 				}
-				else
-				{
-					sceClibPrintf("[TUS] Init: data is native, all good\n");
-				}
-			}
-			else
-			{
-				sceClibPrintf("[TUS] Init: data not found, all good\n");
 			}
 		}
 	}

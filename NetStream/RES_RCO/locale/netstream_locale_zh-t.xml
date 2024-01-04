@@ -25,6 +25,7 @@
   <string src="註釋" id="msg_settings_comment" />
   <string src="質量" id="msg_settings_quality" />
   <string src="播放器" id="msg_settings_youtube_player" />
+  <string src="Cloud Sync" id="msg_settings_cloud_sync" />
   <string src="構建信息" id="msg_settings_verinfo" />
   
   <string src="主機地址" id="msg_http_host" />
@@ -80,6 +81,8 @@
   <string src="480P" id="msg_option_youtube_hls_quality_3" />
   <string src="720P" id="msg_option_youtube_hls_quality_4" />
 
+  <string src="Sync Data Automatically" id="msg_toggle_cloud_sync_auto" />
+
   <string src="開始最小化" id="msg_toggle_youtube_min" />
 
   <string src="清潔歷史" id="msg_settings_youtube_clean_history" />
@@ -89,5 +92,7 @@
   <string src="下載" id="msg_settings_youtube_download" />
   <string src="下載音頻" id="msg_settings_youtube_download_audio" />
   <string src="下載已添加到隊列中。" id="msg_settings_youtube_download_begin" />
+
+  <string src="PlayStation™Network error has occured. Cloud data sync will not be available. Make sure you are signed in to PlayStation™Network account." id="msg_error_psn_connection" />
 
 </stringset>

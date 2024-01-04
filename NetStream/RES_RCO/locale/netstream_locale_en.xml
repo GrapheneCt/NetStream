@@ -25,6 +25,7 @@
   <string src="Comments" id="msg_settings_comment" />
   <string src="Quality" id="msg_settings_quality" />
   <string src="Player" id="msg_settings_youtube_player" />
+  <string src="Cloud Sync" id="msg_settings_cloud_sync" />
   <string src="Build Information" id="msg_settings_verinfo" />
   
   <string src="Host Address" id="msg_http_host" />
@@ -80,6 +81,8 @@
   <string src="480P" id="msg_option_youtube_hls_quality_3" />
   <string src="720P" id="msg_option_youtube_hls_quality_4" />
 
+  <string src="Sync Data Automatically" id="msg_toggle_cloud_sync_auto" />
+  
   <string src="Start Minimized" id="msg_toggle_youtube_min" />
 
   <string src="Clear History" id="msg_settings_youtube_clean_history" />

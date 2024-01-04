@@ -212,11 +212,12 @@ namespace menu {
 		HlsCommentParseThread *m_hlsCommentThread;
 		bool m_lastAttempt;
 
-		const uint32_t k_settingsIdList[4] = {
+		const uint32_t k_settingsIdList[5] = {
 			youtube_search_setting,
 			youtube_comment_setting,
 			youtube_quality_setting,
-			youtube_player_setting
+			youtube_player_setting,
+			cloud_sync_setting
 		};
 	};
 }

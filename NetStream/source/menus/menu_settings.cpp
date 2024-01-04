@@ -23,7 +23,7 @@
 using namespace paf;
 using namespace sce;
 
-const int32_t k_settingsVersion = 5;
+const int32_t k_settingsVersion = 6;
 
 static sce::AppSettings *s_appSet = NULL;
 static menu::Settings *s_instance = NULL;
@@ -74,7 +74,7 @@ void menu::Settings::Init()
 	*verinfo = L"RELEASE ";
 #endif
 	*verinfo += WIDE(__DATE__);
-	*verinfo += L" v 3.13";
+	*verinfo += L" v 3.20";
 	s_verinfo = verinfo->c_str();
 }
 

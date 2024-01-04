@@ -65,6 +65,9 @@
     <setting_list id="youtube_player_setting" title="msg_settings_youtube_player" icon="tex_spanner">
       <toggle_switch id="toggle_youtube_min" title="msg_toggle_youtube_min" key="yt_min" default_value="1" />
     </setting_list>
+    <setting_list id="cloud_sync_setting" title="msg_settings_cloud_sync" icon="tex_spanner">
+      <toggle_switch id="toggle_cloud_sync_auto" title="msg_toggle_cloud_sync_auto" key="cloud_sync_auto" default_value="1" />
+    </setting_list>
     <setting_list id="verinfo_setting" title="msg_settings_verinfo" style="edit" icon="tex_spanner">
       <label id="label_verinfo" title="msg_verinfo" style="heading" />
     </setting_list>

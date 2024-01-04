@@ -25,6 +25,7 @@
   <string src="Комментарии" id="msg_settings_comment" />
   <string src="Качество" id="msg_settings_quality" />
   <string src="Проигрыватель" id="msg_settings_youtube_player" />
+  <string src="Синхронизация данных" id="msg_settings_cloud_sync" />
   <string src="Информация о приложении" id="msg_settings_verinfo" />
   
   <string src="Адрес" id="msg_http_host" />
@@ -80,6 +81,8 @@
   <string src="480P" id="msg_option_youtube_hls_quality_3" />
   <string src="720P" id="msg_option_youtube_hls_quality_4" />
 
+  <string src="Синхронизировать автоматически" id="msg_toggle_cloud_sync_auto" />
+
   <string src="Запускать в минимизированном виде" id="msg_toggle_youtube_min" />
 
   <string src="Очистить историю" id="msg_settings_youtube_clean_history" />
@@ -89,5 +92,7 @@
   <string src="Загрузить" id="msg_settings_youtube_download" />
   <string src="Загрузить аудио" id="msg_settings_youtube_download_audio" />
   <string src="Загрузка была начата успешно." id="msg_settings_youtube_download_begin" />
+
+  <string src="Произошла ошибка PlayStation™Network. Синхронизация данных с облаком будет недоступна. Убедитесь, что на системе выполнен вход в аккаунт PlayStation™Network." id="msg_error_psn_connection" />
 
 </stringset>

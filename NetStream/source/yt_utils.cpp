@@ -89,12 +89,7 @@ void ytutils::Log::Add(const char *data)
 	m_ini->add(dataCopy, "");
 	m_ini->flush();
 
-	if (m_tus != UINT_MAX)
-	{
-		sceClibPrintf("add of %u\n", m_tus);
-		UploadToTUS();
-		sceClibPrintf("add complete\n");
-	}
+	UploadToTUS();
 }
 
 void ytutils::Log::AddAsyncJob::Run()
@@ -113,12 +108,7 @@ void ytutils::Log::AddAsyncJob::Run()
 	m_parent->m_ini->add(m_data.c_str(), "");
 	m_parent->m_ini->flush();
 
-	if (m_parent->m_tus != UINT_MAX)
-	{
-		sceClibPrintf("add async of %u\n", m_parent->m_tus);
-		m_parent->UploadToTUS();
-		sceClibPrintf("add async\n");
-	}
+	m_parent->UploadToTUS();
 }
 
 void ytutils::Log::AddAsync(const char *data)
@@ -195,10 +185,14 @@ int32_t ytutils::HistLog::UpdateFromTUS()
 {
 	int32_t ret = SCE_OK;
 
+	if (m_tus == UINT_MAX)
+	{
+		return ret;
+	}
+
 	ret = nputils::GetTUS()->DownloadFile(m_tus, "savedata0:yt_hist_log_tus.ini");
 	if (ret < 0)
 	{
-		sceClibPrintf("update failed, uploading...\n");
 		LocalFile::RemoveFile("savedata0:yt_hist_log_tus.ini");
 		return UploadToTUS();
 	}
@@ -246,6 +240,11 @@ int32_t ytutils::HistLog::UploadToTUS()
 {
 	int32_t ret = SCE_OK;
 
+	if (m_tus == UINT_MAX)
+	{
+		return ret;
+	}
+
 	m_ini->flush();
 
 	ret = nputils::GetTUS()->UploadFile(m_tus, "savedata0:yt_hist_log.ini");
@@ -272,6 +271,11 @@ ytutils::FavLog::FavLog(uint32_t tus) : Log(tus)
 int32_t ytutils::FavLog::UpdateFromTUS()
 {
 	int32_t ret = SCE_OK;
+
+	if (m_tus == UINT_MAX)
+	{
+		return ret;
+	}
 
 	ret = nputils::GetTUS()->DownloadFile(m_tus, "savedata0:yt_fav_log_tus.ini");
 	if (ret < 0)
@@ -304,6 +308,11 @@ int32_t ytutils::FavLog::UpdateFromTUS()
 int32_t ytutils::FavLog::UploadToTUS()
 {
 	int32_t ret = SCE_OK;
+
+	if (m_tus == UINT_MAX)
+	{
+		return ret;
+	}
 
 	m_ini->flush();
 
