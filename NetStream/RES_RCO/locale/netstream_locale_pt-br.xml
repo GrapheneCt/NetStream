@@ -25,7 +25,7 @@
   <string src="Comentários" id="msg_settings_comment" />
   <string src="Qualidade" id="msg_settings_quality" />
   <string src="Reprodução" id="msg_settings_youtube_player" />
-  <string src="Cloud Sync" id="msg_settings_cloud_sync" />
+  <string src="Sincronizar na Nuvem" id="msg_settings_cloud_sync" />
   <string src="Informação de Versão" id="msg_settings_verinfo" />
   
   <string src="Endereço IP" id="msg_http_host" />
@@ -81,7 +81,7 @@
   <string src="480P" id="msg_option_youtube_hls_quality_3" />
   <string src="720P" id="msg_option_youtube_hls_quality_4" />
 
-  <string src="Sync Data Automatically" id="msg_toggle_cloud_sync_auto" />
+  <string src="Sincronizar Dados Automaticamente" id="msg_toggle_cloud_sync_auto" />
 
   <string src="Iniciar Minimizado" id="msg_toggle_youtube_min" />
 
@@ -93,6 +93,7 @@
   <string src="Baixar áudio" id="msg_settings_youtube_download_audio" />
   <string src="O vídeo foi adicionado a fila de Downloads." id="msg_settings_youtube_download_begin" />
 
-  <string src="PlayStation™Network error has occured. Cloud data sync will not be available. Make sure you are signed in to PlayStation™Network account." id="msg_error_psn_connection" />
+  <string src="Ocorreu um erro com a PlayStation™Network. Os dados na Nuvem não vão estar disponíveis. Tenha certeza que você está logado em uma conta da PlayStation™Network." id="msg_error_psn_connection" />
+  
 
 </stringset>
