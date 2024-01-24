@@ -25,7 +25,7 @@
   <string src="Comentarios" id="msg_settings_comment" />
   <string src="Calidad" id="msg_settings_quality" />
   <string src="Reproductor" id="msg_settings_youtube_player" />
-  <string src="Cloud Sync" id="msg_settings_cloud_sync" />
+  <string src="Sincronización en la nube" id="msg_settings_cloud_sync" />
   <string src="Información de compilación" id="msg_settings_verinfo" />
   
   <string src="Dirección de Host" id="msg_http_host" />
@@ -81,7 +81,7 @@
   <string src="480P" id="msg_option_youtube_hls_quality_3" />
   <string src="720P" id="msg_option_youtube_hls_quality_4" />
 
-  <string src="Sync Data Automatically" id="msg_toggle_cloud_sync_auto" />
+  <string src="Sincronizar datos automáticamente" id="msg_toggle_cloud_sync_auto" />
 
   <string src="Inicio minimizado" id="msg_toggle_youtube_min" />
 
