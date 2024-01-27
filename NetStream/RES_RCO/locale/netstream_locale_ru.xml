@@ -85,6 +85,8 @@
 
   <string src="Запускать в минимизированном виде" id="msg_toggle_youtube_min" />
 
+  <string src="Загрузить в облако" id="msg_settings_youtube_cloud_upload" />
+  <string src="Получить из облака" id="msg_settings_youtube_cloud_download" />
   <string src="Очистить историю" id="msg_settings_youtube_clean_history" />
   <string src="Очистить избранное" id="msg_settings_youtube_clean_fav" />
   <string src="Все записи в истории просмотров будут удалены. Продолжить?" id="msg_settings_youtube_clean_history_confirm" />

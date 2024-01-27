@@ -73,6 +73,8 @@
 #define msg_option_youtube_hls_quality_4 (0x80acb85a)
 #define msg_toggle_cloud_sync_auto (0x2144bf5c)
 #define msg_toggle_youtube_min (0x9236786a)
+#define msg_settings_youtube_cloud_upload (0x5fe6009c)
+#define msg_settings_youtube_cloud_download (0xb35e246e)
 #define msg_settings_youtube_clean_history (0xce0c7a4d)
 #define msg_settings_youtube_clean_fav (0x0342b229)
 #define msg_settings_youtube_clean_history_confirm (0xd3225a4e)

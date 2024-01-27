@@ -37,6 +37,8 @@ namespace menu {
 
 			virtual void GoToPrevPage() = 0;
 
+			virtual void GoToBasePageForSync() = 0;
+
 			virtual SubmenuType GetType() = 0;
 
 			ui::ListItem* CreateListItem(ui::listview::ItemFactory::CreateParam& param);
@@ -142,6 +144,8 @@ namespace menu {
 
 			void GoToPrevPage();
 
+			void GoToBasePageForSync();
+
 			SubmenuType GetType()
 			{
 				return SubmenuType_Search;
@@ -193,6 +197,8 @@ namespace menu {
 
 			void GoToPrevPage();
 
+			void GoToBasePageForSync();
+
 			SubmenuType GetType()
 			{
 				return SubmenuType_History;
@@ -236,6 +242,8 @@ namespace menu {
 
 			void GoToPrevPage();
 
+			void GoToBasePageForSync();
+
 			SubmenuType GetType()
 			{
 				return SubmenuType_Favourites;
@@ -274,6 +282,33 @@ namespace menu {
 		private:
 
 			Type m_type;
+		};
+
+		class CloudJob : public job::JobItem
+		{
+		public:
+
+			enum Type
+			{
+				Type_Upload,
+				Type_Download
+			};
+
+			CloudJob(Type type, Submenu *submenu) : job::JobItem("YouTube::CloudJob", NULL), m_type(type), m_submenu(submenu)
+			{
+
+			}
+
+			~CloudJob() {}
+
+			void Run();
+
+			void Finish() {}
+
+		private:
+
+			Type m_type;
+			Submenu *m_submenu;
 		};
 
 		YouTube();

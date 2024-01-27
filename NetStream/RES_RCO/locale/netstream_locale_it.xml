@@ -85,6 +85,8 @@
 
   <string src="Avvia ridotto a icona" id="msg_toggle_youtube_min" />
 
+  <string src="Upload To Cloud" id="msg_settings_youtube_cloud_upload" />
+  <string src="Get From Cloud" id="msg_settings_youtube_cloud_download" />
   <string src="Pulisci Cronologia" id="msg_settings_youtube_clean_history" />
   <string src="Pulisci i preferiti" id="msg_settings_youtube_clean_fav" />
   <string src="Tutti i record della cronologia verranno eliminati. Vuoi continuare?" id="msg_settings_youtube_clean_history_confirm" />

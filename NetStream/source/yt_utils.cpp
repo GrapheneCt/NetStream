@@ -137,12 +137,12 @@ void ytutils::Log::Remove(const char *data)
 	m_ini->flush();
 }
 
-int32_t ytutils::Log::UpdateFromTUS()
+int32_t ytutils::Log::UpdateFromTUS(uint32_t override)
 {
 	return SCE_OK;
 }
 
-int32_t ytutils::Log::UploadToTUS()
+int32_t ytutils::Log::UploadToTUS(uint32_t override)
 {
 	return SCE_OK;
 }
@@ -181,16 +181,29 @@ ytutils::HistLog::HistLog(uint32_t tus) : Log(tus)
 	m_ini->reset();
 }
 
-int32_t ytutils::HistLog::UpdateFromTUS()
+int32_t ytutils::HistLog::UpdateFromTUS(uint32_t override)
 {
-	int32_t ret = SCE_OK;
+	int32_t ret = SCE_ERROR_ERRNO_ECONNREFUSED;
+	uint32_t tus = m_tus;
 
-	if (m_tus == UINT_MAX || !nputils::IsAllGreen())
+	if (!nputils::IsAllGreen())
 	{
 		return ret;
 	}
 
-	ret = nputils::GetTUS()->DownloadFile(m_tus, "savedata0:yt_hist_log_tus.ini");
+	if (tus == UINT_MAX)
+	{
+		if (override == UINT_MAX)
+		{
+			return ret;
+		}
+		else
+		{
+			tus = override;
+		}
+	}
+
+	ret = nputils::GetTUS()->DownloadFile(tus, "savedata0:yt_hist_log_tus.ini");
 	if (ret < 0)
 	{
 		LocalFile::RemoveFile("savedata0:yt_hist_log_tus.ini");
@@ -236,18 +249,31 @@ int32_t ytutils::HistLog::UpdateFromTUS()
 	m_ini->reset();
 }
 
-int32_t ytutils::HistLog::UploadToTUS()
+int32_t ytutils::HistLog::UploadToTUS(uint32_t override)
 {
-	int32_t ret = SCE_OK;
+	int32_t ret = SCE_ERROR_ERRNO_ECONNREFUSED;
+	uint32_t tus = m_tus;
 
-	if (m_tus == UINT_MAX || !nputils::IsAllGreen())
+	if (!nputils::IsAllGreen())
 	{
 		return ret;
 	}
 
+	if (tus == UINT_MAX)
+	{
+		if (override == UINT_MAX)
+		{
+			return ret;
+		}
+		else
+		{
+			tus = override;
+		}
+	}
+
 	m_ini->flush();
 
-	ret = nputils::GetTUS()->UploadFile(m_tus, "savedata0:yt_hist_log.ini");
+	ret = nputils::GetTUS()->UploadFile(tus, "savedata0:yt_hist_log.ini");
 
 	return ret;
 }
@@ -268,16 +294,29 @@ ytutils::FavLog::FavLog(uint32_t tus) : Log(tus)
 	m_ini->open("savedata0:yt_fav_log.ini", "rw", 0);
 }
 
-int32_t ytutils::FavLog::UpdateFromTUS()
+int32_t ytutils::FavLog::UpdateFromTUS(uint32_t override)
 {
-	int32_t ret = SCE_OK;
+	int32_t ret = SCE_ERROR_ERRNO_ECONNREFUSED;
+	uint32_t tus = m_tus;
 
-	if (m_tus == UINT_MAX || !nputils::IsAllGreen())
+	if (!nputils::IsAllGreen())
 	{
 		return ret;
 	}
 
-	ret = nputils::GetTUS()->DownloadFile(m_tus, "savedata0:yt_fav_log_tus.ini");
+	if (tus == UINT_MAX)
+	{
+		if (override == UINT_MAX)
+		{
+			return ret;
+		}
+		else
+		{
+			tus = override;
+		}
+	}
+
+	ret = nputils::GetTUS()->DownloadFile(tus, "savedata0:yt_fav_log_tus.ini");
 	if (ret < 0)
 	{
 		LocalFile::RemoveFile("savedata0:yt_fav_log_tus.ini");
@@ -305,18 +344,31 @@ int32_t ytutils::FavLog::UpdateFromTUS()
 	m_ini->open("savedata0:yt_fav_log.ini", "rw", 0);
 }
 
-int32_t ytutils::FavLog::UploadToTUS()
+int32_t ytutils::FavLog::UploadToTUS(uint32_t override)
 {
-	int32_t ret = SCE_OK;
+	int32_t ret = SCE_ERROR_ERRNO_ECONNREFUSED;
+	uint32_t tus = m_tus;
 
-	if (m_tus == UINT_MAX || !nputils::IsAllGreen())
+	if (!nputils::IsAllGreen())
 	{
 		return ret;
 	}
 
+	if (tus == UINT_MAX)
+	{
+		if (override == UINT_MAX)
+		{
+			return ret;
+		}
+		else
+		{
+			tus = override;
+		}
+	}
+
 	m_ini->flush();
 
-	ret = nputils::GetTUS()->UploadFile(m_tus, "savedata0:yt_fav_log.ini");
+	ret = nputils::GetTUS()->UploadFile(tus, "savedata0:yt_fav_log.ini");
 
 	return ret;
 }

@@ -85,6 +85,8 @@
 
   <string src="Iniciar Minimizado" id="msg_toggle_youtube_min" />
 
+  <string src="Upload To Cloud" id="msg_settings_youtube_cloud_upload" />
+  <string src="Get From Cloud" id="msg_settings_youtube_cloud_download" />
   <string src="Limpar Histórico" id="msg_settings_youtube_clean_history" />
   <string src="Limpar Favoritos" id="msg_settings_youtube_clean_fav" />
   <string src="Todo o histórico de vídeos vai ser apagado! Deseja continuar?" id="msg_settings_youtube_clean_history_confirm" />

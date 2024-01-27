@@ -85,6 +85,8 @@
 
   <string src="Inicio minimizado" id="msg_toggle_youtube_min" />
 
+  <string src="Upload To Cloud" id="msg_settings_youtube_cloud_upload" />
+  <string src="Get From Cloud" id="msg_settings_youtube_cloud_download" />
   <string src="Borrar historial" id="msg_settings_youtube_clean_history" />
   <string src="Borrar favoritos" id="msg_settings_youtube_clean_fav" />
   <string src="Se borrará todo de historial. ¿Continuar?" id="msg_settings_youtube_clean_history_confirm" />

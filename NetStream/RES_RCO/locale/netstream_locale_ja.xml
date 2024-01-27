@@ -85,6 +85,8 @@
 
   <string src="最小化して開始する" id="msg_toggle_youtube_min" />
 
+  <string src="Upload To Cloud" id="msg_settings_youtube_cloud_upload" />
+  <string src="Get From Cloud" id="msg_settings_youtube_cloud_download" />
   <string src="履歴の消去" id="msg_settings_youtube_clean_history" />
   <string src="お気に入りの消去" id="msg_settings_youtube_clean_fav" />
   <string src="全ての履歴が削除されます。 続けますか？" id="msg_settings_youtube_clean_history_confirm" />

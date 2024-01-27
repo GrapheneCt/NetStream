@@ -85,6 +85,8 @@
 
   <string src="开始最小化" id="msg_toggle_youtube_min" />
 
+  <string src="Upload To Cloud" id="msg_settings_youtube_cloud_upload" />
+  <string src="Get From Cloud" id="msg_settings_youtube_cloud_download" />
   <string src="清洁历史" id="msg_settings_youtube_clean_history" />
   <string src="清理收藏夹" id="msg_settings_youtube_clean_fav" />
   <string src="所有历史记录将被删除。 继续？" id="msg_settings_youtube_clean_history_confirm" />
