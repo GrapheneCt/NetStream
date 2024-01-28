@@ -66,6 +66,7 @@
       <toggle_switch id="toggle_youtube_min" title="msg_toggle_youtube_min" key="yt_min" default_value="1" />
     </setting_list>
     <setting_list id="cloud_sync_setting" title="msg_settings_cloud_sync" icon="tex_spanner">
+      <toggle_switch id="toggle_cloud_sync" title="msg_toggle_cloud_sync" hint="msg_cloud_sync_hint" key="cloud_sync" default_value="1" />
       <toggle_switch id="toggle_cloud_sync_auto" title="msg_toggle_cloud_sync_auto" key="cloud_sync_auto" default_value="1" />
     </setting_list>
     <setting_list id="verinfo_setting" title="msg_settings_verinfo" style="edit" icon="tex_spanner">

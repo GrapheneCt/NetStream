@@ -38,7 +38,7 @@
   <string src="Пользователь" id="msg_ftp_user" />
   <string src="Пароль" id="msg_ftp_password" />
   <string src="Использовать NLST" id="msg_ftp_nlst" />
-  <string src="Включение этой опции позволяет NetStream отправлять на FTP-сервер команду NLST вместо команды LIST. Эта опция ускоряет работу приложения, но может не поддерживаться некоторыми FTP-серверами." id="msg_ftp_nlst_hint" />
+  <string src="Включение этой опции позволяет NetStream отправлять на FTP-сервер команду NLST вместо команды LIST. Эта опция ускоряет работу приложения, но может не поддерживаться некоторыми FTP-серверами." id="msg_cloud_sync_hint" />
 
   <string src="Префикс для относительных плейлистов .m3u8" id="msg_local_playlist_prefix" />
   <string src="Сортировка по имени" id="msg_local_sort_name" />
@@ -81,7 +81,9 @@
   <string src="480P" id="msg_option_youtube_hls_quality_3" />
   <string src="720P" id="msg_option_youtube_hls_quality_4" />
 
+  <string src="Использовать синхронизацию" id="msg_toggle_cloud_sync" />
   <string src="Синхронизировать автоматически" id="msg_toggle_cloud_sync_auto" />
+  <string src="Эта опция позволяет осуществлять синхронизацию некоторых данных приложения, таких как история и избранное YouTube, с облаком PlayStation™Network. После включения данной опции приложение необходимо перезапустить для применения изменений." id="msg_ftp_nlst_hint" />
 
   <string src="Запускать в минимизированном виде" id="msg_toggle_youtube_min" />
 
@@ -95,6 +97,6 @@
   <string src="Загрузить аудио" id="msg_settings_youtube_download_audio" />
   <string src="Загрузка была начата успешно." id="msg_settings_youtube_download_begin" />
 
-  <string src="Произошла ошибка PlayStation™Network. Синхронизация данных с облаком будет недоступна. Убедитесь, что на системе выполнен вход в аккаунт PlayStation™Network." id="msg_error_psn_connection" />
+  <string src="Произошла ошибка PlayStation™Network. Синхронизация данных с облаком будет недоступна. Убедитесь, что приложение было перезапущенно после включения синхронизации с облаком." id="msg_error_psn_connection" />
 
 </stringset>

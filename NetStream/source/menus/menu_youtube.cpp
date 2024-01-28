@@ -419,6 +419,7 @@ void menu::YouTube::HistorySubmenu::Parse()
 {
 	string text8;
 	char *entryData;
+	int32_t sync = 0;
 	int32_t ret = 0;
 	InvItemVideo *invItem;
 	char key[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
@@ -427,7 +428,12 @@ void menu::YouTube::HistorySubmenu::Parse()
 	m_baseParent->m_loaderIndicator->Start();
 	thread::RMutex::main_thread_mutex.Unlock();
 
-	ytutils::GetHistLog()->UpdateFromTUS();
+	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
+	settings->GetInt("cloud_sync_auto", static_cast<int32_t *>(&sync), 0);
+	if (sync)
+	{
+		ytutils::GetHistLog()->UpdateFromTUS();
+	}
 
 	ytutils::GetHistLog()->Reset();
 	int32_t totalNum = ytutils::GetHistLog()->GetSize();
@@ -554,6 +560,7 @@ void menu::YouTube::FavouriteSubmenu::Parse()
 {
 	string text8;
 	char *entryData;
+	int32_t sync = 0;
 	int32_t ret = 0;
 	InvItemVideo *invItem = NULL;
 	bool isLastPage = false;
@@ -562,7 +569,9 @@ void menu::YouTube::FavouriteSubmenu::Parse()
 	m_baseParent->m_loaderIndicator->Start();
 	thread::RMutex::main_thread_mutex.Unlock();
 
-	if (m_currentPage == 0)
+	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
+	settings->GetInt("cloud_sync_auto", static_cast<int32_t *>(&sync), 0);
+	if (sync && m_currentPage == 0)
 	{
 		ytutils::GetFavLog()->UpdateFromTUS();
 	}
@@ -814,18 +823,25 @@ menu::YouTube::FavouriteSubmenu::~FavouriteSubmenu()
 
 void menu::YouTube::OnSettingsButton()
 {
+	int32_t sync = 0;
 	vector<OptionMenu::Button> buttons;
 	OptionMenu::Button bt;
 	bt.label = g_appPlugin->GetString(msg_settings);
-	buttons.push_back(bt);
-	bt.label = g_appPlugin->GetString(msg_settings_youtube_cloud_upload);
-	buttons.push_back(bt);
-	bt.label = g_appPlugin->GetString(msg_settings_youtube_cloud_download);
 	buttons.push_back(bt);
 	bt.label = g_appPlugin->GetString(msg_settings_youtube_clean_history);
 	buttons.push_back(bt);
 	bt.label = g_appPlugin->GetString(msg_settings_youtube_clean_fav);
 	buttons.push_back(bt);
+
+	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
+	settings->GetInt("cloud_sync", static_cast<int32_t *>(&sync), 0);
+	if (sync)
+	{
+		bt.label = g_appPlugin->GetString(msg_settings_youtube_cloud_upload);
+		buttons.push_back(bt);
+		bt.label = g_appPlugin->GetString(msg_settings_youtube_cloud_download);
+		buttons.push_back(bt);
+	}
 
 	new OptionMenu(g_appPlugin, m_root, &buttons);
 }
@@ -842,7 +858,6 @@ void menu::YouTube::OnOptionMenuEvent(int32_t type, int32_t subtype)
 		return;
 	}
 
-	bool isCloudJob = false;
 	CloudJob *cloudJob = NULL;
 
 	switch (subtype)
@@ -851,24 +866,22 @@ void menu::YouTube::OnOptionMenuEvent(int32_t type, int32_t subtype)
 		menu::SettingsButtonCbFun(ui::Button::CB_BTN_DECIDE, NULL, 0, NULL);
 		break;
 	case 1:
-		cloudJob = new CloudJob(CloudJob::Type_Upload, m_currentSubmenu);
-		isCloudJob = true;
-		break;
-	case 2:
-		cloudJob = new CloudJob(CloudJob::Type_Download, m_currentSubmenu);
-		isCloudJob = true;
-		break;
-	case 3:
 		dialog::OpenYesNo(g_appPlugin, NULL, g_appPlugin->GetString(msg_settings_youtube_clean_history_confirm));
 		m_dialogIdx = subtype;
 		break;
-	case 4:
+	case 2:
 		dialog::OpenYesNo(g_appPlugin, NULL, g_appPlugin->GetString(msg_settings_youtube_clean_fav_confirm));
 		m_dialogIdx = subtype;
 		break;
+	case 3:
+		cloudJob = new CloudJob(CloudJob::Type_Upload, m_currentSubmenu);
+		break;
+	case 4:
+		cloudJob = new CloudJob(CloudJob::Type_Download, m_currentSubmenu);
+		break;
 	}
 
-	if (isCloudJob)
+	if (cloudJob)
 	{
 		m_currentSubmenu->ReleaseCurrentPage();
 		common::SharedPtr<job::JobItem> itemParam(cloudJob);
@@ -896,7 +909,8 @@ void menu::YouTube::OnDialogEvent(int32_t type)
 			break;
 		}
 
-		LogClearJob *job = new LogClearJob(clearType);
+		m_currentSubmenu->ReleaseCurrentPage();
+		LogClearJob *job = new LogClearJob(clearType, m_currentSubmenu);
 		common::SharedPtr<job::JobItem> itemParam(job);
 		job::JobQueue::default_queue->Enqueue(itemParam);
 	}
@@ -938,6 +952,11 @@ void menu::YouTube::LogClearJob::Run()
 		break;
 	}
 
+	if (m_submenu)
+	{
+		m_submenu->GoToBasePageForSync();
+	}
+
 	dialog::Close();
 }
 
@@ -949,34 +968,25 @@ void menu::YouTube::CloudJob::Run()
 
 	if (!nputils::IsAllGreen())
 	{
-		vector<uint32_t> tusSlots;
-		tusSlots.push_back(NP_TUS_HIST_LOG_SLOT);
-		tusSlots.push_back(NP_TUS_FAV_LOG_SLOT);
-
-		ret = nputils::Init("NetStream", true, &tusSlots);
-		if (ret != SCE_OK)
-		{
-			dialog::Close();
-			dialog::OpenError(g_appPlugin, ret, g_appPlugin->GetString(msg_error_psn_connection));
-			return;
-		}
+		dialog::Close();
+		dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_EUNSUP, g_appPlugin->GetString(msg_error_psn_connection));
+		return;
 	}
 
 	switch (m_type)
 	{
 	case Type_Upload:
-		ytutils::GetFavLog()->UploadToTUS(NP_TUS_FAV_LOG_SLOT);
-		ytutils::GetHistLog()->UploadToTUS(NP_TUS_HIST_LOG_SLOT);
+		ytutils::GetFavLog()->UploadToTUS();
+		ytutils::GetHistLog()->UploadToTUS();
 		break;
 	case Type_Download:
-		ytutils::GetFavLog()->UpdateFromTUS(NP_TUS_FAV_LOG_SLOT);
-		ytutils::GetHistLog()->UpdateFromTUS(NP_TUS_HIST_LOG_SLOT);
+		ytutils::GetFavLog()->UpdateFromTUS();
+		ytutils::GetHistLog()->UpdateFromTUS();
+		if (m_submenu)
+		{
+			m_submenu->GoToBasePageForSync();
+		}
 		break;
-	}
-
-	if (m_submenu)
-	{
-		m_submenu->GoToBasePageForSync();
 	}
 
 	dialog::Close();

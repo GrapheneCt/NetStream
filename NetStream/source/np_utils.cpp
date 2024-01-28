@@ -2,6 +2,9 @@
 #include <paf.h>
 #include <stdlib.h>
 #include <np.h>
+#include <libsysmodule.h>
+#include <common_dialog.h>
+#include <netcheck_dialog_internal.h>
 
 #include "np_utils.h"
 
@@ -59,6 +62,7 @@ static const SceNpCommunicationConfig s_commConfig = {
 static nputils::TUS *s_tus = NULL;
 static char s_opbuf[SCE_KERNEL_1KiB];
 static string s_tag;
+static int32_t s_preInitRet = SCE_OK;
 
 nputils::TUS::TUS()
 {
@@ -318,15 +322,27 @@ int32_t nputils::TUS::DeleteData(const vector<uint32_t> *slots)
 	return ret;
 }
 
-int32_t nputils::Init(const char *tag, bool needTUS, const vector<uint32_t> *usedTUSSlots)
+int32_t nputils::PreInit(thread::SyncCall::Function onComplete)
 {
+	s_preInitRet = SCE_OK;
+
 	int32_t ret = sceNpInit(&s_commConfig, NULL);
 	if (ret < 0)
 	{
+		s_preInitRet = ret;
+		thread::SyncCall::main_thread_synccall.Enqueue(onComplete, &s_preInitRet);
 		return ret;
 	}
 
-	ret = sceNpAuthInit();
+	thread::SyncCall::main_thread_synccall.Enqueue(NetDialogInit, NULL);
+	common::MainThreadCallList::Register(NetDialogCheck, onComplete);
+
+	return ret;
+}
+
+int32_t nputils::Init(const char *tag, bool needTUS, const vector<uint32_t> *usedTUSSlots)
+{
+	int32_t ret = sceNpAuthInit();
 	if (ret < 0)
 	{
 		Term();
@@ -386,11 +402,14 @@ int32_t nputils::Term()
 
 bool nputils::IsAllGreen()
 {
-	SceNpId id;
+	SceNpServiceState state;
 
-	if (sceNpManagerGetNpId(&id) == SCE_OK)
+	if (sceNpGetServiceState(&state) == SCE_OK)
 	{
-		return true;
+		if (state == SCE_NP_SERVICE_STATE_ONLINE)
+		{
+			return true;
+		}
 	}
 	
 	return false;
@@ -399,4 +418,77 @@ bool nputils::IsAllGreen()
 nputils::TUS *nputils::GetTUS()
 {
 	return s_tus;
+}
+
+void nputils::NetDialogInit(void *data)
+{
+	int32_t ret = 0;
+
+	sceSysmoduleLoadModule(SCE_SYSMODULE_HTTP);
+	sceSysmoduleLoadModule(SCE_SYSMODULE_SSL);
+
+	sceSslInit(SCE_NETCHECK_DIALOG_LEAST_SSL_POOL_SIZE + SCE_KERNEL_4KiB);
+	sceHttpInit(SCE_NETCHECK_DIALOG_LEAST_HTTP_POOL_SIZE + SCE_KERNEL_4KiB);
+
+	SceNetCheckDialogParam param;
+	SceNetCheckDialogParamInternal iparam;
+	sceNetCheckDialogParamInitInternal(&param, &iparam);
+
+	param.defaultAgeRestriction = 1;
+
+	param.mode = SCE_NETCHECK_DIALOG_MODE_PSN_ONLINE;
+
+	iparam.unk_00 = 1;
+	iparam.skipSignIn = 1;
+
+	ret = sceNetCheckDialogInitInternal(&param, &iparam);
+	if (ret < 0)
+	{
+		sceSslTerm();
+		sceHttpTerm();
+		sceSysmoduleUnloadModule(SCE_SYSMODULE_SSL);
+		sceSysmoduleUnloadModule(SCE_SYSMODULE_HTTP);
+		s_preInitRet = ret;
+	}
+}
+
+void nputils::NetDialogCheck(void *data)
+{
+	thread::SyncCall::Function func = static_cast<thread::SyncCall::Function>(data);
+	SceNetCheckDialogResult result;
+
+	if (s_preInitRet < 0)
+	{
+		sceSslTerm();
+		sceHttpTerm();
+		sceSysmoduleUnloadModule(SCE_SYSMODULE_SSL);
+		sceSysmoduleUnloadModule(SCE_SYSMODULE_HTTP);
+		func(&s_preInitRet);
+		common::MainThreadCallList::Unregister(NetDialogCheck, data);
+	}
+
+	int32_t ret = sceNetCheckDialogGetStatus();
+	if (ret == SCE_COMMON_DIALOG_STATUS_FINISHED)
+	{
+		sceNetCheckDialogGetResult(&result);
+		if (result.result != SCE_OK)
+		{
+			s_preInitRet = result.result;
+			if (s_preInitRet == 1)
+			{
+				s_preInitRet = SCE_NETCHECK_DIALOG_ERROR_SIGN_OUT;
+			}
+		}
+		sceNetCheckDialogTerm();
+		sceSslTerm();
+		sceHttpTerm();
+		sceSysmoduleUnloadModule(SCE_SYSMODULE_SSL);
+		sceSysmoduleUnloadModule(SCE_SYSMODULE_HTTP);
+		func(&s_preInitRet);
+		common::MainThreadCallList::Unregister(NetDialogCheck, data);
+	}
+	else if (ret < 0)
+	{
+		s_preInitRet = ret;
+	}
 }

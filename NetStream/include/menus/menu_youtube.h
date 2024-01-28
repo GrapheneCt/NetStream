@@ -268,7 +268,7 @@ namespace menu {
 				Type_Hist
 			};
 
-			LogClearJob(Type type) : job::JobItem("YouTube::LogClearJob", NULL), m_type(type)
+			LogClearJob(Type type, Submenu *submenu) : job::JobItem("YouTube::LogClearJob", NULL), m_type(type), m_submenu(submenu)
 			{
 
 			}
@@ -282,6 +282,7 @@ namespace menu {
 		private:
 
 			Type m_type;
+			Submenu *m_submenu;
 		};
 
 		class CloudJob : public job::JobItem

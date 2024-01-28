@@ -35,6 +35,23 @@ Plugin *g_appPlugin;
 intrusive_ptr<graph::Surface> g_texCheckMark;
 intrusive_ptr<graph::Surface> g_texTransparent;
 
+void menu::main::OnNpDialogComplete(void *data)
+{
+	int32_t ret = *(int32_t *)(data);
+	if (ret >= 0 && nputils::IsAllGreen())
+	{
+		dialog::OpenPleaseWait(g_appPlugin, NULL, Framework::Instance()->GetCommonString("msg_wait"));
+
+		menu::main::NetcheckJob *ncJob = new menu::main::NetcheckJob(menu::main::NetcheckJob::Type_NpOnly);
+		common::SharedPtr<job::JobItem> itemParam(ncJob);
+		job::JobQueue::default_queue->Enqueue(itemParam);
+	}
+	else
+	{
+		dialog::OpenError(g_appPlugin, ret, g_appPlugin->GetString(msg_error_psn_connection));
+	}
+}
+
 void menu::main::NetcheckJob::Run()
 {
 	int32_t ret = SCE_OK;
@@ -44,8 +61,24 @@ void menu::main::NetcheckJob::Run()
 	int sarg[2];
 	SceNetInitParam param;
 
-	param.memory = sce_paf_malloc(SCE_KERNEL_16KiB);
-	param.size = SCE_KERNEL_16KiB;
+	if (m_type == Type_NpOnly)
+	{
+		vector<uint32_t> tusSlots;
+		tusSlots.push_back(NP_TUS_HIST_LOG_SLOT);
+		tusSlots.push_back(NP_TUS_FAV_LOG_SLOT);
+
+		ret = nputils::Init("NetStream", true, &tusSlots);
+		dialog::Close();
+		if (ret < 0)
+		{
+			dialog::OpenError(g_appPlugin, ret, g_appPlugin->GetString(msg_error_psn_connection));
+		}
+
+		return;
+	}
+
+	param.memory = sce_paf_malloc(SCE_KERNEL_32KiB);
+	param.size = SCE_KERNEL_32KiB;
 	param.flags = 0;
 	ret = sceNetInit(&param);
 	while (ret != SCE_OK)
@@ -70,29 +103,15 @@ void menu::main::NetcheckJob::Run()
 
 	menu::Settings::Init();
 
-	ret = SCE_OK;
-
-	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
-	settings->GetInt("cloud_sync_auto", static_cast<int32_t *>(&sync), 0);
-	if (sync)
-	{
-		vector<uint32_t> tusSlots;
-		tusSlots.push_back(NP_TUS_HIST_LOG_SLOT);
-		tusSlots.push_back(NP_TUS_FAV_LOG_SLOT);
-
-		ret = nputils::Init("NetStream", true, &tusSlots);
-		ytutils::Init(NP_TUS_HIST_LOG_SLOT, NP_TUS_FAV_LOG_SLOT);
-	}
-	else
-	{
-		ytutils::Init();
-	}
+	ytutils::Init(NP_TUS_HIST_LOG_SLOT, NP_TUS_FAV_LOG_SLOT);
 
 	dialog::Close();
 
-	if (ret < 0)
+	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
+	settings->GetInt("cloud_sync", static_cast<int32_t *>(&sync), 0);
+	if (sync)
 	{
-		dialog::OpenError(g_appPlugin, ret, g_appPlugin->GetString(msg_error_psn_connection));
+		nputils::PreInit(OnNpDialogComplete);
 	}
 
 	sceAppMgrAppParamGetString(SCE_KERNEL_PROCESS_ID_SELF, 12, titleid, 12);
@@ -118,7 +137,7 @@ void pluginLoadCB(Plugin *plugin)
 
 	dialog::OpenPleaseWait(g_appPlugin, NULL, fw->GetCommonString("msg_wait"));
 
-	menu::main::NetcheckJob *ncJob = new menu::main::NetcheckJob("NS::NetcheckJob");
+	menu::main::NetcheckJob *ncJob = new menu::main::NetcheckJob(menu::main::NetcheckJob::Type_Initial);
 	common::SharedPtr<job::JobItem> itemParam(ncJob);
 	job::JobQueue::default_queue->Enqueue(itemParam);
 

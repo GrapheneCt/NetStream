@@ -41,6 +41,8 @@ namespace nputils
 		int32_t m_ctx;
 	};
 
+	int32_t PreInit(thread::SyncCall::Function onComplete);
+
 	int32_t Init(const char *tag = NULL, bool needTUS = false, const vector<uint32_t> *usedTUSSlots = NULL);
 
 	int32_t Term();
@@ -48,6 +50,10 @@ namespace nputils
 	bool IsAllGreen();
 
 	TUS *GetTUS();
+
+	void NetDialogInit(void *data);
+
+	void NetDialogCheck(void *data);
 };
 
 #endif

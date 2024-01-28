@@ -73,6 +73,7 @@ void ytutils::Log::Reset()
 
 void ytutils::Log::Add(const char *data)
 {
+	int32_t sync = 0;
 	char *sptr;
 	char dataCopy[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
 	sce_paf_strncpy(dataCopy, data, SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE);
@@ -89,11 +90,17 @@ void ytutils::Log::Add(const char *data)
 	m_ini->add(dataCopy, "");
 	m_ini->flush();
 
-	UploadToTUS();
+	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
+	settings->GetInt("cloud_sync_auto", static_cast<int32_t *>(&sync), 0);
+	if (sync)
+	{
+		UploadToTUS();
+	}
 }
 
 void ytutils::Log::AddAsyncJob::Run()
 {
+	int32_t sync = 0;
 	char *sptr;
 
 	// Replace '=' in playlists with '}' to not confuse INI processor
@@ -108,7 +115,12 @@ void ytutils::Log::AddAsyncJob::Run()
 	m_parent->m_ini->add(m_data.c_str(), "");
 	m_parent->m_ini->flush();
 
-	m_parent->UploadToTUS();
+	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
+	settings->GetInt("cloud_sync_auto", static_cast<int32_t *>(&sync), 0);
+	if (sync)
+	{
+		m_parent->UploadToTUS();
+	}
 }
 
 void ytutils::Log::AddAsync(const char *data)
@@ -137,12 +149,12 @@ void ytutils::Log::Remove(const char *data)
 	m_ini->flush();
 }
 
-int32_t ytutils::Log::UpdateFromTUS(uint32_t override)
+int32_t ytutils::Log::UpdateFromTUS()
 {
 	return SCE_OK;
 }
 
-int32_t ytutils::Log::UploadToTUS(uint32_t override)
+int32_t ytutils::Log::UploadToTUS()
 {
 	return SCE_OK;
 }
@@ -181,7 +193,7 @@ ytutils::HistLog::HistLog(uint32_t tus) : Log(tus)
 	m_ini->reset();
 }
 
-int32_t ytutils::HistLog::UpdateFromTUS(uint32_t override)
+int32_t ytutils::HistLog::UpdateFromTUS()
 {
 	int32_t ret = SCE_ERROR_ERRNO_ECONNREFUSED;
 	uint32_t tus = m_tus;
@@ -193,14 +205,7 @@ int32_t ytutils::HistLog::UpdateFromTUS(uint32_t override)
 
 	if (tus == UINT_MAX)
 	{
-		if (override == UINT_MAX)
-		{
-			return ret;
-		}
-		else
-		{
-			tus = override;
-		}
+		return ret;
 	}
 
 	ret = nputils::GetTUS()->DownloadFile(tus, "savedata0:yt_hist_log_tus.ini");
@@ -249,7 +254,7 @@ int32_t ytutils::HistLog::UpdateFromTUS(uint32_t override)
 	m_ini->reset();
 }
 
-int32_t ytutils::HistLog::UploadToTUS(uint32_t override)
+int32_t ytutils::HistLog::UploadToTUS()
 {
 	int32_t ret = SCE_ERROR_ERRNO_ECONNREFUSED;
 	uint32_t tus = m_tus;
@@ -261,14 +266,7 @@ int32_t ytutils::HistLog::UploadToTUS(uint32_t override)
 
 	if (tus == UINT_MAX)
 	{
-		if (override == UINT_MAX)
-		{
-			return ret;
-		}
-		else
-		{
-			tus = override;
-		}
+		return ret;
 	}
 
 	m_ini->flush();
@@ -294,7 +292,7 @@ ytutils::FavLog::FavLog(uint32_t tus) : Log(tus)
 	m_ini->open("savedata0:yt_fav_log.ini", "rw", 0);
 }
 
-int32_t ytutils::FavLog::UpdateFromTUS(uint32_t override)
+int32_t ytutils::FavLog::UpdateFromTUS()
 {
 	int32_t ret = SCE_ERROR_ERRNO_ECONNREFUSED;
 	uint32_t tus = m_tus;
@@ -306,14 +304,7 @@ int32_t ytutils::FavLog::UpdateFromTUS(uint32_t override)
 
 	if (tus == UINT_MAX)
 	{
-		if (override == UINT_MAX)
-		{
-			return ret;
-		}
-		else
-		{
-			tus = override;
-		}
+		return ret;
 	}
 
 	ret = nputils::GetTUS()->DownloadFile(tus, "savedata0:yt_fav_log_tus.ini");
@@ -344,7 +335,7 @@ int32_t ytutils::FavLog::UpdateFromTUS(uint32_t override)
 	m_ini->open("savedata0:yt_fav_log.ini", "rw", 0);
 }
 
-int32_t ytutils::FavLog::UploadToTUS(uint32_t override)
+int32_t ytutils::FavLog::UploadToTUS()
 {
 	int32_t ret = SCE_ERROR_ERRNO_ECONNREFUSED;
 	uint32_t tus = m_tus;
@@ -356,14 +347,7 @@ int32_t ytutils::FavLog::UploadToTUS(uint32_t override)
 
 	if (tus == UINT_MAX)
 	{
-		if (override == UINT_MAX)
-		{
-			return ret;
-		}
-		else
-		{
-			tus = override;
-		}
+		return ret;
 	}
 
 	m_ini->flush();
@@ -378,7 +362,10 @@ void ytutils::FavLog::Clean()
 	if (s_favLog)
 	{
 		uint32_t oldTus = s_favLog->m_tus;
-		nputils::GetTUS()->UploadString(s_favLog->m_tus, " ");
+		if (nputils::IsAllGreen())
+		{
+			nputils::GetTUS()->UploadString(s_favLog->m_tus, " ");
+		}
 		delete s_favLog;
 		LocalFile::RemoveFile("savedata0:yt_fav_log.ini");
 		s_favLog = new ytutils::FavLog(oldTus);
@@ -390,7 +377,10 @@ void ytutils::HistLog::Clean()
 	if (s_histLog)
 	{
 		uint32_t oldTus = s_histLog->m_tus;
-		nputils::GetTUS()->UploadString(s_histLog->m_tus, " ");
+		if (nputils::IsAllGreen())
+		{
+			nputils::GetTUS()->UploadString(s_histLog->m_tus, " ");
+		}
 		delete s_histLog;
 		LocalFile::RemoveFile("savedata0:yt_hist_log.ini");
 		s_histLog = new ytutils::HistLog(oldTus);

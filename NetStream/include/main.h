@@ -17,14 +17,29 @@ namespace menu {
 		{
 		public:
 
-			using job::JobItem::JobItem;
+			enum Type
+			{
+				Type_Initial,
+				Type_NpOnly
+			};
+
+			NetcheckJob(Type type) : job::JobItem("NS::NetcheckJob", NULL), m_type(type)
+			{
+
+			}
 
 			~NetcheckJob() {}
 
 			void Run();
 
 			void Finish() {}
+
+		private:
+
+			Type m_type;
 		};
+
+		void OnNpDialogComplete(void *data);
 	}
 }
 

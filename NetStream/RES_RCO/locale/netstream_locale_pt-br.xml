@@ -81,7 +81,9 @@
   <string src="480P" id="msg_option_youtube_hls_quality_3" />
   <string src="720P" id="msg_option_youtube_hls_quality_4" />
 
+  <string src="Use Cloud Sync" id="msg_toggle_cloud_sync" />
   <string src="Sincronizar Dados Automaticamente" id="msg_toggle_cloud_sync_auto" />
+  <string src="Cloud sync option allows you to sync various data such as YouTube history and favourites, with cloud storage. This feature uses cloud storage provided by PlayStation™Network. Please restart this application after enabling this feature." id="msg_cloud_sync_hint" />
 
   <string src="Iniciar Minimizado" id="msg_toggle_youtube_min" />
 
@@ -95,7 +97,6 @@
   <string src="Baixar áudio" id="msg_settings_youtube_download_audio" />
   <string src="O vídeo foi adicionado a fila de Downloads." id="msg_settings_youtube_download_begin" />
 
-  <string src="Ocorreu um erro com a PlayStation™Network. Os dados na Nuvem não vão estar disponíveis. Tenha certeza que você está logado em uma conta da PlayStation™Network." id="msg_error_psn_connection" />
-  
+  <string src="PlayStation™Network error has occured. Cloud data sync will not be available. If you enabled cloud sync option, please restart this application before using it." id="msg_error_psn_connection" />
 
 </stringset>

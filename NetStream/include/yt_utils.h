@@ -64,9 +64,9 @@ namespace ytutils
 
 		virtual int32_t GetSize();
 
-		virtual int32_t UpdateFromTUS(uint32_t override = UINT_MAX);
+		virtual int32_t UpdateFromTUS();
 
-		virtual int32_t UploadToTUS(uint32_t override = UINT_MAX);
+		virtual int32_t UploadToTUS();
 
 	protected:
 
@@ -80,9 +80,9 @@ namespace ytutils
 
 		HistLog(uint32_t tus = UINT_MAX);
 
-		virtual int32_t UpdateFromTUS(uint32_t override = UINT_MAX);
+		virtual int32_t UpdateFromTUS();
 
-		virtual int32_t UploadToTUS(uint32_t override = UINT_MAX);
+		virtual int32_t UploadToTUS();
 
 		static void Clean();
 
@@ -95,9 +95,9 @@ namespace ytutils
 
 		FavLog(uint32_t tus = UINT_MAX);
 
-		virtual int32_t UpdateFromTUS(uint32_t override = UINT_MAX);
+		virtual int32_t UpdateFromTUS();
 
-		virtual int32_t UploadToTUS(uint32_t override = UINT_MAX);
+		virtual int32_t UploadToTUS();
 
 		static void Clean();
 	};

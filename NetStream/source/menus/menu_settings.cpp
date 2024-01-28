@@ -23,7 +23,7 @@
 using namespace paf;
 using namespace sce;
 
-const int32_t k_settingsVersion = 7;
+const int32_t k_settingsVersion = 8;
 
 static sce::AppSettings *s_appSet = NULL;
 static menu::Settings *s_instance = NULL;
