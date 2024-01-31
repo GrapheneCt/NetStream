@@ -510,7 +510,9 @@ void menu::PlayerYoutube::OnDescButton()
 		if (m_hlsCommentThread)
 		{
 			m_hlsCommentThread->Cancel();
+			thread::RMutex::main_thread_mutex.Unlock();
 			m_hlsCommentThread->Join();
+			thread::RMutex::main_thread_mutex.Lock();
 			delete m_hlsCommentThread;
 			m_hlsCommentThread = NULL;
 		}
