@@ -81,7 +81,7 @@
   <string src="480P" id="msg_option_youtube_hls_quality_3" />
   <string src="720P" id="msg_option_youtube_hls_quality_4" />
 
-  <string src="Usar sincronización en la nube" id="msg_toggle_cloud_sync" />
+  <string src="Usar la sincronización en la nube" id="msg_toggle_cloud_sync" />
   <string src="Sincronizar datos automáticamente" id="msg_toggle_cloud_sync_auto" />
   <string src="La sincronización en la nube permite sincronizar varios datos, como el historial y los favoritos de YouTube, mediante el almacenamiento en la nube. Esta función hace uso del almacenamiento en la nube de PlayStation™Network. Reinicia esta aplicación luego de activar esta función." id="msg_cloud_sync_hint" />
 
