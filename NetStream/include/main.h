@@ -39,7 +39,7 @@ namespace menu {
 			Type m_type;
 		};
 
-		void OnNpDialogComplete(void *data);
+		int32_t OnNpDialogComplete(void *data);
 	}
 }
 

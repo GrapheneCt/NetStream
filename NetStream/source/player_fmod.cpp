@@ -147,6 +147,35 @@ void FMODPlayer::BootJob::Run()
 			thread::RMutex::main_thread_mutex.Unlock();
 		}
 	}
+	else if (!m_parent->m_coverPath.empty())
+	{
+		int32_t res = -1;
+		CurlFile::OpenArg oarg;
+		oarg.ParseUrl(m_parent->m_coverPath.c_str());
+		oarg.SetOption(3000, CurlFile::OpenArg::OptionType_ConnectTimeOut);
+		oarg.SetOption(5000, CurlFile::OpenArg::OptionType_RecvTimeOut);
+
+		CurlFile *file = new CurlFile();
+		res = file->Open(&oarg);
+		if (res == SCE_PAF_OK)
+		{
+			common::SharedPtr<CurlFile> hfile(file);
+			intrusive_ptr<graph::Surface> tex = graph::Surface::Load(gutil::GetDefaultSurfacePool(), reinterpret_cast<common::SharedPtr<File>&>(hfile));
+
+			if (tex.get())
+			{
+				thread::RMutex::main_thread_mutex.Lock();
+				m_parent->m_target->SetTexture(tex);
+				graph::PlaneObj *po = static_cast<graph::PlaneObj *>(m_parent->m_target->GetDrawObj(ui::Plane::OBJ_PLANE));
+				po->SetScaleMode(graph::PlaneObj::SCALE_ASPECT_SIZE, graph::PlaneObj::SCALE_ASPECT_SIZE);
+				thread::RMutex::main_thread_mutex.Unlock();
+			}
+		}
+		else
+		{
+			delete file;
+		}
+	}
 
 	ret = s_system->playSound(m_parent->m_snd, s_chg, false, &m_parent->m_ch);
 	if (ret != FMOD_OK)
@@ -160,7 +189,7 @@ void FMODPlayer::BootJob::Run()
 	m_parent->SetInitState(InitState_InitOk);
 }
 
-FMODPlayer::FMODPlayer(ui::Widget *targetPlane, const char *url)
+FMODPlayer::FMODPlayer(ui::Widget *targetPlane, const char *url, const char *coverUrl)
 {
 	SCE_DBG_LOG_INFO("[FMOD] Open url: %s\n", url);
 	m_target = targetPlane;
@@ -171,6 +200,10 @@ FMODPlayer::FMODPlayer(ui::Widget *targetPlane, const char *url)
 	else
 	{
 		m_path = url;
+	}
+	if (coverUrl)
+	{
+		m_coverPath = coverUrl;
 	}
 	s_system->attachChannelGroupToPort(FMOD_PSVITA_PORT_TYPE_VOICE, 0, s_chg);
 	common::MainThreadCallList::Register(UpdateTask, this);

@@ -95,6 +95,12 @@
     <ClCompile Include="source\np_utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\menus\menu_hvdb.cpp">
+      <Filter>Source Files\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="source\hvdb_utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\common.h">
@@ -185,6 +191,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\np_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\menus\menu_hvdb.h">
+      <Filter>Header Files\menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\hvdb_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

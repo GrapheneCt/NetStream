@@ -76,6 +76,7 @@ protected:
 
 	ui::Widget *m_target;
 	string m_path;
+	string m_coverPath;
 	InitState m_initState;
 	bool m_limitFps;
 	bool m_powerSaving;

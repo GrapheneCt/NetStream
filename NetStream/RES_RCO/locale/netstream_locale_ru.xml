@@ -3,9 +3,10 @@
 
   <string src="NetStream" id="msg_title_menu_first" />
   <string src="YouTube" id="msg_fpmenu_item_0" />
-  <string src="HTTP-сервер" id="msg_fpmenu_item_1" />
-  <string src="FTP-сервер" id="msg_fpmenu_item_2" />
-  <string src="Память системы" id="msg_fpmenu_item_3" />
+  <string src="HVDB" id="msg_fpmenu_item_1" />
+  <string src="HTTP-сервер" id="msg_fpmenu_item_2" />
+  <string src="FTP-сервер" id="msg_fpmenu_item_3" />
+  <string src="Память системы" id="msg_fpmenu_item_4" />
 
   <string src="История" id="msg_youtube_history" />
   <string src="Описание" id="msg_youtube_description" />
@@ -87,6 +88,10 @@
 
   <string src="Запускать в минимизированном виде" id="msg_toggle_youtube_min" />
 
+  <string src="Все записи будут удалены. Продолжить?" id="msg_settings_hvdb_clean_all_entry_confirm" />
+  <string src="Очистить записи" id="msg_settings_hvdb_clean_all_entry" />
+  <string src="Добавить запись" id="msg_settings_hvdb_add_entry" />
+
   <string src="Загрузить в облако" id="msg_settings_youtube_cloud_upload" />
   <string src="Получить из облака" id="msg_settings_youtube_cloud_download" />
   <string src="Очистить историю" id="msg_settings_youtube_clean_history" />
@@ -96,6 +101,9 @@
   <string src="Загрузить" id="msg_settings_youtube_download" />
   <string src="Загрузить аудио" id="msg_settings_youtube_download_audio" />
   <string src="Загрузка была начата успешно." id="msg_settings_youtube_download_begin" />
+
+  <string src="Введите DLsite ID." id="msg_hvdb_add_entry" />
+  <string src="Указанный ID не найден в базе данных." id="msg_hvdb_error_id_not_exist" />
 
   <string src="Произошла ошибка PlayStation™Network. Синхронизация данных с облаком будет недоступна. Убедитесь, что приложение было перезапущенно после включения синхронизации с облаком." id="msg_error_psn_connection" />
 

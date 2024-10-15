@@ -330,11 +330,11 @@ int32_t nputils::PreInit(thread::SyncCall::Function onComplete)
 	if (ret < 0)
 	{
 		s_preInitRet = ret;
-		thread::SyncCall::main_thread_synccall.Enqueue(onComplete, &s_preInitRet);
+		thread::SyncCall::main_thread_synccall.Call(onComplete, &s_preInitRet);
 		return ret;
 	}
 
-	thread::SyncCall::main_thread_synccall.Enqueue(NetDialogInit, NULL);
+	thread::SyncCall::main_thread_synccall.Call(NetDialogInit, NULL);
 	common::MainThreadCallList::Register(NetDialogCheck, onComplete);
 
 	return ret;
@@ -420,7 +420,7 @@ nputils::TUS *nputils::GetTUS()
 	return s_tus;
 }
 
-void nputils::NetDialogInit(void *data)
+int32_t nputils::NetDialogInit(void *data)
 {
 	int32_t ret = 0;
 
@@ -450,6 +450,8 @@ void nputils::NetDialogInit(void *data)
 		sceSysmoduleUnloadModule(SCE_SYSMODULE_HTTP);
 		s_preInitRet = ret;
 	}
+
+	return 0;
 }
 
 void nputils::NetDialogCheck(void *data)

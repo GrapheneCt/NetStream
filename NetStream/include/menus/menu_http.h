@@ -7,7 +7,6 @@
 #include "dialog.h"
 #include "menu_server.h"
 #include "http_server_browser.h"
-#include "menus/menu_player_simple.h"
 
 using namespace paf;
 

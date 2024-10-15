@@ -118,6 +118,8 @@ LSInputResult BEAVPlayer::LibLSInterface::ConvertError(int err)
 
 LSInputResult BEAVPlayer::LibLSInterface::Open(char *pcURI, uint64_t uOffset, uint32_t uTimeOutMSecs, LSInputHandle *pHandle)
 {
+	//SCE_DBG_LOG_INFO("[BEAV] [BEAV] LibLSInterface: OPEN TRY\n");
+
 	if (!pcURI)
 	{
 		return LS_INPUT_ERROR_INVALID_URI_PTR;
@@ -184,11 +186,15 @@ LSInputResult BEAVPlayer::LibLSInterface::Open(char *pcURI, uint64_t uOffset, ui
 
 	*pHandle = static_cast<LSInputHandle>(obj);
 
+	//SCE_DBG_LOG_INFO("[BEAV] [BEAV] LibLSInterface: OPEN OK\n");
+
 	return LS_INPUT_OK;
 }
 
 LSInputResult BEAVPlayer::LibLSInterface::GetSize(LSInputHandle handle, uint64_t *pSize)
 {
+	//SCE_DBG_LOG_INFO("[BEAV] [BEAV] LibLSInterface: GETSIZE TRY\n");
+
 	if (!handle)
 	{
 		return LS_INPUT_ERROR_INVALID_HANDLE;
@@ -202,6 +208,8 @@ LSInputResult BEAVPlayer::LibLSInterface::GetSize(LSInputHandle handle, uint64_t
 	CurlLsHandle *obj = static_cast<CurlLsHandle *>(handle);
 
 	*pSize = static_cast<uint64_t>(obj->m_pos);
+
+	//SCE_DBG_LOG_INFO("[BEAV] [BEAV] LibLSInterface: GETSIZE OK\n");
 
 	return LS_INPUT_OK;
 }
@@ -249,6 +257,8 @@ LSInputResult BEAVPlayer::LibLSInterface::Read(LSInputHandle handle, void *pBuff
 
 LSInputResult BEAVPlayer::LibLSInterface::Abort(LSInputHandle handle)
 {
+	//SCE_DBG_LOG_INFO("[BEAV] [BEAV] LibLSInterface: ABORT TRY\n");
+
 	if (!handle)
 	{
 		return LS_INPUT_ERROR_INVALID_HANDLE;
@@ -264,11 +274,15 @@ LSInputResult BEAVPlayer::LibLSInterface::Abort(LSInputHandle handle)
 		obj->m_readPos = 0;
 	}
 
+	//SCE_DBG_LOG_INFO("[BEAV] [BEAV] LibLSInterface: ABORT OK\n");
+
 	return LS_INPUT_OK;
 }
 
 LSInputResult BEAVPlayer::LibLSInterface::Close(LSInputHandle *pHandle)
 {
+	//SCE_DBG_LOG_INFO("[BEAV] [BEAV] LibLSInterface: CLOSE TRY\n");
+
 	if (!pHandle)
 	{
 		return LS_INPUT_ERROR_INVALID_HANDLE_PTR;
@@ -287,6 +301,8 @@ LSInputResult BEAVPlayer::LibLSInterface::Close(LSInputHandle *pHandle)
 		curl_easy_cleanup(obj->m_curl);
 	}
 	sce_paf_free(*pHandle);
+
+	//SCE_DBG_LOG_INFO("[BEAV] [BEAV] LibLSInterface: CLOSE OK\n");
 
 	return LS_INPUT_OK;
 }

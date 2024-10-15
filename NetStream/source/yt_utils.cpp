@@ -240,7 +240,7 @@ int32_t ytutils::HistLog::UpdateFromTUS()
 
 	i = m_ini->size();
 	if (i <= k_maxHistItems)
-		return;
+		return ret;
 
 	i = i - k_maxHistItems;
 
@@ -252,6 +252,8 @@ int32_t ytutils::HistLog::UpdateFromTUS()
 	}
 
 	m_ini->reset();
+
+	return ret;
 }
 
 int32_t ytutils::HistLog::UploadToTUS()
@@ -333,6 +335,8 @@ int32_t ytutils::FavLog::UpdateFromTUS()
 	m_ini = new Ini::IniFileProcessor();
 	m_ini->initialize(&param);
 	m_ini->open("savedata0:yt_fav_log.ini", "rw", 0);
+
+	return ret;
 }
 
 int32_t ytutils::FavLog::UploadToTUS()

@@ -51,7 +51,7 @@ namespace nputils
 
 	TUS *GetTUS();
 
-	void NetDialogInit(void *data);
+	int32_t NetDialogInit(void *data);
 
 	void NetDialogCheck(void *data);
 };

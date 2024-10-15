@@ -7,6 +7,7 @@
 #include "menus/menu_ftp.h"
 #include "menus/menu_http.h"
 #include "menus/menu_local.h"
+#include "menus/menu_hvdb.h"
 #include "menus/menu_youtube.h"
 #include "menus/menu_settings.h"
 
@@ -29,7 +30,7 @@ menu::First::First() : GenericMenu("page_first", MenuOpenParam(true), MenuCloseP
 	listView->InsertSegment(0, 1);
 	listView->SetCellSizeDefault(0, { 960.0f, 80.0f });
 	listView->SetSegmentLayoutType(0, ui::ListView::LAYOUT_TYPE_LIST);
-	listView->InsertCell(0, 0, 4);
+	listView->InsertCell(0, 0, 5);
 }
 
 menu::First::~First()
@@ -69,12 +70,15 @@ ui::ListItem* menu::First::CreateListItem(ui::listview::ItemFactory::CreateParam
 		texid = tex_fpmenu_icon_youtube;
 		break;
 	case 1:
-		texid = tex_fpmenu_icon_http;
+		texid = tex_fpmenu_icon_hvdb;
 		break;
 	case 2:
-		texid = tex_fpmenu_icon_ftp;
+		texid = tex_fpmenu_icon_http;
 		break;
 	case 3:
+		texid = tex_fpmenu_icon_ftp;
+		break;
+	case 4:
 		texid = tex_fpmenu_icon_local;
 		break;
 	}
@@ -96,14 +100,17 @@ void menu::First::OnListButton(ui::Widget *self)
 		menu::YouTube *ymenu = new menu::YouTube();
 		break;
 	case 1:
+		menu::HVDB *hvdbmenu = new menu::HVDB();
+		break;
+	case 2:
 		menu::Http *hmenu = new menu::Http();
 		hmenu->PushBrowserPage(NULL);
 		break;
-	case 2:
+	case 3:
 		menu::Ftp *fmenu = new menu::Ftp();
 		fmenu->PushBrowserPage(NULL);
 		break;
-	case 3:
+	case 4:
 		menu::Local *lmenu = new menu::Local();
 		if (s_afterBoot)
 		{

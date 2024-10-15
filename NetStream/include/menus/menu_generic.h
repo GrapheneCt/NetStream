@@ -15,6 +15,7 @@ namespace menu {
 		MenuType_Ftp,
 		MenuType_Local,
 		MenuType_Youtube,
+		MenuType_Hvdb,
 		MenuType_PlayerSimple,
 		MenuType_PlayerYouTube,
 	};

@@ -33,7 +33,7 @@ menu::YouTube::Submenu::~Submenu()
 {
 	m_list->SetName(static_cast<uint32_t>(0));
 	ReleaseCurrentPage();
-	common::transition::DoReverse(0.0f, m_submenuRoot, common::transition::Type_Fadein1, true, false);
+	common::transition::DoReverse(0.0f, m_submenuRoot, common::transition::Type_FadeinFast, true, false);
 }
 
 void menu::YouTube::Submenu::ReleaseCurrentPage()
@@ -407,7 +407,7 @@ menu::YouTube::SearchSubmenu::SearchSubmenu(YouTube *parentObj) : Submenu(parent
 		reinterpret_cast<SearchSubmenu *>(userdata)->OnSearchButton();
 	}, this);
 
-	common::transition::Do(0.0f, m_submenuRoot, common::transition::Type_Fadein1, true, false);
+	common::transition::Do(0.0f, m_submenuRoot, common::transition::Type_FadeinFast, true, false);
 }
 
 menu::YouTube::SearchSubmenu::~SearchSubmenu()
@@ -542,7 +542,7 @@ menu::YouTube::HistorySubmenu::HistorySubmenu(YouTube *parentObj) : Submenu(pare
 	wstring title = g_appPlugin->GetString(msg_youtube_history);
 	m_baseParent->m_topText->SetString(title);
 
-	common::transition::Do(0.0f, m_submenuRoot, common::transition::Type_Fadein1, true, false);
+	common::transition::Do(0.0f, m_submenuRoot, common::transition::Type_FadeinFast, true, false);
 
 	HistoryJob *job = new HistoryJob(this);
 	common::SharedPtr<job::JobItem> itemParam(job);
@@ -808,7 +808,7 @@ menu::YouTube::FavouriteSubmenu::FavouriteSubmenu(YouTube *parentObj) : Submenu(
 		reinterpret_cast<FavouriteSubmenu *>(userdata)->OnSearchButton();
 	}, this);
 
-	common::transition::Do(0.0f, m_submenuRoot, common::transition::Type_Fadein1, true, false);
+	common::transition::Do(0.0f, m_submenuRoot, common::transition::Type_FadeinFast, true, false);
 
 	FavouriteJob *job = new FavouriteJob(this);
 	common::SharedPtr<job::JobItem> itemParam(job);
@@ -963,8 +963,6 @@ void menu::YouTube::LogClearJob::Run()
 void menu::YouTube::CloudJob::Run()
 {
 	dialog::OpenPleaseWait(g_appPlugin, NULL, Framework::Instance()->GetCommonString("msg_wait"));
-
-	int32_t ret = SCE_OK;
 
 	if (!nputils::IsAllGreen())
 	{

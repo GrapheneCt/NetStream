@@ -3,9 +3,10 @@
 
   <string src="NetStream" id="msg_title_menu_first" />
   <string src="YouTube" id="msg_fpmenu_item_0" />
-  <string src="HTTP Server" id="msg_fpmenu_item_1" />
-  <string src="FTP Server" id="msg_fpmenu_item_2" />
-  <string src="Local Storage" id="msg_fpmenu_item_3" />
+  <string src="HVDB" id="msg_fpmenu_item_1" />
+  <string src="HTTP Server" id="msg_fpmenu_item_2" />
+  <string src="FTP Server" id="msg_fpmenu_item_3" />
+  <string src="Local Storage" id="msg_fpmenu_item_4" />
 
   <string src="History" id="msg_youtube_history" />
   <string src="Description" id="msg_youtube_description" />
@@ -87,6 +88,10 @@
 
   <string src="Start Minimized" id="msg_toggle_youtube_min" />
 
+  <string src="All entries will be deleted. Do you want to continue?" id="msg_settings_hvdb_clean_all_entry_confirm" />
+  <string src="Clear All Entries" id="msg_settings_hvdb_clean_all_entry" />
+  <string src="Add Entry" id="msg_settings_hvdb_add_entry" />
+
   <string src="Cloud Upload" id="msg_settings_youtube_cloud_upload" />
   <string src="Cloud Download" id="msg_settings_youtube_cloud_download" />
   <string src="Clear History" id="msg_settings_youtube_clean_history" />
@@ -96,6 +101,9 @@
   <string src="Download" id="msg_settings_youtube_download" />
   <string src="Download Audio" id="msg_settings_youtube_download_audio" />
   <string src="Download has been added to the download queue." id="msg_settings_youtube_download_begin" />
+
+  <string src="Please enter DLsite ID of the work." id="msg_hvdb_add_entry" />
+  <string src="ID not found in the database." id="msg_hvdb_error_id_not_exist" />
 
   <string src="PlayStation™Network error has occured. Cloud data sync will not be available. If you enabled cloud sync option, please restart this application before using it." id="msg_error_psn_connection" />
 

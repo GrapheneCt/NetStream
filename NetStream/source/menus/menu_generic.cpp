@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "utils.h"
+#include "debug.h"
 #include "menus/menu_generic.h"
 #include "menus/menu_settings.h"
 
@@ -33,6 +34,10 @@ menu::GenericMenu::GenericMenu(const char *name, MenuOpenParam const& oparam, Me
 	}
 
 	s_menuStack.push_back(this);
+
+#ifdef _DEBUG
+	SetCurrentDebugParam(g_appPlugin, m_root);
+#endif
 }
 
 menu::GenericMenu::~GenericMenu()
@@ -44,6 +49,10 @@ menu::GenericMenu::~GenericMenu()
 	if (!s_menuStack.empty())
 	{
 		s_menuStack.back()->Activate();
+
+#ifdef _DEBUG
+		SetCurrentDebugParam(g_appPlugin, s_menuStack.back()->GetRoot());
+#endif
 	}
 }
 

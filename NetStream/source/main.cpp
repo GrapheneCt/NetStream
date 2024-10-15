@@ -16,12 +16,15 @@
 #include "utils.h"
 #include "yt_utils.h"
 #include "tw_utils.h"
+#include "hvdb_utils.h"
 #include "np_utils.h"
 #include "player_beav.h"
 #include "player_fmod.h"
 #include "invidious.h"
 #include "menus/menu_generic.h"
 #include "menus/menu_first.h"
+
+#include <curl/curl.h>
 
 extern "C"
 {
@@ -35,7 +38,7 @@ Plugin *g_appPlugin;
 intrusive_ptr<graph::Surface> g_texCheckMark;
 intrusive_ptr<graph::Surface> g_texTransparent;
 
-void menu::main::OnNpDialogComplete(void *data)
+int32_t menu::main::OnNpDialogComplete(void *data)
 {
 	int32_t ret = *(int32_t *)(data);
 	if (ret >= 0 && nputils::IsAllGreen())
@@ -50,6 +53,8 @@ void menu::main::OnNpDialogComplete(void *data)
 	{
 		dialog::OpenError(g_appPlugin, ret, g_appPlugin->GetString(msg_error_psn_connection));
 	}
+
+	return 0;
 }
 
 void menu::main::NetcheckJob::Run()
@@ -104,6 +109,7 @@ void menu::main::NetcheckJob::Run()
 	menu::Settings::Init();
 
 	ytutils::Init(NP_TUS_HIST_LOG_SLOT, NP_TUS_FAV_LOG_SLOT);
+	hvdbutils::Init();
 
 	dialog::Close();
 
@@ -199,10 +205,30 @@ int main()
 	new Module("app0:module/libcurl.suprx");
 	new Module("app0:module/libInvidious.suprx");
 	new Module("app0:module/libLootkit.suprx");
+	new Module("app0:module/libhvdb.suprx");
 
 	curl_global_memmanager_set_np(sce_paf_malloc, sce_paf_free, sce_paf_realloc);
 
 	utils::Init();
+
+	int tret = 0;
+	int64_t tret2 = 0;
+
+	paf::MemFile mfile;
+	paf::MemFile::OpenArg oarg;
+	oarg.buffer = paf::MallocBuffer::Allocate(256);
+
+	mfile.Open(&oarg);
+
+	char tbuf[512];
+
+	tret = mfile.ReadAsync(tbuf, 0xFFFFFFFF);
+
+	sceClibPrintf("ReadAsync: 0x%08X\n", tret);
+
+	mfile.WaitAsync(&tret2);
+
+	sceClibPrintf("WaitAsync: %lld\n", tret2);
 
 	// Plugin init
 	Plugin::InitParam pluginParam;

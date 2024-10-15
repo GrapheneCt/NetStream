@@ -101,7 +101,7 @@ void menu::PlayerSimple::OnWholeRepeatButton()
 	m_player->JumpToTimeMs(0);
 	m_player->SwitchPlaybackState();
 	m_videoPlane->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-	m_wholeRepeatButton->Hide(common::transition::Type_Fadein1);
+	m_wholeRepeatButton->Hide(common::transition::Type_FadeinFast);
 }
 
 void menu::PlayerSimple::OnPowerCallback(int32_t notifyArg)
@@ -236,7 +236,7 @@ void menu::PlayerSimple::OnUpdate()
 	if (!m_isLS && state == GenericPlayer::PlayerState_Eof && m_oldState != GenericPlayer::PlayerState_Eof)
 	{
 		m_videoPlane->SetColor({ 0.4f, 0.4f, 0.4f, 1.0f });
-		m_wholeRepeatButton->Show(common::transition::Type_Fadein1);
+		m_wholeRepeatButton->Show(common::transition::Type_FadeinFast);
 	}
 	m_oldState = state;
 }
@@ -310,7 +310,7 @@ void menu::PlayerSimple::OnPadUpdate(inputdevice::Data *data)
 #undef PRESSED
 }
 
-menu::PlayerSimple::PlayerSimple(const char *url) :
+menu::PlayerSimple::PlayerSimple(const char *url, const char *coverUrl) :
 	GenericMenu("page_player_simple",
 	MenuOpenParam(true, 200.0f, Plugin::TransitionType_None, ui::EnvironmentParam::RESOLUTION_HD_FULL),
 	MenuCloseParam(true)),
@@ -335,7 +335,7 @@ menu::PlayerSimple::PlayerSimple(const char *url) :
 	m_rightAccText = m_root->FindChild(text_video_page_player_simple_acc_right);
 	m_statPlane = m_root->FindChild(plane_statindicator);
 	m_progressPlane = m_root->FindChild(plane_video_control_panel_bg);
-	m_progressPlane->Hide(common::transition::Type_Fadein1);
+	m_progressPlane->Hide(common::transition::Type_FadeinFast);
 
 	m_loadIndicator = (ui::BusyIndicator *)m_root->FindChild(busyindicator_video_page_player_simple);
 	if (SCE_PAF_IS_DOLCE)
@@ -353,7 +353,7 @@ menu::PlayerSimple::PlayerSimple(const char *url) :
 	}, this);
 
 	m_wholeRepeatButton = m_root->FindChild(button_video_page_whole_repeat);
-	m_wholeRepeatButton->Hide(common::transition::Type_Fadein1);
+	m_wholeRepeatButton->Hide(common::transition::Type_FadeinFast);
 	m_wholeRepeatButton->AddEventCallback(ui::Button::CB_BTN_DECIDE,
 	[](int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 	{
@@ -377,7 +377,7 @@ menu::PlayerSimple::PlayerSimple(const char *url) :
 
 	if (FMODPlayer::IsSupported(url) == GenericPlayer::SupportType_Supported)
 	{
-		m_player = new FMODPlayer(m_videoPlane, url);
+		m_player = new FMODPlayer(m_videoPlane, url, coverUrl);
 	}
 	else
 	{
@@ -553,7 +553,7 @@ void menu::PlayerSimple::SetScale(float scale)
 		inputdevice::AddInputListener(m_padListener);
 		sceAppMgrSetInfobarState(SCE_APPMGR_INFOBAR_VISIBILITY_INVISIBLE, SCE_APPMGR_INFOBAR_COLOR_BLACK, SCE_APPMGR_INFOBAR_TRANSPARENCY_TRANSLUCENT);
 		m_backButton->Show(common::transition::Type_Reset);
-		triggerPlane->Show(common::transition::Type_Fadein1);
+		triggerPlane->Show(common::transition::Type_FadeinFast);
 		menu::GetMenuAt(menu::GetMenuCount() - 2)->Deactivate();
 	}
 	else
@@ -561,10 +561,10 @@ void menu::PlayerSimple::SetScale(float scale)
 		inputdevice::DelInputListener(m_padListener);
 		sceAppMgrSetInfobarState(SCE_APPMGR_INFOBAR_VISIBILITY_VISIBLE, SCE_APPMGR_INFOBAR_COLOR_BLACK, SCE_APPMGR_INFOBAR_TRANSPARENCY_TRANSLUCENT);
 		m_backButton->Hide(common::transition::Type_Reset);
-		triggerPlane->Hide(common::transition::Type_Fadein1);
+		triggerPlane->Hide(common::transition::Type_FadeinFast);
 		if (!m_isLS)
 		{
-			m_progressPlane->Show(common::transition::Type_Fadein1);
+			m_progressPlane->Show(common::transition::Type_FadeinFast);
 		}
 		m_progressPlaneShown = true;
 		menu::GetMenuAt(menu::GetMenuCount() - 2)->Activate();

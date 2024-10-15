@@ -24,17 +24,6 @@ namespace menu {
 			SettingsEvent_ValueChange
 		};
 
-		enum Hash
-		{
-			Hash_HttpServerHost = 0x1,
-			Hash_HttpServerPort = 0x1,
-			Hash_HttpServerUser = 0x1,
-			Hash_HttpServerPassword = 0x1
-		};
-
-		typedef void(*CloseCallback)(void *pUserArg);
-		typedef int32_t(*ValueChangeCallback)(const char *id, const char *newValue, void *pUserArg);
-
 		Settings();
 
 		~Settings();

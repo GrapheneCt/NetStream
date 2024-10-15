@@ -453,13 +453,13 @@ void menu::PlayerYoutube::OnCommentButton()
 		{
 			return;
 		}
-		common::transition::DoReverse(0.0f, m_companelRoot, common::transition::Type_Fadein1, true, false);
+		common::transition::DoReverse(0.0f, m_companelRoot, common::transition::Type_FadeinFast, true, false);
 		m_companelRoot = NULL;
 	}
 
 	g_appPlugin->TemplateOpen(m_companelBase, template_list_view_youtube_companel, tmpParam);
 	m_companelRoot = static_cast<ui::ListView *>(m_companelBase->GetChild(m_companelBase->GetChildrenNum() - 1));
-	m_companelRoot->Show(common::transition::Type_Fadein1);
+	m_companelRoot->Show(common::transition::Type_FadeinFast);
 	m_companelRoot->SetName("comment_root");
 
 	ui::ListView *list = (ui::ListView *)m_companelRoot;
@@ -516,13 +516,13 @@ void menu::PlayerYoutube::OnDescButton()
 			delete m_hlsCommentThread;
 			m_hlsCommentThread = NULL;
 		}
-		common::transition::DoReverse(0.0f, m_companelRoot, common::transition::Type_Fadein1, true, false);
+		common::transition::DoReverse(0.0f, m_companelRoot, common::transition::Type_FadeinFast, true, false);
 		m_companelRoot = NULL;
 	}
 
 	g_appPlugin->TemplateOpen(m_companelBase, template_scroll_view_youtube_companel, tmpParam);
 	m_companelRoot = static_cast<ui::ListView *>(m_companelBase->GetChild(m_companelBase->GetChildrenNum() - 1));
-	m_companelRoot->Show(common::transition::Type_Fadein1);
+	m_companelRoot->Show(common::transition::Type_FadeinFast);
 	m_companelRoot->SetName("description_root");
 
 	ui::Widget *descText = m_companelRoot->FindChild(text_youtube_companel);
@@ -646,7 +646,7 @@ void menu::PlayerYoutube::OnPlayerEvent(int32_t type)
 		ui::Widget *loaderPlane = m_root->FindChild(plane_youtube_loader);
 
 		loaderIndicator->Stop();
-		common::transition::DoReverse(0.0f, loaderPlane, common::transition::Type_Fadein1, true, false);
+		common::transition::DoReverse(0.0f, loaderPlane, common::transition::Type_FadeinFast, true, false);
 		EnableInput();
 
 		menu::Settings::GetAppSetInstance()->GetInt("yt_min", &min, 0);
@@ -680,7 +680,7 @@ void menu::PlayerYoutube::OnPlayerEvent(int32_t type)
 			ui::Widget *loaderPlane = m_root->FindChild(plane_youtube_loader);
 
 			loaderIndicator->Stop();
-			common::transition::DoReverse(0.0f, loaderPlane, common::transition::Type_Fadein1, true, false);
+			common::transition::DoReverse(0.0f, loaderPlane, common::transition::Type_FadeinFast, true, false);
 			EnableInput();
 
 			m_favButton->Disable(false);

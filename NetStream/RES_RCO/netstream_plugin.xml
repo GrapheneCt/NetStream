@@ -67,6 +67,22 @@
       <corner_button style="_common_style_corner_bottom_right" id="button_settings_page_youtube" />
     </page>
 
+    <!-- hvdb browser page -->
+    <page id="page_hvdb">
+      <plane texture="tex_common_bg" id="plane_base_bg_page_hvdb">
+        <layout_hint size="960, 544" />
+      </plane>
+      <template_ref id="template_ref_top_title_bar_page_hvdb" template="template_top_title_bar" />
+      <plane style="_common_style_plane_transparent" id="plane_browser_root_page_hvdb">
+        <layout_hint size="960, 544" />
+      </plane>
+      <busyindicator style="style_busyindicator_big" texture="_common_texture_busy" id="busyindicator_loader_page_hvdb" >
+        <layout_hint size="75, 75" />
+      </busyindicator>
+      <corner_button style="_common_style_corner_bottom_left" id="button_back_page_hvdb" />
+      <corner_button style="_common_style_corner_bottom_right" id="button_settings_page_hvdb" />
+    </page>
+
     <!-- youtube player page -->
     <page id="page_youtube_player">
       <plane texture="tex_common_bg" id="plane_base_bg_page_youtube_player">
@@ -291,6 +307,14 @@
     <style_text textobj="text_obj1" id="style_text_video_control_panel_acc_right">
       <textobj font_size="32" bold="1" align_y="0" align_x="0" ellipsis="1" id="text_obj1" />
     </style_text>
+
+    <!-- hvdb browser styles -->
+    <style_image_button layout_type_x="1" color="1, 1, 1, 1" glow_obj="plane_obj1" label_obj="text_obj1" bg_obj="plane_obj2" image_obj="plane_obj3" image_margin="10" id="style_image_button_list_button_hvdb">
+      <planeobj texture0="_common_texture_list_70px" id="plane_obj2" />
+      <textobj font_size="28" bold="1" max_line_count="2" line_space="-12" word_wrap="1" ellipsis="1" id="text_obj1" />
+      <planeobj scale_mode_y="3" scale_mode_x="3" size="120, 90" id="plane_obj3" />
+      <planeobj texture0="_common_texture_list_glow_70px" blend="2" id="plane_obj1" />
+    </style_image_button>
     
     <!-- youtube browser styles -->
     <style_list_view color="0, 0, 0, 0" id="style_list_view_youtube" sbar_v_margin="6, 29, 9" />
@@ -448,6 +472,37 @@
       </list_view>
     </template>
 
+    <!-- hvdb list view templates -->
+    <template fast_open="1" id="template_list_item_hvdb">
+      <list_item style="style_list_view_item_generic" id="list_item_hvdb">
+        <layout_hint size="960, 100" />
+        <image_button sound="_common_sound_image_button" enable_long_press_text_auto_scroll="1" style="style_image_button_list_button_hvdb" id="image_button_list_item_hvdb">
+          <focus_hint focus_shape="3" />
+          <layout_hint size="840, 100" />
+          <text style="style_text_list_button_youtube_subtext" id="text_list_item_hvdb_subtext">
+            <layout_hint align="1, 1" anchor="1, 1" adjust="2, 2" pos="130, 16" />
+          </text>
+          <plane_button style="_common_style_close_button" id="button_list_item_hvdb_delete">
+            <layout_hint size="46, 46" pos="430, 0" />
+          </plane_button>
+        </image_button>
+      </list_item>
+    </template>
+
+    <!-- hvdb dialog templates -->
+    <template fast_open="1" id="template_add_entry_hvdb">
+      <text style="_common_style_dialog_text" label="msg_hvdb_add_entry" id="text_add_entry_hvdb">
+        <layout_hint adjust="0, 2" pos="0, 80" size="660, 0"/>
+      </text>
+      <text_box auto_scroll="1" ime_type="3" edit_mode="1" style="style_text_box_top_youtube_search" id="text_box_hvdb_add_entry" >
+        <layout_hint pos="0, 30" size="660, 44" />
+        <focus_hint focus_shape="0" />
+      </text_box>
+      <button style="_common_default_style_dialog_button" label="msg_ok" id="button_hvdb_add_entry">
+        <layout_hint align="0, 1" anchor="0, 1" adjust="2, 2" pos="0, 10" />
+      </button>
+    </template>
+
     <!-- youtube list view templates -->
     <template fast_open="1" id="template_list_view_youtube_search">
       <plane style="_common_style_plane_transparent" id="plane_list_view_youtube_search_root">
@@ -603,9 +658,11 @@
     <texture src="texture\tex_fpmenu_icon_http.png" type="texture/png" id="tex_fpmenu_icon_http" />
     <texture src="texture\tex_fpmenu_icon_ftp.png" type="texture/png" id="tex_fpmenu_icon_ftp" />
     <texture src="texture\tex_fpmenu_icon_local.png" type="texture/png" id="tex_fpmenu_icon_local" />
+    <texture src="texture\tex_fpmenu_icon_hvdb.png" type="texture/png" id="tex_fpmenu_icon_hvdb" />
     <texture src="texture\tex_file_icon_video.png" type="texture/png" id="tex_file_icon_video" />
     <texture src="texture\tex_file_icon_folder.png" type="texture/png" id="tex_file_icon_folder" />
     <texture src="texture\tex_file_icon_playlist.png" type="texture/png" id="tex_file_icon_playlist" />
+    <texture origsize="25728" src="texture\tex_file_icon_music.zlib" type="texture/gim" id="tex_file_icon_music" compress="on" />
     <texture src="texture\tex_file_icon_unsupported.png" type="texture/png" id="tex_file_icon_unsupported" />
     <texture src="texture\tex_black.dds" type="texture/dds" id="tex_black" />
     <texture src="texture\tex_button_expand.png" type="texture/png" id="tex_button_expand" />

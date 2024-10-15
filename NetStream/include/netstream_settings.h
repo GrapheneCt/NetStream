@@ -57,6 +57,7 @@
 #define youtube_player_setting (0xb7539596)
 #define toggle_youtube_min (0x32513d0c)
 #define cloud_sync_setting (0xfb02b78a)
+#define toggle_cloud_sync (0x2c7de826)
 #define toggle_cloud_sync_auto (0x59fcfe5e)
 #define verinfo_setting (0x45eb30eb)
 #define label_verinfo (0x804ff666)

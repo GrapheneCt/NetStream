@@ -47,7 +47,7 @@ public:
 		FMODPlayer *m_parent;
 	};
 
-	FMODPlayer(ui::Widget *targetPlane, const char *url);
+	FMODPlayer(ui::Widget *targetPlane, const char *url, const char *coverUrl = NULL);
 
 	~FMODPlayer();
 

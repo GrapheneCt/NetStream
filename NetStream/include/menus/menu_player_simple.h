@@ -61,7 +61,7 @@ namespace menu {
 
 		typedef void(*PlayerSimpleCallback)(PlayerSimple *player, void *pUserArg);
 
-		PlayerSimple(const char *url);
+		PlayerSimple(const char *url, const char *coverUrl = NULL);
 
 		~PlayerSimple();
 
