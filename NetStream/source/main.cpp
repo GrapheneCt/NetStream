@@ -211,25 +211,6 @@ int main()
 
 	utils::Init();
 
-	int tret = 0;
-	int64_t tret2 = 0;
-
-	paf::MemFile mfile;
-	paf::MemFile::OpenArg oarg;
-	oarg.buffer = paf::MallocBuffer::Allocate(256);
-
-	mfile.Open(&oarg);
-
-	char tbuf[512];
-
-	tret = mfile.ReadAsync(tbuf, 0xFFFFFFFF);
-
-	sceClibPrintf("ReadAsync: 0x%08X\n", tret);
-
-	mfile.WaitAsync(&tret2);
-
-	sceClibPrintf("WaitAsync: %lld\n", tret2);
-
 	// Plugin init
 	Plugin::InitParam pluginParam;
 	pluginParam.name = "netstream_plugin";
