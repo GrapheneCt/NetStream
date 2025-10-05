@@ -25,7 +25,7 @@ NCSA Telnet FTP server. Has LIST = NLST (and bad NLST for directories).
 #include <time.h>
 #include "ftpparse.h"
 
-extern struct tm *sceKernelLibcGmtime_r(const time_t *timer, struct tm *buf);
+extern int sceKernelLibcGmtime_r(const time_t *timer, struct tm *buf);
 extern time_t sceKernelLibcTime(time_t *tod);
 
 static long totai(long year,long month,long mday)
@@ -57,13 +57,8 @@ static long currentyear; /* approximation to current year */
 struct tm *libc_gmtime(const time_t *ptimer)
 {
 	int *tls = (int *)sceKernelGetTLSAddr(0xca);
-	int *timer = (int *)ptimer;
-
-	int local_40;
 	int local_3c[9];
-
-	local_40 = *timer;
-	sceKernelLibcGmtime_r((const time_t *)&local_40, (struct tm *)local_3c);
+	sceKernelLibcGmtime_r(ptimer, (struct tm *)local_3c);
 	if (tls != 0) {
 		*tls = local_3c[0];
 		tls[1] = local_3c[1];

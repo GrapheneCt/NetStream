@@ -330,11 +330,11 @@ int32_t nputils::PreInit(thread::SyncCall::Function onComplete)
 	if (ret < 0)
 	{
 		s_preInitRet = ret;
-		thread::SyncCall::main_thread_synccall.Call(onComplete, &s_preInitRet);
+		thread::SyncCall::MainThreadSyncCall()->Call(onComplete, &s_preInitRet);
 		return ret;
 	}
 
-	thread::SyncCall::main_thread_synccall.Call(NetDialogInit, NULL);
+	thread::SyncCall::MainThreadSyncCall()->Call(NetDialogInit, NULL);
 	common::MainThreadCallList::Register(NetDialogCheck, onComplete);
 
 	return ret;
@@ -456,15 +456,15 @@ int32_t nputils::NetDialogInit(void *data)
 
 void nputils::NetDialogCheck(void *data)
 {
-	thread::SyncCall::Function func = static_cast<thread::SyncCall::Function>(data);
+	thread::SyncCall::Function func = reinterpret_cast<thread::SyncCall::Function>(data);
 	SceNetCheckDialogResult result;
 
 	if (s_preInitRet < 0)
 	{
-		sceSslTerm();
+		/*sceSslTerm();
 		sceHttpTerm();
 		sceSysmoduleUnloadModule(SCE_SYSMODULE_SSL);
-		sceSysmoduleUnloadModule(SCE_SYSMODULE_HTTP);
+		sceSysmoduleUnloadModule(SCE_SYSMODULE_HTTP);*/
 		func(&s_preInitRet);
 		common::MainThreadCallList::Unregister(NetDialogCheck, data);
 	}

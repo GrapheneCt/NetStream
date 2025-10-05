@@ -3,6 +3,7 @@
 #include <paf.h>
 #include <paf_file_ext.h>
 
+#include "utils.h"
 #include "tex_pool.h"
 
 TexPool::TexPool(Plugin *_cbPlugin, bool useDefaultQueue)
@@ -10,7 +11,7 @@ TexPool::TexPool(Plugin *_cbPlugin, bool useDefaultQueue)
 	m_storMtx = new thread::RMutex("TexPool::StorMtx");
 	if (useDefaultQueue)
 	{
-		m_addAsyncQueue = job::JobQueue::default_queue;
+		m_addAsyncQueue = job::JobQueue::DefaultQueue();
 	}
 	else
 	{
@@ -24,9 +25,9 @@ TexPool::TexPool(Plugin *_cbPlugin, bool useDefaultQueue)
 TexPool::~TexPool()
 {
 	SetAlive(false);
-	AddAsyncWaitComplete();
+	AddAsyncCancelPending();
 	RemoveAll();
-	if (m_addAsyncQueue != job::JobQueue::default_queue)
+	if (m_addAsyncQueue != job::JobQueue::DefaultQueue())
 	{
 		delete m_addAsyncQueue;
 	}
@@ -38,7 +39,7 @@ void TexPool::DestroyAsync()
 	SetAlive(false);
 	DestroyJob *job = new DestroyJob(this);
 	common::SharedPtr<job::JobItem> itemParam(job);
-	job::JobQueue::default_queue->Enqueue(itemParam);
+	job::JobQueue::DefaultQueue()->Enqueue(itemParam);
 }
 
 bool TexPool::Add(Plugin *plugin, IDParam const& id, bool allowReplace)
@@ -249,6 +250,11 @@ int32_t TexPool::AddAsyncActiveNum()
 	return m_addAsyncQueue->NumItems();
 }
 
+void TexPool::AddAsyncCancelPending()
+{
+	m_addAsyncQueue->CancelAllItems();
+}
+
 uint32_t TexPool::GetSize()
 {
 	m_storMtx->Lock();
@@ -269,6 +275,7 @@ bool TexPool::AddHttp(IDParam const& id, const char *path)
 	oarg.ParseUrl(path);
 	oarg.SetOption(3000, CurlFile::OpenArg::OptionType_ConnectTimeOut);
 	oarg.SetOption(5000, CurlFile::OpenArg::OptionType_RecvTimeOut);
+	oarg.SetProxy(utils::GetGlobalProxy());
 	if (m_share)
 	{
 		oarg.SetShare(m_share);

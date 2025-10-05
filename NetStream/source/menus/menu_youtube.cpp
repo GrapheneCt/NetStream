@@ -11,13 +11,16 @@
 #include "np_utils.h"
 #include "dialog.h"
 #include "tex_pool.h"
-#include "invidious.h"
+#include "ftube.h"
 #include <paf_file_ext.h>
 #include "option_menu.h"
 #include "menus/menu_generic.h"
 #include "menus/menu_youtube.h"
 #include "menus/menu_player_youtube.h"
 #include "menus/menu_settings.h"
+
+#undef SCE_DBG_LOG_COMPONENT
+#define SCE_DBG_LOG_COMPONENT "[YouTube]"
 
 using namespace paf;
 
@@ -41,9 +44,9 @@ void menu::YouTube::Submenu::ReleaseCurrentPage()
 	m_interrupted = true;
 	while (!m_allJobsComplete)
 	{
-		thread::RMutex::main_thread_mutex.Unlock();
+		thread::RMutex::MainThreadMutex()->Unlock();
 		thread::Sleep(10);
-		thread::RMutex::main_thread_mutex.Lock();
+		thread::RMutex::MainThreadMutex()->Lock();
 	}
 	m_interrupted = false;
 
@@ -53,7 +56,7 @@ void menu::YouTube::Submenu::ReleaseCurrentPage()
 	}
 
 	m_baseParent->m_texPool->SetAlive(false);
-	m_baseParent->m_texPool->AddAsyncWaitComplete();
+	m_baseParent->m_texPool->AddAsyncCancelPending();
 	m_baseParent->m_texPool->RemoveAll();
 	m_baseParent->m_texPool->SetAlive(true);
 
@@ -91,7 +94,7 @@ void menu::YouTube::Submenu::OnListButton(ui::Widget *wdg)
 
 	switch (item.type)
 	{
-	case INV_ITEM_TYPE_VIDEO:
+	case FT_ITEM_TYPE_VIDEO:
 		ytutils::GetHistLog()->AddAsync(item.videoId.c_str());
 		utils::SetDisplayResolution(ui::EnvironmentParam::RESOLUTION_HD_FULL);
 		new menu::PlayerYoutube(item.videoId.c_str(), GetType() == Submenu::SubmenuType_Favourites);
@@ -151,7 +154,7 @@ ui::ListItem *menu::YouTube::Submenu::CreateListItem(ui::listview::ItemFactory::
 		if (m_currentPage == 0)
 		{
 			text16 = g_appPlugin->GetString(msg_next_page);
-			sce_paf_swprintf(numPageText, sizeof(numPageText) / 2, L" (%d)", m_currentPage + 1);
+			sce_paf_swprintf(numPageText, sizeof(numPageText) / 2, L" (%d)", m_currentPage + 1 + 1);
 			text16 += numPageText;
 			button->SetString(text16);
 			tex = g_appPlugin->GetTexture(tex_button_arrow_right);
@@ -161,7 +164,7 @@ ui::ListItem *menu::YouTube::Submenu::CreateListItem(ui::listview::ItemFactory::
 		else
 		{
 			text16 = g_appPlugin->GetString(msg_previous_page);
-			sce_paf_swprintf(numPageText, sizeof(numPageText) / 2, L" (%d)", m_currentPage - 1);
+			sce_paf_swprintf(numPageText, sizeof(numPageText) / 2, L" (%d)", m_currentPage + 1 - 1);
 			text16 += numPageText;
 			button->SetString(text16);
 			tex = g_appPlugin->GetTexture(tex_button_arrow_left);
@@ -172,7 +175,7 @@ ui::ListItem *menu::YouTube::Submenu::CreateListItem(ui::listview::ItemFactory::
 	else if (param.cell_index == totalCount + 1)
 	{
 		text16 = g_appPlugin->GetString(msg_next_page);
-		sce_paf_swprintf(numPageText, sizeof(numPageText) / 2, L" (%d)", m_currentPage + 1);
+		sce_paf_swprintf(numPageText, sizeof(numPageText) / 2, L" (%d)", m_currentPage + 1 + 1);
 		text16 += numPageText;
 		button->SetString(text16);
 		tex = g_appPlugin->GetTexture(tex_button_arrow_right);
@@ -216,13 +219,16 @@ serviceButton:
 void menu::YouTube::SearchSubmenu::Search()
 {
 	string text8;
-	InvItem *items = NULL;
+	FTItem *ftItem = NULL;
+	void *ftCtx = NULL;
 	int32_t ret = -1;
 	bool isId = false;
 
-	thread::RMutex::main_thread_mutex.Lock();
+	thread::RMutex::MainThreadMutex()->Lock();
 	m_baseParent->m_loaderIndicator->Start();
-	thread::RMutex::main_thread_mutex.Unlock();
+	thread::RMutex::MainThreadMutex()->Unlock();
+
+	SCE_DBG_LOG_INFO("[Search] Begin search");
 
 	if ((sce_paf_strstr(m_request.c_str(), "id:") == m_request.c_str()) && m_request.length() == 14)
 	{
@@ -231,70 +237,84 @@ void menu::YouTube::SearchSubmenu::Search()
 
 	if (!isId)
 	{
-		InvSort sort;
-		InvDate date;
-		char region[3];
+		FTSort sort;
+		FTDate date;
+		FTDuration duration;
+		FTFeature feature;
+		const char *contTmp = NULL;
+		const char *currentCont = NULL;
 		sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
 		settings->GetInt("yt_search_sort", (int32_t *)&sort, 0);
 		settings->GetInt("yt_search_date", (int32_t *)&date, 0);
-		region[0] = 0;
-		settings->GetString("yt_search_region", region, sizeof(region), "");
-		ret = invParseSearch(m_request.c_str(), m_currentPage, INV_ITEM_TYPE_VIDEO, sort, date, region, &items);
+		settings->GetInt("yt_search_dur", (int32_t *)&duration, 0);
+		settings->GetInt("yt_search_feature", (int32_t *)&feature, 0);
+		if (!m_continuations[m_currentPage].empty())
+		{
+			currentCont = m_continuations[m_currentPage].c_str();
+		}
+		SCE_DBG_LOG_INFO("[Search] ftParseSearch(): cont: %s, req: %s", currentCont, m_request.c_str());
+		ret = ftParseSearch(&ftCtx, m_request.c_str(), currentCont, FT_ITEM_TYPE_VIDEO, sort, date, feature, duration, &ftItem, &contTmp);
+		SCE_DBG_LOG_INFO("[Search] ftParseSearch(): 0x%08X, current page: %d", ret, m_currentPage);
+		m_continuations[m_currentPage + 1] = contTmp;
 	}
 	else
 	{
-		items = new InvItem();
-		ret = invParseVideo(m_request.c_str() + 3, &items->videoItem);
-		if (!items->videoItem->id)
+		ret = ftParseVideo(&ftCtx, m_request.c_str() + 3, FT_VIDEO_VOD_QUALITY_NONE, FT_AUDIO_VOD_QUALITY_NONE, &ftItem);
+		if (ret == FT_OK)
 		{
-			invCleanupVideo(items->videoItem);
-			ret = -1;
+			ret = 1;
 		}
 	}
 
 	if (ret <= 0)
 	{
 		dialog::OpenError(g_appPlugin, ret, Framework::Instance()->GetCommonString("msg_error_connect_server_peer"));
-		thread::RMutex::main_thread_mutex.Lock();
+		thread::RMutex::MainThreadMutex()->Lock();
 		m_baseParent->m_loaderIndicator->Stop();
-		thread::RMutex::main_thread_mutex.Unlock();
+		thread::RMutex::MainThreadMutex()->Unlock();
 		m_allJobsComplete = true;
 		return;
 	}
 
-	for (int i = 0; i < ret; i++)
+	do
 	{
 		Item item;
-		item.type = items[i].type;
+		item.type = ftItem->type;
 		switch (item.type)
 		{
-		case INV_ITEM_TYPE_VIDEO:
-			item.videoId = items[i].videoItem->id;
+		case FT_ITEM_TYPE_VIDEO:
+			item.videoId = ftItem->videoItem->id;
 			text8 = "\n";
-			text8 += items[i].videoItem->title;
+			text8 += ftItem->videoItem->title;
 			common::Utf8ToUtf16(text8, &item.name);
-			item.texId = items[i].videoItem->thmbUrl;
-			if (items[i].videoItem->isLive || items[i].videoItem->lengthSec == 0)
+			item.texId = ftItem->videoItem->thmbUrl;
+			if (ftItem->videoItem->isLive || ftItem->videoItem->lengthSec == 0)
 			{
 				text8 = "LIVE";
 			}
 			else
 			{
-				utils::ConvertSecondsToString(text8, items[i].videoItem->lengthSec, false);
+				utils::ConvertSecondsToString(text8, ftItem->videoItem->lengthSec, false);
 			}
 			common::Utf8ToUtf16(text8, &item.time);
 			text8 = "by ";
-			text8 += items[i].videoItem->author;
+			text8 += ftItem->videoItem->author;
 			text8 += "\n";
-			text8 += items[i].videoItem->published;
+			/* TODO fix live text8 += ftItem->videoItem->published;
+			if (ftItem->videoItem->isLive || ftItem->videoItem->lengthSec == 0)
+			{
+				text8 = " watching";
+			}*/
 			common::Utf8ToUtf16(text8, &item.stat);
 			break;
 		}
 
 		m_results.push_back(item);
-	}
 
-	thread::RMutex::main_thread_mutex.Lock();
+		ftItem = ftItem->next;
+	} while (ftItem);
+
+	thread::RMutex::MainThreadMutex()->Lock();
 	m_baseParent->m_loaderIndicator->Stop();
 	if (m_currentPage == 0)
 	{
@@ -311,17 +331,9 @@ void menu::YouTube::SearchSubmenu::Search()
 	{
 		m_list->InsertCell(0, 0, m_results.size() + 2);
 	}
-	thread::RMutex::main_thread_mutex.Unlock();
+	thread::RMutex::MainThreadMutex()->Unlock();
 
-	if (!isId)
-	{
-		invCleanupSearch(items);
-	}
-	else
-	{
-		invCleanupVideo(items->videoItem);
-		delete items;
-	}
+	ftCleanup(ftCtx);
 
 	m_allJobsComplete = true;
 }
@@ -421,12 +433,13 @@ void menu::YouTube::HistorySubmenu::Parse()
 	char *entryData;
 	int32_t sync = 0;
 	int32_t ret = 0;
-	InvItemVideo *invItem;
+	FTItem *ftItem = NULL;
+	void *ftCtx = NULL;
 	char key[SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE];
 
-	thread::RMutex::main_thread_mutex.Lock();
+	thread::RMutex::MainThreadMutex()->Lock();
 	m_baseParent->m_loaderIndicator->Start();
-	thread::RMutex::main_thread_mutex.Unlock();
+	thread::RMutex::MainThreadMutex()->Unlock();
 
 	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
 	settings->GetInt("cloud_sync_auto", static_cast<int32_t *>(&sync), 0);
@@ -460,47 +473,47 @@ void menu::YouTube::HistorySubmenu::Parse()
 			break;
 		}
 
-		ret = invParseVideo(entryData + (i * SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE), &invItem);
+		ret = ftParseVideo(&ftCtx, entryData + (i * SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE), FT_VIDEO_VOD_QUALITY_NONE, FT_AUDIO_VOD_QUALITY_NONE, &ftItem);
 		if (ret == true)
 		{
-			if (invItem->id)
+			if (ftItem->videoItem->id)
 			{
 				Item item;
-				item.type = INV_ITEM_TYPE_VIDEO;
-				item.videoId = invItem->id;
+				item.type = FT_ITEM_TYPE_VIDEO;
+				item.videoId = ftItem->videoItem->id;
 				text8 = "\n";
-				text8 += invItem->title;
+				text8 += ftItem->videoItem->title;
 				common::Utf8ToUtf16(text8, &item.name);
-				item.texId = invItem->thmbUrl;
-				if (invItem->isLive || invItem->lengthSec == 0)
+				item.texId = ftItem->videoItem->thmbUrl;
+				if (ftItem->videoItem->isLive || ftItem->videoItem->lengthSec == 0)
 				{
 					text8 = "LIVE";
 				}
 				else
 				{
-					utils::ConvertSecondsToString(text8, invItem->lengthSec, false);
+					utils::ConvertSecondsToString(text8, ftItem->videoItem->lengthSec, false);
 				}
 				common::Utf8ToUtf16(text8, &item.time);
 				text8 = "by ";
-				text8 += invItem->author;
+				text8 += ftItem->videoItem->author;
 				text8 += "\n";
-				text8 += invItem->published;
 				common::Utf8ToUtf16(text8, &item.stat);
+				ytutils::FormatViews(item.stat, ftItem->videoItem->viewCount, true);
 
 				m_results.push_back(item);
 			}
 
-			invCleanupVideo(invItem);
+			ftCleanup(ftCtx);
 		}
 	}
 
-	thread::RMutex::main_thread_mutex.Lock();
+	thread::RMutex::MainThreadMutex()->Lock();
 	m_baseParent->m_loaderIndicator->Stop();
 	if (!m_interrupted)
 	{
 		m_list->InsertCell(0, 0, m_results.size());
 	}
-	thread::RMutex::main_thread_mutex.Unlock();
+	thread::RMutex::MainThreadMutex()->Unlock();
 
 	sce_paf_free(entryData);
 
@@ -562,12 +575,13 @@ void menu::YouTube::FavouriteSubmenu::Parse()
 	char *entryData;
 	int32_t sync = 0;
 	int32_t ret = 0;
-	InvItemVideo *invItem = NULL;
+	FTItem *ftItem = NULL;
+	void *ftCtx = NULL;
 	bool isLastPage = false;
 
-	thread::RMutex::main_thread_mutex.Lock();
+	thread::RMutex::MainThreadMutex()->Lock();
 	m_baseParent->m_loaderIndicator->Start();
-	thread::RMutex::main_thread_mutex.Unlock();
+	thread::RMutex::MainThreadMutex()->Unlock();
 
 	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
 	settings->GetInt("cloud_sync_auto", static_cast<int32_t *>(&sync), 0);
@@ -592,37 +606,37 @@ void menu::YouTube::FavouriteSubmenu::Parse()
 			}
 
 			ytutils::GetFavLog()->GetNext(key);
-			ret = invParseVideo(key, &invItem);
-			if (ret == true)
+			ret = ftParseVideo(&ftCtx, key, FT_VIDEO_VOD_QUALITY_NONE, FT_AUDIO_VOD_QUALITY_NONE, &ftItem);
+			if (ret == FT_OK)
 			{
-				if (invItem->id && sce_paf_strstr(invItem->title, m_request.c_str()) && m_results.size() < 30)
+				if (ftItem->videoItem->id && sce_paf_strstr(ftItem->videoItem->title, m_request.c_str()) && m_results.size() < 30)
 				{
 					Item item;
-					item.type = INV_ITEM_TYPE_VIDEO;
-					item.videoId = invItem->id;
+					item.type = FT_ITEM_TYPE_VIDEO;
+					item.videoId = ftItem->videoItem->id;
 					text8 = "\n";
-					text8 += invItem->title;
+					text8 += ftItem->videoItem->title;
 					common::Utf8ToUtf16(text8, &item.name);
-					item.texId = invItem->thmbUrl;
-					if (invItem->isLive || invItem->lengthSec == 0)
+					item.texId = ftItem->videoItem->thmbUrl;
+					if (ftItem->videoItem->isLive || ftItem->videoItem->lengthSec == 0)
 					{
 						text8 = "LIVE";
 					}
 					else
 					{
-						utils::ConvertSecondsToString(text8, invItem->lengthSec, false);
+						utils::ConvertSecondsToString(text8, ftItem->videoItem->lengthSec, false);
 					}
 					common::Utf8ToUtf16(text8, &item.time);
 					text8 = "by ";
-					text8 += invItem->author;
+					text8 += ftItem->videoItem->author;
 					text8 += "\n";
-					text8 += invItem->published;
 					common::Utf8ToUtf16(text8, &item.stat);
+					ytutils::FormatViews(item.stat, ftItem->videoItem->viewCount, true);
 
 					m_results.push_back(item);
 				}
 
-				invCleanupVideo(invItem);
+				ftCleanup(ftCtx);
 			}
 		}
 	}
@@ -656,43 +670,43 @@ void menu::YouTube::FavouriteSubmenu::Parse()
 				break;
 			}
 
-			ret = invParseVideo(entryData + (i * SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE), &invItem);
-			if (ret == true)
+			ret = ftParseVideo(&ftCtx, entryData + (i * SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE), FT_VIDEO_VOD_QUALITY_NONE, FT_AUDIO_VOD_QUALITY_NONE, &ftItem);
+			if (ret == FT_OK)
 			{
-				if (invItem->id)
+				if (ftItem->videoItem->id)
 				{
 					Item item;
-					item.type = INV_ITEM_TYPE_VIDEO;
-					item.videoId = invItem->id;
+					item.type = FT_ITEM_TYPE_VIDEO;
+					item.videoId = ftItem->videoItem->id;
 					text8 = "\n";
-					text8 += invItem->title;
+					text8 += ftItem->videoItem->title;
 					common::Utf8ToUtf16(text8, &item.name);
-					item.texId = invItem->thmbUrl;
-					if (invItem->isLive || invItem->lengthSec == 0)
+					item.texId = ftItem->videoItem->thmbUrl;
+					if (ftItem->videoItem->isLive || ftItem->videoItem->lengthSec == 0)
 					{
 						text8 = "LIVE";
 					}
 					else
 					{
-						utils::ConvertSecondsToString(text8, invItem->lengthSec, false);
+						utils::ConvertSecondsToString(text8, ftItem->videoItem->lengthSec, false);
 					}
 					common::Utf8ToUtf16(text8, &item.time);
 					text8 = "by ";
-					text8 += invItem->author;
+					text8 += ftItem->videoItem->author;
 					text8 += "\n";
-					text8 += invItem->published;
 					common::Utf8ToUtf16(text8, &item.stat);
+					ytutils::FormatViews(item.stat, ftItem->videoItem->viewCount, true);
 					m_results.push_back(item);
 				}
 
-				invCleanupVideo(invItem);
+				ftCleanup(ftCtx);
 			}
 		}
 
 		sce_paf_free(entryData);
 	}
 
-	thread::RMutex::main_thread_mutex.Lock();
+	thread::RMutex::MainThreadMutex()->Lock();
 	m_baseParent->m_loaderIndicator->Stop();
 	if (!m_interrupted)
 	{
@@ -719,7 +733,7 @@ void menu::YouTube::FavouriteSubmenu::Parse()
 			}
 		}
 	}
-	thread::RMutex::main_thread_mutex.Unlock();
+	thread::RMutex::MainThreadMutex()->Unlock();
 
 	m_allJobsComplete = true;
 }
@@ -885,7 +899,7 @@ void menu::YouTube::OnOptionMenuEvent(int32_t type, int32_t subtype)
 	{
 		m_currentSubmenu->ReleaseCurrentPage();
 		common::SharedPtr<job::JobItem> itemParam(cloudJob);
-		job::JobQueue::default_queue->Enqueue(itemParam);
+		job::JobQueue::DefaultQueue()->Enqueue(itemParam);
 	}
 }
 
@@ -912,7 +926,7 @@ void menu::YouTube::OnDialogEvent(int32_t type)
 		m_currentSubmenu->ReleaseCurrentPage();
 		LogClearJob *job = new LogClearJob(clearType, m_currentSubmenu);
 		common::SharedPtr<job::JobItem> itemParam(job);
-		job::JobQueue::default_queue->Enqueue(itemParam);
+		job::JobQueue::DefaultQueue()->Enqueue(itemParam);
 	}
 }
 
@@ -920,11 +934,9 @@ void menu::YouTube::OnSettingsEvent(int32_t type)
 {
 	if (type == Settings::SettingsEvent_ValueChange)
 	{
-		// Bad solution but it shouldn't be noticable by the user
-		char instance[256];
-		sce_paf_memset(instance, 0, sizeof(instance));
-		menu::Settings::GetAppSetInstance()->GetString("inv_instance", instance, sizeof(instance), "");
-		invSetInstanceUrl(instance);
+		FTRegion region;
+		menu::Settings::GetAppSetInstance()->GetInt("yt_search_region", (int32_t *)&region, 0);
+		ftSetRegion(region);
 	}
 }
 
@@ -938,7 +950,7 @@ void menu::YouTube::OnSubmenuButton(ui::Widget *wdg)
 	SwitchSubmenu(static_cast<Submenu::SubmenuType>(wdg->GetName().GetIDHash()));
 }
 
-void menu::YouTube::LogClearJob::Run()
+int32_t menu::YouTube::LogClearJob::Run()
 {
 	dialog::OpenPleaseWait(g_appPlugin, NULL, Framework::Instance()->GetCommonString("msg_wait"));
 
@@ -958,9 +970,11 @@ void menu::YouTube::LogClearJob::Run()
 	}
 
 	dialog::Close();
+
+	return SCE_PAF_OK;
 }
 
-void menu::YouTube::CloudJob::Run()
+int32_t menu::YouTube::CloudJob::Run()
 {
 	dialog::OpenPleaseWait(g_appPlugin, NULL, Framework::Instance()->GetCommonString("msg_wait"));
 
@@ -968,7 +982,7 @@ void menu::YouTube::CloudJob::Run()
 	{
 		dialog::Close();
 		dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_EUNSUP, g_appPlugin->GetString(msg_error_psn_connection));
-		return;
+		return SCE_PAF_OK;
 	}
 
 	switch (m_type)
@@ -988,6 +1002,8 @@ void menu::YouTube::CloudJob::Run()
 	}
 
 	dialog::Close();
+
+	return SCE_PAF_OK;
 }
 
 menu::YouTube::YouTube() :
@@ -996,6 +1012,8 @@ menu::YouTube::YouTube() :
 	MenuCloseParam(false, 200.0f, Plugin::TransitionType_SlideFromBottom))
 {
 	m_currentSubmenu = NULL;
+
+	utils::SetRequestShare(ytutils::GetShare());
 
 	m_root->AddEventCallback(OptionMenu::OptionMenuEvent,
 	[](int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
@@ -1048,10 +1066,9 @@ menu::YouTube::YouTube() :
 	m_histBt->AddEventCallback(ui::Button::CB_BTN_DECIDE, submenuButtonCb, this);
 	m_favBt->AddEventCallback(ui::Button::CB_BTN_DECIDE, submenuButtonCb, this);
 
-	char instance[256];
-	sce_paf_memset(instance, 0, sizeof(instance));
-	menu::Settings::GetAppSetInstance()->GetString("inv_instance", instance, sizeof(instance), "");
-	invSetInstanceUrl(instance);
+	FTRegion region;
+	menu::Settings::GetAppSetInstance()->GetInt("yt_search_region", (int32_t *)&region, 0);
+	ftSetRegion(region);
 
 	m_texPool = new TexPool(g_appPlugin);
 	m_texPool->SetShare(utils::GetShare());
@@ -1063,6 +1080,7 @@ menu::YouTube::~YouTube()
 {
 	delete m_currentSubmenu;
 	m_texPool->DestroyAsync();
+	utils::SetRequestShare(NULL);
 }
 
 void menu::YouTube::SwitchSubmenu(Submenu::SubmenuType type)

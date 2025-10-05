@@ -30,12 +30,14 @@ namespace menu {
 
 			~EntryAddJob() {}
 
-			void Run()
+			int32_t Run()
 			{
 				m_parent->AddEntry();
+
+				return SCE_PAF_OK;
 			}
 
-			void Finish() {}
+			void Finish(int32_t result) {}
 
 		private:
 
@@ -53,12 +55,14 @@ namespace menu {
 
 			~TrackParseJob() {}
 
-			void Run()
+			int32_t Run()
 			{
 				m_parent->ParseTrack(m_audioItem);
+
+				return SCE_PAF_OK;
 			}
 
-			void Finish() {}
+			void Finish(int32_t result) {}
 
 		private:
 
@@ -77,9 +81,9 @@ namespace menu {
 
 			~LogClearJob() {}
 
-			void Run();
+			int32_t Run();
 
-			void Finish() {}
+			void Finish(int32_t result) {}
 
 		private:
 
@@ -177,7 +181,7 @@ namespace menu {
 
 		HVDB();
 
-		~HVDB();
+		~HVDB() override;
 
 		void ClearEntryResults();
 
@@ -189,12 +193,12 @@ namespace menu {
 
 		ui::ListItem* CreateTrackListItem(ui::listview::ItemFactory::CreateParam& param);
 
-		MenuType GetMenuType()
+		MenuType GetMenuType() override
 		{
 			return MenuType_Hvdb;
 		}
 
-		const uint32_t *GetSupportedSettingsItems(int32_t *count)
+		const uint32_t *GetSupportedSettingsItems(int32_t *count) override
 		{
 			*count = 0;
 			return k_settingsIdList;

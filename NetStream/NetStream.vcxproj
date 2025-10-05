@@ -11,18 +11,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\browsers\ftp_server_browser.cpp" />
+    <ClCompile Include="source\browsers\http_server_browser.cpp" />
+    <ClCompile Include="source\browsers\local_server_browser.cpp" />
     <ClCompile Include="source\hvdb_utils.cpp" />
     <ClCompile Include="source\menus\menu_hvdb.cpp" />
     <ClCompile Include="source\np_utils.cpp" />
-    <ClCompile Include="source\player_beav.cpp" />
     <ClCompile Include="source\debug.cpp" />
     <ClCompile Include="source\dialog.cpp" />
     <ClCompile Include="source\downloader.cpp" />
     <ClCompile Include="source\event.cpp" />
     <ClCompile Include="source\ftpparse.c" />
-    <ClCompile Include="source\ftp_server_browser.cpp" />
-    <ClCompile Include="source\http_server_browser.cpp" />
-    <ClCompile Include="source\local_server_browser.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\menus\menu_first.cpp" />
     <ClCompile Include="source\menus\menu_generic.cpp" />
@@ -33,29 +32,30 @@
     <ClCompile Include="source\menus\menu_player_youtube.cpp" />
     <ClCompile Include="source\option_menu.cpp" />
     <ClCompile Include="source\paf_runtime.cpp" />
-    <ClCompile Include="source\player_fmod.cpp" />
+    <ClCompile Include="source\players\player_av.cpp" />
+    <ClCompile Include="source\players\player_beav.cpp" />
+    <ClCompile Include="source\players\player_fmod.cpp" />
+    <ClCompile Include="source\subs\subs_generic.cpp" />
+    <ClCompile Include="source\subs\subs_srt.cpp" />
     <ClCompile Include="source\tex_pool.cpp" />
     <ClCompile Include="source\tw_utils.cpp" />
     <ClCompile Include="source\utils.cpp" />
     <ClCompile Include="source\yt_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\browsers\ftp_server_browser.h" />
+    <ClInclude Include="include\browsers\generic_server_browser.h" />
+    <ClInclude Include="include\browsers\http_server_browser.h" />
+    <ClInclude Include="include\browsers\local_server_browser.h" />
     <ClInclude Include="include\hvdb_utils.h" />
     <ClInclude Include="include\menus\menu_hvdb.h" />
     <ClInclude Include="include\np_utils.h" />
-    <ClInclude Include="include\player_beav.h" />
     <ClInclude Include="include\common.h" />
     <ClInclude Include="include\debug.h" />
     <ClInclude Include="include\dialog.h" />
     <ClInclude Include="include\downloader.h" />
     <ClInclude Include="include\event.h" />
     <ClInclude Include="include\ftpparse.h" />
-    <ClInclude Include="include\ftp_server_browser.h" />
-    <ClInclude Include="include\player_fmod.h" />
-    <ClInclude Include="include\player_generic.h" />
-    <ClInclude Include="include\generic_server_browser.h" />
-    <ClInclude Include="include\http_server_browser.h" />
-    <ClInclude Include="include\local_server_browser.h" />
     <ClInclude Include="include\main.h" />
     <ClInclude Include="include\menus\menu_first.h" />
     <ClInclude Include="include\menus\menu_ftp.h" />
@@ -68,6 +68,12 @@
     <ClInclude Include="include\menus\menu_youtube.h" />
     <ClInclude Include="include\menus\menu_player_youtube.h" />
     <ClInclude Include="include\option_menu.h" />
+    <ClInclude Include="include\players\player_av.h" />
+    <ClInclude Include="include\players\player_beav.h" />
+    <ClInclude Include="include\players\player_fmod.h" />
+    <ClInclude Include="include\players\player_generic.h" />
+    <ClInclude Include="include\subs\subs_generic.h" />
+    <ClInclude Include="include\subs\subs_srt.h" />
     <ClInclude Include="include\tex_pool.h" />
     <ClInclude Include="include\tw_utils.h" />
     <ClInclude Include="include\utils.h" />
@@ -135,7 +141,7 @@
       <AdditionalOptions>--no-standard-libraries </AdditionalOptions>
       <AdditionalLibraryDirectories>$(SCE_PSP2_SDK_DIR)\target\lib\vdsuite;$(ProjectDir)libs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateSnMapFile>FullMapFile</GenerateSnMapFile>
-      <AdditionalDependencies>-lSceRtcUser_stub;-lSceIpmi_stub;-lSceSysmem_stub;-lSceThreadMgr_stub;-lSceThreadmgrCoredumpTime_stub;-lSceModuleMgr_stub;-lSceProcessMgr_stub;-lSceTouch_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceAppUtil_stub;-lSceAudio_stub;-lSceCtrl_stub;-lSceDisplay_stub;-lScePower_stub;-lSceSysmodule_stub;-lSceGxm_stub;-lSceDbg_stub;-lScePafThread_stub;-lScePafStdc_stub;-lScePafToplevel_stub;-lScePafResource_stub;-lScePafWidget_stub;-lScePafMisc_stub;-lScePafCommon_stub;-lScePafGraphics_stub;-lSceLibKernel_stub;-lSceNet_stub;-lSceNetCtl_stub;-lSceAppSettings_stub;-lSceCommonGuiDialog_stub;-lSceCommonDialog_stub;-lSceHttp_stub;-lSceSsl_stub;-lSceIniFileProcessor_stub;-lSceBEAVCorePlayer_stub;-lSceDmacmgr_stub;-lSceFiber_stub;-lSceVshBridge_stub;-lSceNpManager_stub;-lSceNpCommon_stub;-lSceNpBasic_stub;-lSceNpTus_stub;-ltaihenUnsafe_stub;-lInvidious_stub;-lLootkit_stub;-lhvdb_stub;-lcurl_stub;-lfmodstudio_stub;-lfmodngpext_stub;-lsnc;-lPafFileExt;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>-ltaihen_stub;-lSceRtcUser_stub;-lSceIpmi_stub;-lSceSysmem_stub;-lSceThreadMgr_stub;-lSceThreadmgrCoredumpTime_stub;-lSceModuleMgr_stub;-lSceProcessMgr_stub;-lSceTouch_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceAppUtil_stub;-lSceAudio_stub;-lSceCtrl_stub;-lSceDisplay_stub;-lScePower_stub;-lSceSysmodule_stub;-lSceRegMgr_stub;-lSceDbg_stub;-lScePafThread_stub;-lScePafStdc_stub;-lScePafToplevel_stub;-lScePafResource_stub;-lScePafWidget_stub;-lScePafMisc_stub;-lScePafCommon_stub;-lScePafGraphics_stub;-lSceLibKernel_stub;-lSceNet_stub;-lSceNetCtl_stub;-lSceAppSettings_stub;-lSceCommonGuiDialog_stub;-lSceCommonDialog_stub;-lSceHttp_stub;-lSceSsl_stub;-lSceIniFileProcessor_stub;-lSceAvPlayerPSVita_stub;-lSceBeavCorePlayer_stub;-lSceDmacmgr_stub;-lSceFiber_stub;-lSceVshBridge_stub;-lSceNpManager_stub;-lSceNpCommon_stub;-lSceNpBasic_stub;-lSceNpTus_stub;-ltaihenUnsafe_stub;-lFourthTube_stub;-lLootkit_stub;-lhvdb_stub;-lcurl_stub;-lfmodstudio_stub;-lfmodngpext_stub;-lsnc;-lPafFileExt;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>"$(SCE_PSP2_SDK_DIR)/host_tools/build/bin/vdsuite-pubprx.exe" --boot-param "$(ProjectDir)ebootparam.bin" "$(LocalDebuggerCommand)" "$(OutDir)eboot.bin"</Command>
@@ -168,7 +174,7 @@
     <Link>
       <DuplicateStripping>true</DuplicateStripping>
       <AdditionalOptions>--no-standard-libraries</AdditionalOptions>
-      <AdditionalDependencies>-lSceRtcUser_stub;-lSceIpmi_stub;-lSceSysmem_stub;-lSceThreadMgr_stub;-lSceThreadmgrCoredumpTime_stub;-lSceModuleMgr_stub;-lSceProcessMgr_stub;-lSceTouch_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceAppUtil_stub;-lSceAudio_stub;-lSceCtrl_stub;-lSceDisplay_stub;-lScePower_stub;-lSceSysmodule_stub;-lSceGxm_stub;-lSceDbg_stub;-lScePafThread_stub;-lScePafStdc_stub;-lScePafToplevel_stub;-lScePafResource_stub;-lScePafWidget_stub;-lScePafMisc_stub;-lScePafCommon_stub;-lScePafGraphics_stub;-lSceLibKernel_stub;-lSceNet_stub;-lSceNetCtl_stub;-lSceAppSettings_stub;-lSceCommonGuiDialog_stub;-lSceCommonDialog_stub;-lSceHttp_stub;-lSceSsl_stub;-lSceIniFileProcessor_stub;-lSceBEAVCorePlayer_stub;-lSceDmacmgr_stub;-lSceFiber_stub;-lSceVshBridge_stub;-lSceNpManager_stub;-lSceNpCommon_stub;-lSceNpBasic_stub;-lSceNpTus_stub;-ltaihenUnsafe_stub;-lInvidious_stub;-lLootkit_stub;-lhvdb_stub;-lcurl_stub;-lfmodstudio_stub;-lfmodngpext_stub;-lsnc;-lPafFileExt;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>-ltaihen_stub;-lSceRtcUser_stub;-lSceIpmi_stub;-lSceSysmem_stub;-lSceThreadMgr_stub;-lSceThreadmgrCoredumpTime_stub;-lSceModuleMgr_stub;-lSceProcessMgr_stub;-lSceTouch_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceAppUtil_stub;-lSceAudio_stub;-lSceCtrl_stub;-lSceDisplay_stub;-lScePower_stub;-lSceSysmodule_stub;-lSceRegMgr_stub;-lSceDbg_stub;-lScePafThread_stub;-lScePafStdc_stub;-lScePafToplevel_stub;-lScePafResource_stub;-lScePafWidget_stub;-lScePafMisc_stub;-lScePafCommon_stub;-lScePafGraphics_stub;-lSceLibKernel_stub;-lSceNet_stub;-lSceNetCtl_stub;-lSceAppSettings_stub;-lSceCommonGuiDialog_stub;-lSceCommonDialog_stub;-lSceHttp_stub;-lSceSsl_stub;-lSceIniFileProcessor_stub;-lSceAvPlayerPSVita_stub;-lSceBeavCorePlayer_stub;-lSceDmacmgr_stub;-lSceFiber_stub;-lSceVshBridge_stub;-lSceNpManager_stub;-lSceNpCommon_stub;-lSceNpBasic_stub;-lSceNpTus_stub;-ltaihenUnsafe_stub;-lFourthTube_stub;-lLootkit_stub;-lhvdb_stub;-lcurl_stub;-lfmodstudio_stub;-lfmodngpext_stub;-lsnc;-lPafFileExt;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>call "$(ProjectDir)gen_rco.bat"

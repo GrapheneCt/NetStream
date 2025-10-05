@@ -5,9 +5,10 @@
 
 #include "common.h"
 #include "downloader.h"
+#include "utils.h"
 #include "yt_utils.h"
 #include "np_utils.h"
-#include "invidious.h"
+#include "ftube.h"
 
 using namespace paf;
 using namespace sce;
@@ -15,6 +16,7 @@ using namespace sce;
 static ytutils::HistLog *s_histLog = NULL;
 static ytutils::FavLog *s_favLog = NULL;
 static Downloader *s_downloader = NULL;
+static CURLSH *s_share = NULL;
 
 int32_t ytutils::Log::GetNext(char *data)
 {
@@ -98,7 +100,7 @@ void ytutils::Log::Add(const char *data)
 	}
 }
 
-void ytutils::Log::AddAsyncJob::Run()
+int32_t ytutils::Log::AddAsyncJob::Run()
 {
 	int32_t sync = 0;
 	char *sptr;
@@ -121,13 +123,15 @@ void ytutils::Log::AddAsyncJob::Run()
 	{
 		m_parent->UploadToTUS();
 	}
+
+	return SCE_PAF_OK;
 }
 
 void ytutils::Log::AddAsync(const char *data)
 {
 	AddAsyncJob *job = new AddAsyncJob(this, data);
 	common::SharedPtr<job::JobItem> itemParam(job);
-	job::JobQueue::default_queue->Enqueue(itemParam);
+	job::JobQueue::DefaultQueue()->Enqueue(itemParam);
 }
 
 void ytutils::Log::Remove(const char *data)
@@ -393,14 +397,25 @@ void ytutils::HistLog::Clean()
 
 void ytutils::Init(uint32_t histTUS, uint32_t favTUS)
 {
-	invInit(sce_paf_malloc, sce_paf_free, NULL);
+	ftInit(sce_paf_malloc, sce_paf_free, sce_paf_realloc, utils::DoGETRequest, utils::DoPOSTRequest);
 
 	if (!s_histLog)
+	{
 		s_histLog = new ytutils::HistLog(histTUS);
+	}
 	if (!s_favLog)
+	{
 		s_favLog = new ytutils::FavLog(favTUS);
+	}
 
 	s_downloader = new Downloader();
+
+	s_share = curl_share_init();
+	curl_share_setopt(s_share, CURLSHOPT_SHARE, CURL_LOCK_DATA_COOKIE);
+	curl_share_setopt(s_share, CURLSHOPT_SHARE, CURL_LOCK_DATA_DNS);
+	curl_share_setopt(s_share, CURLSHOPT_SHARE, CURL_LOCK_DATA_SSL_SESSION);
+	curl_share_setopt(s_share, CURLSHOPT_SHARE, CURL_LOCK_DATA_CONNECT);
+	curl_share_setopt(s_share, CURLSHOPT_SHARE, CURL_LOCK_DATA_PSL);
 }
 
 void ytutils::Flush()
@@ -417,6 +432,10 @@ void ytutils::Flush()
 
 void ytutils::Term()
 {
+	curl_share_cleanup(s_share);
+
+	delete s_downloader;
+
 	if (s_histLog)
 	{
 		delete s_histLog;
@@ -428,7 +447,7 @@ void ytutils::Term()
 		s_favLog = NULL;
 	}
 
-	invTerm();
+	ftTerm();
 }
 
 ytutils::HistLog *ytutils::GetHistLog()
@@ -449,4 +468,41 @@ int32_t ytutils::EnqueueDownload(const char *url, const char *name)
 int32_t ytutils::EnqueueDownloadAsync(const char *url, const char *name)
 {
 	return s_downloader->EnqueueAsync(g_appPlugin, url, name);
+}
+
+CURLSH *ytutils::GetShare()
+{
+	return s_share;
+}
+
+void ytutils::FormatViews(wstring& res, uint32_t views, bool add)
+{
+	wchar_t buf[128];
+	uint32_t bufsize = 128;
+
+	if (views < 1000)
+	{
+		sce_paf_swprintf(buf, bufsize, L"%u views", views);
+	}
+	else if (views < 1000000)
+	{
+		sce_paf_swprintf(buf, bufsize, L"%.2gK views", views / 1000.0f);
+	}
+	else if (views < 1000000000)
+	{
+		sce_paf_swprintf(buf, bufsize, L"%.2gM views", views / 1000000.0f);
+	}
+	else
+	{
+		sce_paf_swprintf(buf, bufsize, L"%.2gB views", views / 1000000000.0f);
+	}
+
+	if (add)
+	{
+		res += buf;
+	}
+	else
+	{
+		res = buf;
+	}
 }

@@ -4,17 +4,23 @@
 #include <psp2_compat/curl/curl.h>
 
 #include "common.h"
-#include "player_beav.h"
-#include "player_fmod.h"
-#include "http_server_browser.h"
+#include "utils.h"
+#include "ftpparse.h"
+#include "players/player_av.h"
+#include "players/player_beav.h"
+#include "browsers/ftp_server_browser.h"
+
+#undef SCE_DBG_LOG_COMPONENT
+#define SCE_DBG_LOG_COMPONENT "[FTPBrowser]"
 
 using namespace paf;
 
-HttpServerBrowser::HttpServerBrowser(const char *host, const char *port, const char *user, const char *password)
+FtpServerBrowser::FtpServerBrowser(const char *host, const char *port, const char *user, const char *password)
 {
+	m_useNlst = 0;
 	m_url = curl_url();
 
-	SCE_DBG_LOG_INFO("[HTTP] %s : %s : %s : %s\n", host, port, user, password);
+	SCE_DBG_LOG_INFO("[FtpServerBrowser] %s : %s : %s : %s\n", host, port, user, password);
 
 	if (host)
 		curl_url_set(m_url, CURLUPART_URL, host, 0);
@@ -35,27 +41,31 @@ HttpServerBrowser::HttpServerBrowser(const char *host, const char *port, const c
 		curl_free(addr);
 	}
 
-	curl_easy_setopt(m_curl, CURLOPT_USERAGENT, USER_AGENT);
-	curl_easy_setopt(m_curl, CURLOPT_ACCEPT_ENCODING, NULL);
 	curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYHOST, 0L);
 	curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, 0L);
-	curl_easy_setopt(m_curl, CURLOPT_FOLLOWLOCATION, 1L);
-	curl_easy_setopt(m_curl, CURLOPT_TCP_KEEPALIVE, 1L);
 	curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, 5L);
-	curl_easy_setopt(m_curl, CURLOPT_TIMEOUT, 5L);
+	curl_easy_setopt(m_curl, CURLOPT_TIMEOUT, 15L);
 	curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, 1L);
 	curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, DownloadCore);
 	curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, this);
-	curl_easy_setopt(m_curl, CURLOPT_HTTPGET, 1L);
+	if (utils::GetGlobalProxy())
+	{
+		curl_easy_setopt(m_curl, CURLOPT_PROXY, utils::GetGlobalProxy());
+	}
+	menu::Settings::GetAppSetInstance()->GetInt("ftp_nlst", &m_useNlst, 0);
+	if (m_useNlst)
+	{
+		curl_easy_setopt(m_curl, CURLOPT_DIRLISTONLY, 1L);
+	}
 }
 
-HttpServerBrowser::~HttpServerBrowser()
+FtpServerBrowser::~FtpServerBrowser()
 {
 	curl_url_cleanup(m_url);
 	curl_easy_cleanup(m_curl);
 }
 
-bool HttpServerBrowser::Probe()
+bool FtpServerBrowser::Probe()
 {
 	curl_easy_setopt(m_curl, CURLOPT_NOBODY, 1L);
 
@@ -71,17 +81,17 @@ bool HttpServerBrowser::Probe()
 	return true;
 }
 
-bool HttpServerBrowser::IsAtRoot(string *current)
+bool FtpServerBrowser::IsAtRoot(string *current)
 {
 	return (m_root == *current);
 }
 
-bool HttpServerBrowser::IsAtRoot()
+bool FtpServerBrowser::IsAtRoot()
 {
 	return (m_root == GetPath());
 }
 
-string HttpServerBrowser::GetPath()
+string FtpServerBrowser::GetPath()
 {
 	string ret;
 	char *path;
@@ -97,21 +107,21 @@ string HttpServerBrowser::GetPath()
 	return ret;
 }
 
-string HttpServerBrowser::GetBEAVUrl(string const& in)
+string FtpServerBrowser::GetBEAVUrl(string const& in)
 {
-	string ret;
+	string ret = "http://";
 	CURLU *turl = curl_url_dup(m_url);
 	curl_url_set(turl, CURLUPART_URL, in.c_str(), 0);
 	char *result;
 	curl_url_get(turl, CURLUPART_URL, &result, 0);
-	ret = result;
+	ret += result;
 	curl_free(result);
 	curl_url_cleanup(turl);
 
 	return ret;
 }
 
-void HttpServerBrowser::SetPath(const char *ref)
+void FtpServerBrowser::SetPath(const char *ref)
 {
 	if (ref)
 	{
@@ -127,16 +137,16 @@ void HttpServerBrowser::SetPath(const char *ref)
 	}
 }
 
-vector<HttpServerBrowser::Entry *> *HttpServerBrowser::GoTo(const char *ref, int32_t *result)
+vector<FtpServerBrowser::Entry *> *FtpServerBrowser::GoTo(const char *ref, int32_t *result)
 {
-	vector<HttpServerBrowser::Entry *> *ret = new vector<HttpServerBrowser::Entry *>;
+	vector<FtpServerBrowser::Entry *> *ret = new vector<FtpServerBrowser::Entry *>;
 	CURLcode cret;
 
 	SetPath(ref);
 
 	char *addr;
 	curl_url_get(m_url, CURLUPART_URL, &addr, 0);
-	SCE_DBG_LOG_INFO("[HTTP] Attempt to open %s\n", addr);
+	SCE_DBG_LOG_INFO("[GoTo] Attempt to open %s\n", addr);
 	curl_easy_setopt(m_curl, CURLOPT_URL, addr);
 	curl_free(addr);
 
@@ -154,43 +164,48 @@ vector<HttpServerBrowser::Entry *> *HttpServerBrowser::GoTo(const char *ref, int
 	{
 		m_buffer[m_posInBuf - 1] = 0;
 
-		char *href = NULL;
-		char *refEnd = m_buffer;
-		while (1)
-		{
-			href = sce_paf_strstr(refEnd + 1, "<a href=\"");
-			if (!href)
-				break;
-			href += 9;
-
-			refEnd = sce_paf_strstr(href, "\">");
-			*refEnd = 0;
-
-			GenericPlayer::SupportType supportType = BEAVPlayer::IsSupported(href);
-			if (supportType == GenericPlayer::SupportType_NotSupported)
+		char *tok = sce_paf_strtok(m_buffer, "\n");
+		while (tok != NULL) {
+			if (!m_useNlst)
 			{
-				supportType = FMODPlayer::IsSupported(href);
+				struct ftpparse ftpe;
+				int fret = ftpparse(&ftpe, tok, sce_paf_strlen(tok));
+				if (fret == 1)
+				{
+					tok = ftpe.name;
+				}
+				else
+				{
+					tok = "";
+				}
 			}
 
-			if (supportType != GenericPlayer::SupportType_NotSupported)
+			GenericPlayer::SupportType supportType = AVPlayer::IsSupported(tok);
+			if (supportType == GenericPlayer::SupportType_NotSupported)
 			{
-				char *decoded = curl_easy_unescape(m_curl, href, 0, NULL);
-				HttpServerBrowser::Entry *entry = new HttpServerBrowser::Entry();
+				supportType = BEAVPlayer::IsSupported(tok);
+			}
+
+			if (supportType != BEAVPlayer::SupportType_NotSupported)
+			{
+				char *decoded = curl_easy_unescape(m_curl, tok, 0, NULL);
+				FtpServerBrowser::Entry *entry = new FtpServerBrowser::Entry();
 				entry->ref = decoded;
-				entry->type = HttpServerBrowser::Entry::Type_UnsupportedFile;
+				entry->type = FtpServerBrowser::Entry::Type_UnsupportedFile;
 				curl_free(decoded);
 
-				if (supportType == GenericPlayer::SupportType_MaybeSupported)
+				if (supportType == BEAVPlayer::SupportType_MaybeSupported)
 				{
-					entry->type = HttpServerBrowser::Entry::Type_Folder;
+					entry->type = FtpServerBrowser::Entry::Type_Folder;
 				}
-				else if (supportType == GenericPlayer::SupportType_Supported)
+				else if (supportType == BEAVPlayer::SupportType_Supported)
 				{
-					entry->type = HttpServerBrowser::Entry::Type_SupportedFile;
+					entry->type = FtpServerBrowser::Entry::Type_SupportedFile;
 				}
 
 				ret->push_back(entry);
 			}
+			tok = sce_paf_strtok(NULL, "\n");
 		}
 
 		*result = SCE_OK;
@@ -206,9 +221,9 @@ vector<HttpServerBrowser::Entry *> *HttpServerBrowser::GoTo(const char *ref, int
 	return ret;
 }
 
-size_t HttpServerBrowser::DownloadCore(char *buffer, size_t size, size_t nitems, void *userdata)
+size_t FtpServerBrowser::DownloadCore(char *buffer, size_t size, size_t nitems, void *userdata)
 {
-	HttpServerBrowser *obj = static_cast<HttpServerBrowser *>(userdata);
+	FtpServerBrowser *obj = static_cast<FtpServerBrowser *>(userdata);
 	size_t toCopy = size * nitems;
 
 	if (toCopy != 0)

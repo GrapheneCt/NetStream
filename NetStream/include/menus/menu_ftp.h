@@ -6,7 +6,7 @@
 
 #include "dialog.h"
 #include "menu_server.h"
-#include "ftp_server_browser.h"
+#include "browsers/ftp_server_browser.h"
 #include "menus/menu_player_simple.h"
 
 using namespace paf;
@@ -33,12 +33,12 @@ namespace menu {
 			m_browser = new FtpServerBrowser(host, port, user, password);
 		}
 
-		MenuType GetMenuType()
+		MenuType GetMenuType() override
 		{
 			return MenuType_Ftp;
 		}
 
-		const uint32_t *GetSupportedSettingsItems(int32_t *count)
+		const uint32_t *GetSupportedSettingsItems(int32_t *count) override
 		{
 			*count = sizeof(k_settingsIdList) / sizeof(char*);
 			return k_settingsIdList;

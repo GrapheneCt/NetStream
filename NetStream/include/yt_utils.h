@@ -6,6 +6,7 @@
 #include <ini_file_processor.h>
 
 #include "downloader.h"
+#include "ftube.h"
 
 using namespace paf;
 
@@ -26,9 +27,9 @@ namespace ytutils
 
 			~AddAsyncJob() {}
 
-			void Run();
+			int32_t Run();
 
-			void Finish() {}
+			void Finish(int32_t result) {}
 
 		private:
 
@@ -102,14 +103,6 @@ namespace ytutils
 		static void Clean();
 	};
 
-	class InvDownloadData
-	{
-	public:
-
-		void *buf;
-		uint32_t pos;
-	};
-
 	void Init(uint32_t histTUS = UINT_MAX, uint32_t favTUS = UINT_MAX);
 
 	void Term();
@@ -123,6 +116,10 @@ namespace ytutils
 	int32_t EnqueueDownload(const char *url, const char *name);
 
 	int32_t EnqueueDownloadAsync(const char *url, const char *name);
+
+	CURLSH *GetShare();
+
+	void FormatViews(wstring& res, uint32_t views, bool add = false);
 };
 
 #endif

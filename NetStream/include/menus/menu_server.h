@@ -6,7 +6,7 @@
 
 #include "dialog.h"
 #include "menu_generic.h"
-#include "generic_server_browser.h"
+#include "browsers/generic_server_browser.h"
 #include "menus/menu_player_simple.h"
 
 using namespace paf;
@@ -56,12 +56,14 @@ namespace menu {
 
 			~GoToJob() {}
 
-			void Run()
+			int32_t Run()
 			{
 				m_parent->GoTo(m_targetRef);
+
+				return SCE_PAF_OK;
 			}
 
-			void Finish() {}
+			void Finish(int32_t result) {}
 
 			void SetRef(const string& ref)
 			{
@@ -95,11 +97,7 @@ namespace menu {
 
 		GenericServerMenu();
 
-		virtual ~GenericServerMenu();
-
-		virtual MenuType GetMenuType() = 0;
-
-		virtual const uint32_t *GetSupportedSettingsItems(int32_t *count) = 0;
+		~GenericServerMenu() override;
 
 		ui::ListItem* CreateListItem(ui::listview::ItemFactory::CreateParam& param);
 

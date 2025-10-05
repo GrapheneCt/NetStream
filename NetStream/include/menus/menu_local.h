@@ -6,7 +6,7 @@
 
 #include "dialog.h"
 #include "menu_server.h"
-#include "local_server_browser.h"
+#include "browsers/local_server_browser.h"
 
 using namespace paf;
 
@@ -20,12 +20,12 @@ namespace menu {
 			m_browser = new LocalServerBrowser();
 		}
 
-		MenuType GetMenuType()
+		MenuType GetMenuType() override
 		{
 			return MenuType_Local;
 		}
 
-		const uint32_t *GetSupportedSettingsItems(int32_t *count)
+		const uint32_t *GetSupportedSettingsItems(int32_t *count) override
 		{
 			*count = sizeof(k_settingsIdList) / sizeof(char*);
 			return k_settingsIdList;

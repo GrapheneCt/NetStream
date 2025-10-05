@@ -48,15 +48,19 @@
   <string src="Descending" id="msg_option_local_sort_name_1" />
   <string src="Folders First" id="msg_option_local_sort_type_0" />
   <string src="Files First" id="msg_option_local_sort_type_1" />
-  
-  <string src="首选视频质量" id="msg_youtube_quality" />
-  <string src="首选直播质量" id="msg_youtube_hls_quality" />
 
-  <string src="令人反感的实例" id="msg_youtube_inv_instance" />
-  <string src="地区" id="msg_youtube_region" />
+  <string src="VOD Video Quality" id="msg_youtube_quality_vod_video" />
+  <string src="VOD Audio Quality" id="msg_youtube_quality_vod_audio" />
+  <string src="Default Live Quality" id="msg_youtube_quality_live" />
+
+  <string src="地区" id="msg_youtube_search_region" />
   <string src="种类" id="msg_youtube_search_sort" />
   <string src="日期" id="msg_youtube_search_date" />
+  <string src="Duration" id="msg_youtube_search_dur" />
+  <string src="Feature" id="msg_youtube_search_feature" />
   <string src="种类" id="msg_youtube_comment_sort" />
+
+  <string src="US" id="msg_option_search_region_0" />
   
   <string src="关联" id="msg_option_search_sort_0" />
   <string src="评分" id="msg_option_search_sort_1" />
@@ -69,18 +73,30 @@
   <string src="月" id="msg_option_search_date_3" />
   <string src="年" id="msg_option_search_date_4" />
   <string src="任何" id="msg_option_search_date_5" />
+
+  <string src="Short" id="msg_option_search_dur_0" />
+  <string src="Medium" id="msg_option_search_dur_1" />
+  <string src="Long" id="msg_option_search_dur_2" />
+  <string src="Any" id="msg_option_search_dur_3" />
+
+  <string src="Live" id="msg_option_search_feature_0" />
+  <string src="None" id="msg_option_search_feature_1" />
   
   <string src="最佳" id="msg_option_comment_sort_0" />
   <string src="新的" id="msg_option_comment_sort_1" />
-  
-  <string src="360P" id="msg_option_youtube_quality_0" />
-  <string src="720P" id="msg_option_youtube_quality_1" />
-  
-  <string src="144P" id="msg_option_youtube_hls_quality_0" />
-  <string src="240P" id="msg_option_youtube_hls_quality_1" />
-  <string src="360P" id="msg_option_youtube_hls_quality_2" />
-  <string src="480P" id="msg_option_youtube_hls_quality_3" />
-  <string src="720P" id="msg_option_youtube_hls_quality_4" />
+
+  <string src="Auto" id="msg_option_youtube_quality_vod_video_0" />
+  <string src="144p" id="msg_option_youtube_quality_vod_video_1" />
+  <string src="240p" id="msg_option_youtube_quality_vod_video_2" />
+  <string src="360p" id="msg_option_youtube_quality_vod_video_3" />
+  <string src="480p" id="msg_option_youtube_quality_vod_video_4" />
+  <string src="720p" id="msg_option_youtube_quality_vod_video_5" />
+
+  <string src="144p" id="msg_option_youtube_quality_live_0" />
+  <string src="240p" id="msg_option_youtube_quality_live_1" />
+  <string src="360p" id="msg_option_youtube_quality_live_2" />
+  <string src="480p" id="msg_option_youtube_quality_live_3" />
+  <string src="720p" id="msg_option_youtube_quality_live_4" />
 
   <string src="Use Cloud Sync" id="msg_toggle_cloud_sync" />
   <string src="Sync Data Automatically" id="msg_toggle_cloud_sync_auto" />
@@ -102,6 +118,8 @@
   <string src="下载音频" id="msg_settings_youtube_download_audio" />
   <string src="下载已添加到队列中。" id="msg_settings_youtube_download_begin" />
 
+  <string src="Select Quality" id="msg_quality_select_dialog_title" />
+  
   <string src="Please enter DLsite ID of the work." id="msg_hvdb_add_entry" />
   <string src="ID not found in the database." id="msg_hvdb_error_id_not_exist" />
 

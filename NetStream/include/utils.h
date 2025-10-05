@@ -5,6 +5,8 @@
 #include <paf.h>
 #include <paf_file_ext.h>
 
+#include "ftube.h"
+
 using namespace paf;
 
 #define ROUND_UP(x, a)	(((x) + ((a) - 1)) & ~((a) - 1))
@@ -48,6 +50,8 @@ namespace utils
 
 	string SafememRead(uint32_t offset = 0);
 
+	bool IsTaihenLoaded();
+
 	typedef void(*TimeoutFunc)(void *userdata1, void *userdata2);
 
 	class TimeoutListener : public TimerListener
@@ -65,7 +69,7 @@ namespace utils
 			{
 				m_func(data1, data2);
 			}
-			TimerListenerList::s_default_list->Unregister(this);
+			TimerListenerList::DefaultList()->Unregister(this);
 			delete this;
 		}
 
@@ -79,6 +83,44 @@ namespace utils
 	TimeoutID SetTimeout(TimeoutFunc func, float timeoutMs, void *userdata1 = NULL, void *userdata2 = NULL);
 
 	void ClearTimeout(TimeoutID id);
+
+	class CurlDownloadContext
+	{
+	public:
+
+		CurlDownloadContext()
+		{
+			m_buf = NULL;
+			m_pos = 0;
+		}
+
+		~CurlDownloadContext() {};
+
+		void *m_buf;
+		uint32_t m_pos;
+	};
+
+	void SetGlobalProxy(const char *proxy);
+
+	const char *GetGlobalProxy();
+
+	bool DoGETRequest(const char *curl, void **ppRespBuf, size_t *pRespBufSize, const char **ppHeaders, uint32_t headerNum,
+		int32_t *pRespCode, void*(*liballoc)(size_t), void(*libdealloc)(void *), void*(*librealloc)(void *, size_t));
+
+	bool DoPOSTRequest(const char *curl, void *pBuf, size_t bufSize, const char **ppHeaders, uint32_t headerNum, void **ppRespBuf,
+		size_t *pRespBufSize, int32_t *pRespCode, void*(*liballoc)(size_t), void(*libdealloc)(void *), void*(*librealloc)(void *, size_t));
+
+	void SetRequestShare(CURLSH *share);
+
+	void ResolutionToQualityString(wstring& res, uint32_t width, uint32_t height, bool selected = false);
+
+	void AudioParamsToQualityString(wstring& res, uint32_t ch, uint32_t srate, bool selected = false);
+
+	bool IsVideoSupported(uint32_t width, uint32_t height);
+
+	bool IsAudioSupported(uint32_t ch, uint32_t srate);
+
+	bool IsLocalPath(const char *path);
 };
 
 

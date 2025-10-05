@@ -5,7 +5,7 @@
 #include <paf.h>
 #include <psp2_compat/curl/curl.h>
 
-#include "generic_server_browser.h"
+#include "browsers/generic_server_browser.h"
 
 using namespace paf;
 

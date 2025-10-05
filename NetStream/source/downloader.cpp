@@ -43,7 +43,7 @@ Downloader::Downloader()
 	sce_paf_memset(&connOpt, 0, sizeof(sce::Download::ConnectionOpt));
 	connOpt.budgetType = conf.pipeBudgetType;
 
-	client->connect(&connOpt, sizeof(sce::Download::ConnectionOpt), &ret);
+	int ret2 = client->connect(&connOpt, sizeof(sce::Download::ConnectionOpt), &ret);
 
 	dw.unk_00 = SCE_UID_INVALID_UID;
 	dw.unk_04 = SCE_UID_INVALID_UID;
@@ -76,11 +76,11 @@ int32_t Downloader::Enqueue(Plugin *workPlugin, const char *url, const char *nam
 	sce_paf_memset(&minfo, 0, sizeof(sce::Download::HeaderInfo));
 
 	hparam.contentType = sce::Download::ContentType_Multimedia;
-	hparam.resolveTimeout = 4000000;
+	hparam.resolveTimeout = 5000;
 	hparam.resolveRetry = 2;
-	hparam.connectTimeout = 30000000;
+	hparam.connectTimeout = 3000;
 	hparam.sendTimeout = 0;
-	hparam.recvTimeout = 30000000;
+	hparam.recvTimeout = 3000;
 	sce_paf_strcpy((char *)hparam.url, url);
 
 	dtInfo[0].data = &hparam;
@@ -146,5 +146,5 @@ int32_t Downloader::EnqueueAsync(Plugin *workPlugin, const char *url, const char
 	AsyncEnqueue *dwJob = new AsyncEnqueue(workPlugin, this, url, name);
 	common::SharedPtr<job::JobItem> itemParam(dwJob);
 
-	return job::JobQueue::default_queue->Enqueue(itemParam);
+	return job::JobQueue::DefaultQueue()->Enqueue(itemParam);
 }

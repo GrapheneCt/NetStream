@@ -39,13 +39,15 @@ private:
 
 		~AsyncEnqueue() {}
 
-		void Run()
+		int32_t Run()
 		{
 			Downloader *pdownloader = (Downloader *)m_downloader;
 			pdownloader->Enqueue(m_plugin, m_url8.c_str(), m_name8.c_str());
+
+			return SCE_PAF_OK;
 		}
 
-		void Finish() {}
+		void Finish(int32_t result) {}
 
 	private:
 

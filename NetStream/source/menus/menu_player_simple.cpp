@@ -7,12 +7,15 @@
 #include "utils.h"
 #include "event.h"
 #include "dialog.h"
-#include "player_beav.h"
-#include "player_fmod.h"
+#include "players/player_beav.h"
+#include "players/player_av.h"
+#include "players/player_fmod.h"
+#include "subs/subs_srt.h"
 #include "menus/menu_player_simple.h"
 #include "menus/menu_settings.h"
 
-#include <vectormath.h>
+#undef SCE_DBG_LOG_COMPONENT
+#define SCE_DBG_LOG_COMPONENT "[PlayerSimple]"
 
 using namespace paf;
 
@@ -176,12 +179,98 @@ void menu::PlayerSimple::OnUpdate()
 	{
 		if (!m_isSeeking)
 		{
-			uint32_t currTime = m_player->GetCurrentTimeMs() / 1000;
+			uint32_t currTimeMs = m_player->GetCurrentTimeMs();
+			uint32_t currTime = currTimeMs / 1000;
+			if (m_subtitles)
+			{
+				m_subtitles->GetActiveSubtitleIndices(m_subIndices, currTimeMs);
+				if (m_subIndices != m_oldSubIndices)
+				{
+					if (!m_subIndices.empty() && m_subIndices.size() > 1)
+					{
+						SCE_DBG_LOG_WARNING("[OnUpdate] Multiple subtitle entries detected (%u), only the first one will be used", m_subIndices.size());
+					}
+					vector<GenericSubtitles::SubtitleEntry> const& subsLoc = m_subtitles->GetSubtitlieEntries();
+					if (!m_subIndices.empty())
+					{
+						GenericSubtitles::SubtitleEntry const& sub = subsLoc.at(m_subIndices[0]);
+
+						math::v4 edgeColor(0.0f, 0.0f, 0.0f, 1.0f);
+						if ((sub.colorPacked & 0x00FFFFFF) < 0x00323232)
+						{
+							edgeColor.set_x(1.0f);
+							edgeColor.set_y(1.0f);
+							edgeColor.set_z(1.0f);
+						}
+
+						float scale = sub.charSizeScale;
+						if (SCE_PAF_IS_DOLCE)
+						{
+							scale *= 2.0f;
+						}
+						
+						math::v2 scaledCharSize(m_subsBaseCharSize.x().f() * scale, m_subsBaseCharSize.y().f() * scale);
+
+						m_subsMainText->SetAnchor(sub.anchorX, sub.anchorY, ui::Widget::ANCHOR_CENTER, NULL);
+						m_subsMainText->SetAlign(sub.alignX, sub.alignY, ui::Widget::ALIGN_NONE, NULL);
+						m_subsMainText->SetStyleAttribute(graph::TextStyleAttribute_Point, 0, 0, scaledCharSize);
+						m_subsMainText->SetStyleAttribute(graph::TextStyleAttribute_Color, 0, 0, sub.color);
+						for (int i = 0; i < 4; i++)
+						{
+							m_subsEdgeText[i]->SetAnchor(sub.anchorX, sub.anchorY, ui::Widget::ANCHOR_CENTER, NULL);
+							m_subsEdgeText[i]->SetAlign(sub.alignX, sub.alignY, ui::Widget::ALIGN_NONE, NULL);
+							m_subsEdgeText[i]->SetStyleAttribute(graph::TextStyleAttribute_Point, 0, 0, scaledCharSize);
+							m_subsEdgeText[i]->SetStyleAttribute(graph::TextStyleAttribute_Color, 0, 0, edgeColor);
+						}
+
+						m_subsMainText->SetPos(sub.position);
+						float subBaseX = sub.position.x().f();
+						float subBaseY = sub.position.y().f();
+						m_subsEdgeText[0]->SetPos({ subBaseX + 2.0f, subBaseY + 2.0f });
+						m_subsEdgeText[1]->SetPos({ subBaseX + 2.0f, subBaseY - 2.0f });
+						m_subsEdgeText[2]->SetPos({ subBaseX - 2.0f, subBaseY - 2.0f });
+						m_subsEdgeText[3]->SetPos({ subBaseX - 2.0f, subBaseY + 2.0f });
+
+						m_subsMainText->SetString(sub.string);
+
+						switch (m_subSettings.edge)
+						{
+						case 0:
+							break;
+						case 1:
+							m_subsEdgeText[2]->SetString(sub.string);
+							break;
+						case 2:
+							m_subsEdgeText[1]->SetString(sub.string);
+							break;
+						case 3:
+							for (int i = 0; i < 4; i++)
+							{
+								m_subsEdgeText[i]->SetString(sub.string);
+							}
+							break;
+						case 4:
+							m_subsEdgeText[1]->SetString(sub.string);
+							break;
+						}
+
+					}
+					else
+					{
+						m_subsMainText->SetString(L"");
+						for (int i = 0; i < 4; i++)
+						{
+							m_subsEdgeText[i]->SetString(L"");
+						}
+					}
+					m_oldSubIndices = m_subIndices;
+				}
+			}
 			if (currTime != m_oldCurrTime)
 			{
 				utils::ConvertSecondsToString(text8, currTime, false);
 				common::Utf8ToUtf16(text8, &text16);
-				elapsedTimeText->SetString(text16);
+				m_elapsedTimeText->SetString(text16);
 				float progress = static_cast<float>(currTime) * 100000.0f / static_cast<float>(m_player->GetTotalTimeMs());
 				m_progressBar->SetValue(progress);
 				m_oldCurrTime = currTime;
@@ -192,7 +281,7 @@ void menu::PlayerSimple::OnUpdate()
 			uint32_t val = static_cast<uint32_t>(m_progressBar->GetValue() / 100000.0f * static_cast<float>(m_player->GetTotalTimeMs()));
 			utils::ConvertSecondsToString(text8, val, false);
 			common::Utf8ToUtf16(text8, &text16);
-			elapsedTimeText->SetString(text16);
+			m_elapsedTimeText->SetString(text16);
 		}
 
 		if (m_accJumpState == AccJumpState_Perform)
@@ -233,11 +322,29 @@ void menu::PlayerSimple::OnUpdate()
 	}
 
 	GenericPlayer::PlayerState state = m_player->GetState();
-	if (!m_isLS && state == GenericPlayer::PlayerState_Eof && m_oldState != GenericPlayer::PlayerState_Eof)
+	if (state != m_oldState)
 	{
-		m_videoPlane->SetColor({ 0.4f, 0.4f, 0.4f, 1.0f });
-		m_wholeRepeatButton->Show(common::transition::Type_FadeinFast);
+		switch (state)
+		{
+		case GenericPlayer::PlayerState_Eof:
+			if (!m_isLS)
+			{
+				m_videoPlane->SetColor({ 0.4f, 0.4f, 0.4f, 1.0f });
+				m_wholeRepeatButton->Show(common::transition::Type_FadeinFast);
+			}
+			break;
+		case GenericPlayer::PlayerState_Buffering:
+			//m_loadIndicator->Start();
+			break;
+		case GenericPlayer::PlayerState_Play:
+			if (m_oldState == GenericPlayer::PlayerState_Buffering)
+			{
+				//m_loadIndicator->Stop();
+			}
+			break;
+		}
 	}
+
 	m_oldState = state;
 }
 
@@ -310,7 +417,7 @@ void menu::PlayerSimple::OnPadUpdate(inputdevice::Data *data)
 #undef PRESSED
 }
 
-menu::PlayerSimple::PlayerSimple(const char *url, const char *coverUrl) :
+menu::PlayerSimple::PlayerSimple(const char *url, GenericPlayer::Option *opt, GenericSubtitles::Option *sopt) :
 	GenericMenu("page_player_simple",
 	MenuOpenParam(true, 200.0f, Plugin::TransitionType_None, ui::EnvironmentParam::RESOLUTION_HD_FULL),
 	MenuCloseParam(true)),
@@ -322,7 +429,9 @@ menu::PlayerSimple::PlayerSimple(const char *url, const char *coverUrl) :
 	m_isLS(false),
 	m_isSeeking(false),
 	m_currentScale(1.0f),
-	m_settingsOverride(SettingsOverride_None)
+	m_settingsOverride(SettingsOverride_None),
+	m_player(NULL),
+	m_subtitles(NULL)
 {
 	Plugin::TemplateOpenParam tmpParam;
 
@@ -330,12 +439,74 @@ menu::PlayerSimple::PlayerSimple(const char *url, const char *coverUrl) :
 	m_padListener = listener;
 
 	m_progressBar = (ui::ProgressBarTouch *)m_root->FindChild(progressbar_touch_video_control_panel);
-	elapsedTimeText = (ui::Text *)m_root->FindChild(text_video_control_panel_progressbar_label_elapsed);
+	m_elapsedTimeText = (ui::Text *)m_root->FindChild(text_video_control_panel_progressbar_label_elapsed);
+	m_subsMainText = (ui::Text *)m_root->FindChild(text_video_page_player_subs_main);
+	m_subsEdgeText[0] = (ui::Text *)m_root->FindChild(text_video_page_player_subs_edge_0);
+	m_subsEdgeText[1] = (ui::Text *)m_root->FindChild(text_video_page_player_subs_edge_1);
+	m_subsEdgeText[2] = (ui::Text *)m_root->FindChild(text_video_page_player_subs_edge_2);
+	m_subsEdgeText[3] = (ui::Text *)m_root->FindChild(text_video_page_player_subs_edge_3);
 	m_leftAccText = m_root->FindChild(text_video_page_player_simple_acc_left);
 	m_rightAccText = m_root->FindChild(text_video_page_player_simple_acc_right);
 	m_statPlane = m_root->FindChild(plane_statindicator);
 	m_progressPlane = m_root->FindChild(plane_video_control_panel_bg);
 	m_progressPlane->Hide(common::transition::Type_FadeinFast);
+
+	GenericSubtitles::GetSystemSettings(m_subSettings);
+
+	SCE_DBG_LOG_INFO("[PlayerSimple] m_subSettings.enable:   %d", m_subSettings.enable);
+	SCE_DBG_LOG_INFO("[PlayerSimple] m_subSettings.fontType: %d", m_subSettings.fontType);
+	SCE_DBG_LOG_INFO("[PlayerSimple] m_subSettings.edge:     %d", m_subSettings.edge);
+	SCE_DBG_LOG_INFO("[PlayerSimple] m_subSettings.size:     %d", m_subSettings.size);
+
+	if (m_subSettings.enable)
+	{
+		int32_t fontId = graph::FontFamily_5;
+		switch (m_subSettings.fontType)
+		{
+		case 0:
+			break;
+		case 1:
+			fontId = graph::FontFamily_6;
+			break;
+		case 2:
+			fontId = graph::FontFamily_3;
+			break;
+		case 3:
+			fontId = graph::FontFamily_4;
+			break;
+		case 4:
+			fontId = graph::FontFamily_7;
+			break;
+		case 5:
+			fontId = graph::FontFamily_8;
+			break;
+		case 6:
+			fontId = graph::FontFamily_9;
+		}
+
+		m_subsBaseCharSize.set_x(36.0f);
+		m_subsBaseCharSize.set_y(22.0f);
+		switch (m_subSettings.size)
+		{
+		case 1:
+			break;
+		case 2:
+			m_subsBaseCharSize.set_x(25.455843f);
+			m_subsBaseCharSize.set_y(15.556349f);
+			break;
+		case 0:
+			m_subsBaseCharSize.set_x(50.911686f);
+			m_subsBaseCharSize.set_y(31.112698f);
+			break;
+		}
+
+		m_subsMainText->SetStyleAttribute(graph::TextStyleAttribute_Family, 0, 0, fontId);
+
+		for (int i = 0; i < 4; i++)
+		{
+			m_subsEdgeText[i]->SetStyleAttribute(graph::TextStyleAttribute_Family, 0, 0, fontId);
+		}
+	}
 
 	m_loadIndicator = (ui::BusyIndicator *)m_root->FindChild(busyindicator_video_page_player_simple);
 	if (SCE_PAF_IS_DOLCE)
@@ -375,15 +546,69 @@ menu::PlayerSimple::PlayerSimple(const char *url, const char *coverUrl) :
 		reinterpret_cast<menu::PlayerSimple *>(userdata)->OnGenericPlayerStateChange(e->GetValue(0));
 	}, this);
 
-	if (FMODPlayer::IsSupported(url) == GenericPlayer::SupportType_Supported)
+	if (!opt || opt->playerType == GenericPlayer::PlayerType_Auto)
 	{
-		m_player = new FMODPlayer(m_videoPlane, url, coverUrl);
+		if (FMODPlayer::IsSupported(url) == GenericPlayer::SupportType_Supported)
+		{
+			m_player = new FMODPlayer(m_videoPlane, url, NULL);
+		}
+		else if (BEAVPlayer::IsSupported(url) == GenericPlayer::SupportType_Supported)
+		{
+			m_player = new BEAVPlayer(m_videoPlane, url, NULL);
+		}
+		else if (AVPlayer::IsSupported(url) == GenericPlayer::SupportType_Supported)
+		{
+			m_player = new AVPlayer(m_videoPlane, url, NULL);
+		}
 	}
 	else
 	{
-		m_player = new BEAVPlayer(m_videoPlane, url);
+		switch (opt->playerType)
+		{
+		case GenericPlayer::PlayerType_FMOD:
+			m_player = new FMODPlayer(m_videoPlane, url, static_cast<FMODPlayer::Option *>(opt));
+			break;
+		case GenericPlayer::PlayerType_BEAV:
+			m_player = new BEAVPlayer(m_videoPlane, url, static_cast<BEAVPlayer::Option *>(opt));
+			break;
+		case GenericPlayer::PlayerType_AV:
+			m_player = new AVPlayer(m_videoPlane, url, static_cast<AVPlayer::Option *>(opt));
+			break;
+		}
 	}
-	m_player->InitAsync();
+
+	if (m_subSettings.enable)
+	{
+		if (!sopt || sopt->subtitlesType == GenericSubtitles::SubtitlesType_Auto)
+		{
+			if (SRTSubtitles::IsSupported(url) == GenericSubtitles::SupportType_Supported)
+			{
+				m_subtitles = new SRTSubtitles(url, NULL);
+			}
+		}
+		else
+		{
+			switch (sopt->subtitlesType)
+			{
+			case GenericSubtitles::SubtitlesType_SRT:
+				m_subtitles = new SRTSubtitles(url, static_cast<SRTSubtitles::Option *>(sopt));
+				break;
+			}
+		}
+	}
+
+	if (m_player)
+	{
+		if (m_subtitles)
+		{
+			m_subtitles->InitAsync();
+		}
+		m_player->InitAsync();
+	}
+	else
+	{
+		OnGenericPlayerStateChange(GenericPlayer::InitState_InitFail);
+	}
 
 	m_pwCbId = sceKernelCreateCallback("PowerCallback", 0, PowerCallback, this);
 	scePowerRegisterCallback(m_pwCbId);
@@ -400,6 +625,7 @@ menu::PlayerSimple::~PlayerSimple()
 	scePowerUnregisterCallback(m_pwCbId);
 	sceKernelDeleteCallback(m_pwCbId);
 	inputdevice::DelInputListener(m_padListener);
+	delete m_subtitles;
 	delete m_player;
 	sceAppMgrSetInfobarState(SCE_APPMGR_INFOBAR_VISIBILITY_VISIBLE, SCE_APPMGR_INFOBAR_COLOR_BLACK, SCE_APPMGR_INFOBAR_TRANSPARENCY_TRANSLUCENT);
 	utils::SetPowerTickTask(utils::PowerTick_None);
@@ -469,7 +695,7 @@ void menu::PlayerSimple::SetScale(float scale)
 			pos.set_x(pos.extract_x() - 20.0f * scale);
 		}
 		pos.set_y(20.0f * scale);
-		elapsedTimeText->SetPos(pos);
+		m_elapsedTimeText->SetPos(pos);
 		pos.set_y(-pos.extract_y());
 		totalTimeText->SetPos(pos);
 	}
@@ -530,7 +756,7 @@ void menu::PlayerSimple::SetScale(float scale)
 		{
 			pos.set_y(12.0f * scale);
 		}
-		elapsedTimeText->SetPos(pos);
+		m_elapsedTimeText->SetPos(pos);
 		pos.set_y(-pos.extract_y());
 		totalTimeText->SetPos(pos);
 	}
@@ -545,7 +771,7 @@ void menu::PlayerSimple::SetScale(float scale)
 	}
 
 	tsz.set_y(tsz.extract_x());
-	elapsedTimeText->SetStyleAttribute(graph::TextStyleAttribute_Point, 0, 0, tsz);
+	m_elapsedTimeText->SetStyleAttribute(graph::TextStyleAttribute_Point, 0, 0, tsz);
 	totalTimeText->SetStyleAttribute(graph::TextStyleAttribute_Point, 0, 0, tsz);
 
 	if (scale == 1.0f)

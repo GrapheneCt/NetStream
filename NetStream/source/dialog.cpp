@@ -39,7 +39,7 @@ void dialog::OpenPleaseWait(Plugin *workPlugin, const wchar_t *titleText, const 
 	paf::wstring message = messageText;
 
 	if (!isMainThread)
-		thread::RMutex::main_thread_mutex.Lock();
+		thread::RMutex::MainThreadMutex()->Lock();
 
 	if (withCancel)
 		s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &CommonGuiDialog::Param::s_dialogCancelBusy, CommonGuiEventHandler, NULL);
@@ -49,7 +49,7 @@ void dialog::OpenPleaseWait(Plugin *workPlugin, const wchar_t *titleText, const 
 	s_currentPlugin = workPlugin;
 
 	if (!isMainThread)
-		thread::RMutex::main_thread_mutex.Unlock();
+		thread::RMutex::MainThreadMutex()->Unlock();
 }
 
 void dialog::OpenYesNo(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageText)
@@ -63,13 +63,13 @@ void dialog::OpenYesNo(Plugin *workPlugin, const wchar_t *titleText, const wchar
 	paf::wstring message = messageText;
 
 	if (!isMainThread)
-		thread::RMutex::main_thread_mutex.Lock();
+		thread::RMutex::MainThreadMutex()->Lock();
 
 	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &CommonGuiDialog::Param::s_dialogYesNo, CommonGuiEventHandler, NULL);
 	s_currentPlugin = workPlugin;
 
 	if (!isMainThread)
-		thread::RMutex::main_thread_mutex.Unlock();
+		thread::RMutex::MainThreadMutex()->Unlock();
 }
 
 void dialog::OpenOk(Plugin *workPlugin, const wchar_t *titleText, const wchar_t *messageText)
@@ -83,13 +83,13 @@ void dialog::OpenOk(Plugin *workPlugin, const wchar_t *titleText, const wchar_t 
 	paf::wstring message = messageText;
 
 	if (!isMainThread)
-		thread::RMutex::main_thread_mutex.Lock();
+		thread::RMutex::MainThreadMutex()->Lock();
 
 	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &CommonGuiDialog::Param::s_dialogOk, CommonGuiEventHandler, NULL);
 	s_currentPlugin = workPlugin;
 
 	if (!isMainThread)
-		thread::RMutex::main_thread_mutex.Unlock();
+		thread::RMutex::MainThreadMutex()->Unlock();
 }
 
 void dialog::OpenError(Plugin *workPlugin, int32_t errorCode, const wchar_t *messageText)
@@ -110,13 +110,13 @@ void dialog::OpenError(Plugin *workPlugin, int32_t errorCode, const wchar_t *mes
 		dialog.message = messageText;
 
 	if (!isMainThread)
-		thread::RMutex::main_thread_mutex.Lock();
+		thread::RMutex::MainThreadMutex()->Lock();
 
 	s_currentDialog = dialog.Show();
 	s_currentPlugin = workPlugin;
 
 	if (!isMainThread)
-		thread::RMutex::main_thread_mutex.Unlock();
+		thread::RMutex::MainThreadMutex()->Unlock();
 }
 
 void dialog::OpenThreeButton(
@@ -147,13 +147,13 @@ void dialog::OpenThreeButton(
 	paf::wstring message = messageText;
 
 	if (!isMainThread)
-		thread::RMutex::main_thread_mutex.Lock();
+		thread::RMutex::MainThreadMutex()->Lock();
 
 	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &dparam, CommonGuiEventHandler, NULL);
 	s_currentPlugin = workPlugin;
 
 	if (!isMainThread)
-		thread::RMutex::main_thread_mutex.Unlock();
+		thread::RMutex::MainThreadMutex()->Unlock();
 }
 
 void dialog::OpenTwoButton(
@@ -181,13 +181,13 @@ void dialog::OpenTwoButton(
 	paf::wstring message = messageText;
 
 	if (!isMainThread)
-		thread::RMutex::main_thread_mutex.Lock();
+		thread::RMutex::MainThreadMutex()->Lock();
 
 	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, &message, &dparam, CommonGuiEventHandler, NULL);
 	s_currentPlugin = workPlugin;
 
 	if (!isMainThread)
-		thread::RMutex::main_thread_mutex.Unlock();
+		thread::RMutex::MainThreadMutex()->Unlock();
 }
 
 ui::ListView *dialog::OpenListView(
@@ -202,14 +202,14 @@ ui::ListView *dialog::OpenListView(
 	paf::wstring title = titleText;
 
 	if (!isMainThread)
-		thread::RMutex::main_thread_mutex.Lock();
+		thread::RMutex::MainThreadMutex()->Lock();
 
 	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, NULL, &CommonGuiDialog::Param::s_dialogXLView, CommonGuiEventHandler, NULL);
 	ui::Widget *ret = CommonGuiDialog::Dialog::GetWidget(s_currentDialog, CommonGuiDialog::REGISTER_ID_LIST_VIEW);
 	s_currentPlugin = workPlugin;
 
 	if (!isMainThread)
-		thread::RMutex::main_thread_mutex.Unlock();
+		thread::RMutex::MainThreadMutex()->Unlock();
 
 	return (ui::ListView *)ret;
 }
@@ -226,14 +226,14 @@ ui::ScrollView *dialog::OpenScrollView(
 	paf::wstring title = titleText;
 
 	if (!isMainThread)
-		thread::RMutex::main_thread_mutex.Lock();
+		thread::RMutex::MainThreadMutex()->Lock();
 
 	s_currentDialog = CommonGuiDialog::Dialog::Show(workPlugin, &title, NULL, &CommonGuiDialog::Param::s_dialogXView, CommonGuiEventHandler, NULL);
 	ui::Widget *ret = CommonGuiDialog::Dialog::GetWidget(s_currentDialog, CommonGuiDialog::REGISTER_ID_SCROLL_VIEW);
 	s_currentPlugin = workPlugin;
 
 	if (!isMainThread)
-		thread::RMutex::main_thread_mutex.Unlock();
+		thread::RMutex::MainThreadMutex()->Unlock();
 
 	return (ui::ScrollView *)ret;
 }

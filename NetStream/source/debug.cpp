@@ -8,6 +8,9 @@
 #include "common.h"
 #include "debug.h"
 
+#undef SCE_DBG_LOG_COMPONENT
+#define SCE_DBG_LOG_COMPONENT "[DEBUG]"
+
 static int32_t s_oldMemSize = 0;
 static int32_t s_oldGraphMemSize = 0;
 static uint32_t s_iter = 0;
@@ -75,17 +78,17 @@ void LeakTestTask(void *pUserData)
 	string str;
 
 #ifdef DEBUG_MEM_HEAP
-	memory::HeapAllocator *glAlloc = memory::GetGlobalHeapAllocator();
+	memory::HeapAllocator *glAlloc = static_cast<memory::HeapAllocator *>(GetGlobalHeapAllocator());
 	sz = glAlloc->GetFreeSize();
 
 	str.clear();
 	str = common::FormatBytesize(sz, 0);
-	sceClibPrintf("[NS_DEBUG] Free heap memory: %s\n", str.c_str());
+	SCE_DBG_LOG_INFO("[NS_DEBUG] Free heap memory: %s", str.c_str());
 
 	delta = s_oldMemSize - sz;
 	delta = -delta;
 	if (delta) {
-		sceClibPrintf("[NS_DEBUG] Memory delta: %d bytes\n", delta);
+		SCE_DBG_LOG_INFO("[NS_DEBUG] Memory delta: %d bytes", delta);
 	}
 	s_oldMemSize = sz;
 #endif
@@ -96,12 +99,12 @@ void LeakTestTask(void *pUserData)
 
 	str.clear();
 	str = common::FormatBytesize(sz, 0);
-	sceClibPrintf("[NS_DEBUG] Free graphics pool: %s\n", str.c_str());
+	SCE_DBG_LOG_INFO("[NS_DEBUG] Free graphics pool: %s", str.c_str());
 
 	delta = s_oldGraphMemSize - sz;
 	delta = -delta;
 	if (delta) {
-		sceClibPrintf("[NS_DEBUG] Graphics pool delta: %d bytes\n", delta);
+		SCE_DBG_LOG_INFO("[NS_DEBUG] Graphics pool delta: %d bytes", delta);
 	}
 	s_oldGraphMemSize = sz;
 #endif
@@ -114,6 +117,8 @@ void JobQueueTestTask(void *pUserData)
 
 void InitDebug()
 {
+	sceDbgSetMinimumLogLevel(SCE_DBG_LOG_LEVEL_INFO);
+
 #ifdef DEBUG_EXTRA_TTY
 	SCE_PAF_AUTO_TEST_SET_EXTRA_TTY(sceIoOpen("tty0:", SCE_O_WRONLY, 0));
 	SCE_PAF_AUTO_TEST_DUMP("\n\n-----PAF EXTRA TTY DEBUG MODE ON-----\n\n");

@@ -38,6 +38,7 @@ public:
 
 	void AddAsyncWaitComplete();
 	int32_t AddAsyncActiveNum();
+	void AddAsyncCancelPending();
 
 	uint32_t GetSize();
 
@@ -79,7 +80,7 @@ private:
 
 		}
 
-		void Run()
+		int32_t Run()
 		{
 			bool result = false;
 
@@ -96,9 +97,11 @@ private:
 			{
 				event::BroadcastGlobalEvent(m_parent->m_cbPlugin, ui::Handler::CB_STATE_READY_CACHEIMAGE, m_hash);
 			}
+
+			return SCE_PAF_OK;
 		}
 
-		void Finish()
+		void Finish(int32_t result)
 		{
 
 		}
@@ -126,12 +129,14 @@ private:
 
 		}
 
-		void Run()
+		int32_t Run()
 		{
 			delete m_parent;
+
+			return SCE_PAF_OK;
 		}
 
-		void Finish()
+		void Finish(int32_t result)
 		{
 
 		}

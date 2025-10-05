@@ -9,13 +9,18 @@
 #include "utils.h"
 #include "yt_utils.h"
 #include "dialog.h"
-#include "invidious.h"
+#include "ftube.h"
 #include <paf_file_ext.h>
 #include "option_menu.h"
+#include "players/player_beav.h"
+#include "players/player_av.h"
 #include "menus/menu_generic.h"
 #include "menus/menu_player_youtube.h"
 #include "menus/menu_player_simple.h"
 #include "menus/menu_settings.h"
+
+#undef SCE_DBG_LOG_COMPONENT
+#define SCE_DBG_LOG_COMPONENT "[PlayerYoutube]"
 
 using namespace paf;
 
@@ -27,118 +32,105 @@ void menu::PlayerYoutube::LoadSecondStageTask(void *pArgBlock)
 
 void menu::PlayerYoutube::Load()
 {
-	InvItemVideo *invItem = NULL;
+	FTItem *ftItem = NULL;
+	void *ftCtx = NULL;
 	int32_t ret = 0;
 	string text8;
 	wstring text16;
 
-	ret = invParseVideo(m_videoId.c_str(), &invItem);
-	if (ret == true)
+	m_videoLink = "";
+	m_videoLinkForDw = "";
+	m_audioLink.clear();
+	if (m_option)
 	{
-		if (invItem->id)
+		delete m_option;
+		m_option = NULL;
+	}
+
+	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
+
+	int32_t vodVideoQuality;
+	settings->GetInt("yt_quality_vod_video", reinterpret_cast<int32_t *>(&vodVideoQuality), 3);
+
+	SCE_DBG_LOG_INFO("[Load] Video id: %s", m_videoId.c_str());
+
+	ret = ftParseVideo(&ftCtx, m_videoId.c_str(), vodVideoQuality, FT_AUDIO_VOD_QUALITY_MEDIUM, &ftItem);
+	if (ret == FT_OK)
+	{
+		if (ftItem->videoItem->id)
 		{
-			if (!m_lastAttempt)
+			m_description = ftItem->videoItem->description;
+
+			thread::RMutex::MainThreadMutex()->Lock();
+
+			OnDescButton();
+
+			text8 = ftItem->videoItem->title;
+			common::Utf8ToUtf16(text8, &text16);
+			m_title->SetString(text16);
+
+			text8 = "Uploaded by ";
+			text8 += ftItem->videoItem->author;
+			common::Utf8ToUtf16(text8, &text16);
+			m_stat0->SetString(text16);
+
+			ytutils::FormatViews(text16, ftItem->videoItem->viewCount);
+			m_stat1->SetString(text16);
+
+			// TODO: do something with m_stat2?
+			// text8 = "ERASE ME";
+			// common::Utf8ToUtf16(text8, &text16);
+			// m_stat2->SetString(text16);
+
+			thread::RMutex::MainThreadMutex()->Unlock();
+
+			if (ftItem->videoItem->isLive)
 			{
-				m_description = invItem->description;
+				SCE_DBG_LOG_INFO("[Load] Video is LIVE");
 
-				thread::RMutex::main_thread_mutex.Lock();
+				BEAVPlayer::Option *opt = new BEAVPlayer::Option();
+				settings->GetInt("yt_quality_live", reinterpret_cast<int32_t *>(&opt->defaultRes), 3);
+				m_option = opt;
 
-				OnDescButton();
-
-				text8 = invItem->title;
-				common::Utf8ToUtf16(text8, &text16);
-				m_title->SetString(text16);
-
-				text8 = "Uploaded by ";
-				text8 += invItem->author;
-				common::Utf8ToUtf16(text8, &text16);
-				m_stat0->SetString(text16);
-
-				text8 = invItem->subCount;
-				text8 += " subscribers";
-				common::Utf8ToUtf16(text8, &text16);
-				m_stat1->SetString(text16);
-
-				text8 = invItem->published;
-				common::Utf8ToUtf16(text8, &text16);
-				m_stat2->SetString(text16);
-
-				thread::RMutex::main_thread_mutex.Unlock();
-			}
-
-			int32_t quality = 0;
-			sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
-
-			if (invItem->isLive)
-			{
-				if (m_lastAttempt)
-				{
-					ret = -1;
-					goto releaseLocks;
-				}
-
-				char *hls = new char[SCE_KERNEL_1KiB];
-				hls[0] = 0;
-				settings->GetInt("yt_hls_quality", static_cast<int32_t *>(&quality), 0);
-				ret = invGetHlsUrl(invItem, static_cast<InvHlsQuality>(quality), hls, SCE_KERNEL_1KiB);
-				if (ret != SCE_OK)
-				{
-					if (quality == 0)
-					{
-						quality++;
-					}
-					else
-					{
-						quality--;
-					}
-					invGetHlsUrl(invItem, static_cast<InvHlsQuality>(quality), hls, SCE_KERNEL_1KiB);
-				}
-				m_videoLink = hls;
-				m_isHls = true;
-				if (quality == 4)
-				{
-					m_isHighHls = true;
-				}
-				delete hls;
+				m_videoLink = ftItem->videoItem->hlsManifestUrl;
+				m_isLive = true;
 
 				ui::Widget *livePlane = m_root->FindChild(plane_youtube_live_now);
 				intrusive_ptr<graph::Surface> liveTex = g_appPlugin->GetTexture(tex_yt_icon_live_now);
-				thread::RMutex::main_thread_mutex.Lock();
+				thread::RMutex::MainThreadMutex()->Lock();
 				livePlane->SetTexture(liveTex);
-				thread::RMutex::main_thread_mutex.Unlock();
+				thread::RMutex::MainThreadMutex()->Unlock();
 			}
 			else
 			{
-				settings->GetInt("yt_quality", static_cast<int32_t *>(&quality), 0);
-				if (m_lastAttempt)
+				SCE_DBG_LOG_INFO("[Load] Video is VOD");
+
+				if (ftItem->videoItem->compositeVideoUrl)
 				{
-					char lastResort[256];
-					char lastResortAudio[256];
-					lastResort[0] = 0;
-					lastResortAudio[0] = 0;
-					ret = invGetProxyUrl(invItem, static_cast<InvProxyType>(quality), lastResort, sizeof(lastResort));
-					m_videoLink = lastResort;
-					invGetProxyUrl(invItem, INV_PROXY_AUDIO_HQ, lastResortAudio, sizeof(lastResortAudio));
-					m_audioLink = lastResortAudio;
+					m_videoLinkForDw = ftItem->videoItem->compositeVideoUrl;
+				}
+
+				common::SharedPtr<LocalFile> lmanifest;
+				int32_t res = -1;
+
+				lmanifest = LocalFile::Open("savedata0:lmanifest.mpd", SCE_O_WRONLY | SCE_O_CREAT | SCE_O_TRUNC, 0666, &res);
+				if (res == SCE_OK)
+				{
+					lmanifest->Write(ftItem->videoItem->dashManifest, sce_paf_strlen(ftItem->videoItem->dashManifest));
+					lmanifest->Close();
+
+					m_videoLink = "savedata0:lmanifest.mpd";
+					if (ftItem->videoItem->audioOnlyUrl)
+					{
+						m_audioLink = ftItem->videoItem->audioOnlyUrl;
+					}
+
+					SCE_DBG_LOG_INFO("[Load] DASH manifest ready at %s", m_videoLink.c_str());
 				}
 				else
 				{
-					switch (quality)
-					{
-					case 0:
-						if (invItem->avcLqUrl)
-							m_videoLink = invItem->avcLqUrl;
-						else
-							m_videoLink = invItem->avcHqUrl;
-						break;
-					case 1:
-						if (invItem->avcHqUrl)
-							m_videoLink = invItem->avcHqUrl;
-						else
-							m_videoLink = invItem->avcLqUrl;
-						break;
-					}
-					m_audioLink = invItem->audioHqUrl;
+					SCE_DBG_LOG_ERROR("failed to create manifest at %s: 0x%08X", m_videoLink.c_str(), res);
+					ret = res;
 				}
 			}
 		}
@@ -147,25 +139,17 @@ void menu::PlayerYoutube::Load()
 			ret = -1;
 		}
 
-		invCleanupVideo(invItem);
+		ftCleanup(ftCtx);
 	}
 	else
 	{
-		ret = -1;
-	}
-
-releaseLocks:
-
-	if (ret < 0)
-	{
-		m_videoLink = "";
-		m_audioLink = "";
+		SCE_DBG_LOG_ERROR("[Load] ftParseVideo(): 0x%08X", ret);
 	}
 
 	common::MainThreadCallList::Register(menu::PlayerYoutube::LoadSecondStageTask, this);
 }
 
-ui::ListItem *menu::PlayerYoutube::CreateHlsCommentListItem(ui::listview::ItemFactory::CreateParam& param)
+ui::ListItem *menu::PlayerYoutube::CreateLiveCommentListItem(ui::listview::ItemFactory::CreateParam& param)
 {
 	Plugin::TemplateOpenParam tmpParam;
 	ui::Widget *item = NULL;
@@ -177,7 +161,7 @@ ui::ListItem *menu::PlayerYoutube::CreateHlsCommentListItem(ui::listview::ItemFa
 	item = targetRoot->GetChild(targetRoot->GetChildrenNum() - 1);
 
 	ui::Widget *button = item->FindChild(button_yt_companel_comment_item);
-	button->SetName(HLS_COMMENT_MAGIC + param.cell_index);
+	button->SetName(LIVE_COMMENT_MAGIC + param.cell_index);
 
 	return static_cast<ui::ListItem *>(item);
 }
@@ -227,71 +211,86 @@ ui::ListItem *menu::PlayerYoutube::CreateCommentListItem(ui::listview::ItemFacto
 	return static_cast<ui::ListItem *>(item);
 }
 
-void menu::PlayerYoutube::ParseHlsComments(thread::Thread *thrd)
+void menu::PlayerYoutube::ParseLiveComments(thread::Thread *thrd)
 {
 	ui::ListView *list = m_companelRoot;
 	ui::Widget *button = NULL;
-	InvItemComment *comment;
+	FTItem *ftItem;
+	void *ftCtx = NULL;
 	int32_t commCount = 0;
-	uint32_t realCommentNum = HLS_COMMENT_NUM;
+#ifdef USE_LIVE_COMMENT_HASHING
 	uint32_t lastHash = 0;
+#endif
 	string text8;
 	wstring text16;
 	wstring tmpText16;
 
 	while (!thrd->IsCanceled())
 	{
-		realCommentNum = HLS_COMMENT_NUM;
-		comment = NULL;
+		if (m_player->GetScale() != 1.0f)
+		{
+			commCount = ftParseLiveComments(&ftCtx, m_videoId.c_str(), LIVE_COMMENT_NUM, &ftItem);
+			if (commCount <= 0)
+			{
+				thread::Sleep(33);
+				ftCleanup(ftCtx);
+				if (thrd->IsCanceled())
+				{
+					break;
+				}
+				continue;
+			}
 
-		commCount = invParseHlsComments(m_videoId.c_str(), &comment);
-		if (commCount <= 0)
+#ifdef USE_LIVE_COMMENT_HASHING
+			if (utils::GetHash(ftItem->commentItem->content) == lastHash)
+			{
+				thread::Sleep(33);
+				ftCleanup(ftCtx);
+				if (thrd->IsCanceled())
+				{
+					break;
+				}
+				continue;
+			}
+#endif
+
+			uint32_t i = commCount - 1;
+			do
+			{
+				text8 = ftItem->commentItem->author;
+				common::Utf8ToUtf16(text8, &text16);
+				text8 = ftItem->commentItem->content;
+				common::Utf8ToUtf16(text8, &tmpText16);
+				text16 += L"\n";
+				text16 += tmpText16;
+
+				button = list->FindChild(LIVE_COMMENT_MAGIC + i);
+				thread::RMutex::MainThreadMutex()->Lock();
+				button->SetString(text16);
+				thread::RMutex::MainThreadMutex()->Unlock();
+
+				ftItem = ftItem->next;
+
+#ifdef USE_LIVE_COMMENT_HASHING
+				if (i == commCount - 1)
+				{
+					lastHash = utils::GetHash(text8.c_str());
+				}
+#endif
+
+				i--;
+			} while (ftItem);
+
+			ftCleanup(ftCtx);
+		}
+		else
 		{
 			thread::Sleep(33);
-			invCleanupHlsComments(comment);
 			if (thrd->IsCanceled())
 			{
 				break;
 			}
-			continue;
 		}
-
-		if (commCount < HLS_COMMENT_NUM)
-		{
-			realCommentNum = commCount;
-		}
-
-		InvItemComment *startComment = &comment[commCount - realCommentNum];
-
-		if (utils::GetHash(startComment[realCommentNum - 1].content) == lastHash)
-		{
-			thread::Sleep(33);
-			invCleanupHlsComments(comment);
-			if (thrd->IsCanceled())
-			{
-				break;
-			}
-			continue;
-		}
-
-		for (int i = 0; i < realCommentNum; i++)
-		{
-			text8 = startComment[i].author;
-			common::Utf8ToUtf16(text8, &text16);
-			text8 = startComment[i].content;
-			common::Utf8ToUtf16(text8, &tmpText16);
-			text16 += L"\n";
-			text16 += tmpText16;
-
-			button = list->FindChild(HLS_COMMENT_MAGIC + i);
-			thread::RMutex::main_thread_mutex.Lock();
-			button->SetString(text16);
-			thread::RMutex::main_thread_mutex.Unlock();
-		}
-
-		lastHash = utils::GetHash(text8.c_str());
-
-		invCleanupHlsComments(comment);
 
 		thread::Sleep(33);
 	}
@@ -299,10 +298,48 @@ void menu::PlayerYoutube::ParseHlsComments(thread::Thread *thrd)
 	thrd->Cancel();
 }
 
+ui::ListItem *menu::PlayerYoutube::CreateSelectQualityListItem(ui::listview::ItemFactory::CreateParam& param)
+{
+	Plugin::TemplateOpenParam tmpParam;
+	ui::Widget *item = NULL;
+	wstring text16;
+
+	ui::Widget *targetRoot = param.parent;
+
+	g_appPlugin->TemplateOpen(targetRoot, template_list_item_youtube_quality_select, tmpParam);
+	item = targetRoot->GetChild(targetRoot->GetChildrenNum() - 1);
+
+	ui::Button *button = static_cast<ui::Button *>(item->FindChild(button_yt_quality_select_item));
+	button->SetName(SELECT_QUALITY_MAGIC + param.cell_index);
+
+	GenericPlayer::GenericRepresentationInfo repInfo;
+	m_player->GetPlayer()->GetVideoRepresentationInfo(&repInfo, param.cell_index);
+
+	button->SetString(repInfo.string);
+	if (repInfo.currentlySelected || !repInfo.enabled)
+	{
+		button->Disable(false);
+	}
+	else
+	{
+		button->AddEventCallback(ui::Button::CB_BTN_DECIDE,
+		[](int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
+		{
+			reinterpret_cast<menu::PlayerYoutube *>(userdata)->OnSelectQualityButton(static_cast<ui::Widget *>(self));
+		}, this);
+	}
+
+	SCE_DBG_LOG_INFO("[CreateSelectQualityListItem] Created %ls, selected: %u, disabled: %u", repInfo.string.c_str(), repInfo.currentlySelected, !repInfo.enabled);
+
+	return static_cast<ui::ListItem *>(item);
+}
+
 void menu::PlayerYoutube::ParseComments()
 {
-	InvItemComment *comments = NULL;
-	InvCommentSort sort;
+	FTItem *commentItem = NULL;
+	void *ftCtx = NULL;
+	const char *commentContTmp = NULL;
+	FTCommentSort sort;
 	string text8;
 	wstring text16;
 	int32_t ret = 0;
@@ -314,11 +351,11 @@ void menu::PlayerYoutube::ParseComments()
 
 	if (m_commentCont.empty())
 	{
-		ret = invParseComments(m_videoId.c_str(), NULL, sort, &comments);
+		ret = ftParseComments(&ftCtx, m_videoId.c_str(), NULL, sort, &commentItem, &commentContTmp);
 	}
 	else
 	{
-		ret = invParseComments(m_videoId.c_str(), m_commentCont.c_str(), sort, &comments);
+		ret = ftParseComments(&ftCtx, m_videoId.c_str(), m_commentCont.c_str(), sort, &commentItem, &commentContTmp);
 	}
 
 	if (ret <= 0)
@@ -332,24 +369,26 @@ void menu::PlayerYoutube::ParseComments()
 	for (int i = 0; i < ret; i++)
 	{
 		CommentItem item;
-		text8 = comments[i].author;
+		text8 = commentItem->commentItem->author;
 		common::Utf8ToUtf16(text8, &item.author);
-		text8 = comments[i].content;
+		text8 = commentItem->commentItem->content;
 		common::Utf8ToUtf16(text8, &item.content);
-		text8 = comments[i].published;
+		text8 = commentItem->commentItem->published;
 		common::Utf8ToUtf16(text8, &item.date);
-		item.likeCount = comments[i].likeCount;
-		item.likedByOwner = comments[i].likedByOwner;
-		if (comments[i].replyContinuation)
+		text8 = commentItem->commentItem->voteCount;
+		common::Utf8ToUtf16(text8, &item.voteCount);
+		item.likedByOwner = commentItem->commentItem->likedByOwner;
+		if (commentItem->commentItem->replyContinuation)
 		{
-			item.replyContinuation = comments[i].replyContinuation;
+			item.replyContinuation = commentItem->commentItem->replyContinuation;
 		}
 		m_commentItems.push_back(item);
+		commentItem = commentItem->next;
 	}
 
-	if (comments[ret - 1].continuation)
+	if (commentContTmp)
 	{
-		m_commentCont = comments[ret - 1].continuation;
+		m_commentCont = commentContTmp;
 		addOverhead = 1;
 	}
 	else
@@ -358,22 +397,18 @@ void menu::PlayerYoutube::ParseComments()
 	}
 
 	ui::ListView *list = static_cast<ui::ListView *>(m_companelRoot);
-	thread::RMutex::main_thread_mutex.Lock();
+	thread::RMutex::MainThreadMutex()->Lock();
 	list->InsertCell(0, oldCommentCount, m_commentItems.size() + addOverhead - oldCommentCount);
-	thread::RMutex::main_thread_mutex.Unlock();
+	thread::RMutex::MainThreadMutex()->Unlock();
 
-	invCleanupComments(comments);
+	ftCleanup(ftCtx);
 }
 
 void menu::PlayerYoutube::OnLoadSecondStage()
 {
-	m_player = new menu::PlayerSimple(m_videoLink.c_str());
+	m_player = new menu::PlayerSimple(m_videoLink.c_str(), m_option);
 	m_player->SetPosition(-1920.0f, -1080.0f);
 	m_root->SetShowAlpha(1.0f);
-	if (m_isHighHls)
-	{
-		m_player->GetPlayer()->LimitFPS(true);
-	}
 	m_player->SetSettingsOverride(menu::PlayerSimple::SettingsOverride_YouTube);
 }
 
@@ -401,10 +436,7 @@ void menu::PlayerYoutube::OnCommentBodyButton(ui::Widget *wdg)
 
 		ui::Widget *detailText = commentView->FindChild(text_youtube_comment_detail);
 		text16 = entry.author + L"\n" + entry.date + L"\n";
-		wstring likeText16;
-		string likeText8 = common::FormatString("%d", entry.likeCount);
-		common::Utf8ToUtf16(likeText8, &likeText16);
-		text16 += likeText16 + g_appPlugin->GetString(msg_youtube_comment_like_count);
+		text16 += entry.voteCount + g_appPlugin->GetString(msg_youtube_comment_like_count);
 		detailText->SetString(text16);
 
 		ui::Widget *bodyText = commentView->FindChild(text_youtube_comment_detail_body);
@@ -417,6 +449,28 @@ void menu::PlayerYoutube::OnExpandButton()
 {
 	m_player->SetScale(1.0f);
 	m_player->SetPosition(0.0f, 0.0f);
+}
+
+void menu::PlayerYoutube::OnVideoSettingsButton()
+{
+	ui::ListView *root = dialog::OpenListView(g_appPlugin, g_appPlugin->GetString(msg_quality_select_dialog_title));
+
+	root->InsertSegment(0, 1);
+	math::v4 sz(580.0f, 70.0f);
+	root->SetCellSizeDefault(0, sz);
+	root->SetSegmentLayoutType(0, ui::ListView::LAYOUT_TYPE_LIST);
+
+	SelectQualityDialogListViewCb *lwCb = new SelectQualityDialogListViewCb(this);
+	root->SetItemFactory(lwCb);
+	root->InsertCell(0, 0, m_player->GetPlayer()->GetVideoRepresentationNum());
+}
+
+void menu::PlayerYoutube::OnSelectQualityButton(ui::Widget *wdg)
+{
+	uint32_t idx = wdg->GetName().GetIDHash() - SELECT_QUALITY_MAGIC;
+	SCE_DBG_LOG_INFO("[OnSelectQualityButton] Selected quality idx: %u", idx);
+	m_player->GetPlayer()->SelectVideoRepresentation(idx);
+	dialog::Close();
 }
 
 void menu::PlayerYoutube::OnFavButton()
@@ -471,14 +525,14 @@ void menu::PlayerYoutube::OnCommentButton()
 
 	m_commentItems.clear();
 
-	if (m_isHls)
+	if (m_isLive)
 	{
-		HlsCommentListViewCb *lwCb = new HlsCommentListViewCb(this);
+		LiveCommentListViewCb *lwCb = new LiveCommentListViewCb(this);
 		list->SetItemFactory(lwCb);
-		list->InsertCell(0, 0, HLS_COMMENT_NUM);
+		list->InsertCell(0, 0, LIVE_COMMENT_NUM);
 
-		m_hlsCommentThread = new HlsCommentParseThread(this);
-		m_hlsCommentThread->Start();
+		m_liveCommentThread = new LiveCommentParseThread(this);
+		m_liveCommentThread->Start();
 	}
 	else
 	{
@@ -507,14 +561,14 @@ void menu::PlayerYoutube::OnDescButton()
 		{
 			return;
 		}
-		if (m_hlsCommentThread)
+		if (m_liveCommentThread)
 		{
-			m_hlsCommentThread->Cancel();
-			thread::RMutex::main_thread_mutex.Unlock();
-			m_hlsCommentThread->Join();
-			thread::RMutex::main_thread_mutex.Lock();
-			delete m_hlsCommentThread;
-			m_hlsCommentThread = NULL;
+			m_liveCommentThread->Cancel();
+			thread::RMutex::MainThreadMutex()->Unlock();
+			m_liveCommentThread->Join();
+			thread::RMutex::MainThreadMutex()->Lock();
+			delete m_liveCommentThread;
+			m_liveCommentThread = NULL;
 		}
 		common::transition::DoReverse(0.0f, m_companelRoot, common::transition::Type_FadeinFast, true, false);
 		m_companelRoot = NULL;
@@ -557,12 +611,15 @@ void menu::PlayerYoutube::OnSettingsButton()
 	OptionMenu::Button bt;
 	bt.label = g_appPlugin->GetString(msg_settings);
 	buttons.push_back(bt);
-	if (!m_isHls)
+	if (!m_isLive)
 	{
 		bt.label = g_appPlugin->GetString(msg_settings_youtube_download);
 		buttons.push_back(bt);
-		bt.label = g_appPlugin->GetString(msg_settings_youtube_download_audio);
-		buttons.push_back(bt);
+		if (!m_audioLink.empty())
+		{
+			bt.label = g_appPlugin->GetString(msg_settings_youtube_download_audio);
+			buttons.push_back(bt);
+		}
 	}
 
 	new OptionMenu(g_appPlugin, m_root, &buttons);
@@ -589,7 +646,8 @@ void menu::PlayerYoutube::OnOptionMenuEvent(int32_t type, int32_t subtype)
 		common::Utf16ToUtf8(title16, &title8);
 		title8 += ".mp4";
 
-		res = ytutils::EnqueueDownloadAsync(m_videoLink.c_str(), title8.c_str());
+		res = ytutils::EnqueueDownloadAsync(m_videoLinkForDw.c_str(), title8.c_str());
+		SCE_DBG_LOG_INFO("[OnOptionMenuEvent] Enqueue video download: %s", title8.c_str());
 		if (res == SCE_OK)
 		{
 			dialog::OpenPleaseWait(g_appPlugin, NULL, Framework::Instance()->GetCommonString("msg_wait"));
@@ -605,6 +663,7 @@ void menu::PlayerYoutube::OnOptionMenuEvent(int32_t type, int32_t subtype)
 		title8 += ".webm";
 
 		res = ytutils::EnqueueDownloadAsync(m_audioLink.c_str(), title8.c_str());
+		SCE_DBG_LOG_INFO("[OnOptionMenuEvent] Enqueue audio download: %s", title8.c_str());
 		if (res == SCE_OK)
 		{
 			dialog::OpenPleaseWait(g_appPlugin, NULL, Framework::Instance()->GetCommonString("msg_wait"));
@@ -619,6 +678,8 @@ void menu::PlayerYoutube::OnOptionMenuEvent(int32_t type, int32_t subtype)
 
 void menu::PlayerYoutube::OnPlayerEvent(int32_t type)
 {
+	SCE_DBG_LOG_INFO("[OnPlayerEvent] Event: %d", type);
+
 	switch (type)
 	{
 	case PlayerSimple::PlayerEvent_Back:
@@ -644,6 +705,11 @@ void menu::PlayerYoutube::OnPlayerEvent(int32_t type)
 
 		ui::BusyIndicator *loaderIndicator = static_cast<ui::BusyIndicator *>(m_root->FindChild(busyindicator_youtube_loader));
 		ui::Widget *loaderPlane = m_root->FindChild(plane_youtube_loader);
+
+		if (m_player->GetPlayer()->GetVideoRepresentationNum() > 1)
+		{
+			m_videoSettingsButton->Show();
+		}
 
 		loaderIndicator->Stop();
 		common::transition::DoReverse(0.0f, loaderPlane, common::transition::Type_FadeinFast, true, false);
@@ -672,9 +738,9 @@ void menu::PlayerYoutube::OnPlayerEvent(int32_t type)
 		delete m_player;
 		m_player = NULL;
 
-		if (m_lastAttempt)
+		//if (m_lastAttempt)
 		{
-			m_lastAttempt = false;
+			//m_lastAttempt = false;
 
 			ui::BusyIndicator *loaderIndicator = static_cast<ui::BusyIndicator *>(m_root->FindChild(busyindicator_youtube_loader));
 			ui::Widget *loaderPlane = m_root->FindChild(plane_youtube_loader);
@@ -685,26 +751,33 @@ void menu::PlayerYoutube::OnPlayerEvent(int32_t type)
 
 			m_favButton->Disable(false);
 			m_expandButton->Disable(false);
+			m_videoSettingsButton->Disable(false);
 
 			dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_EUNSUP, Framework::Instance()->GetCommonString("msg_error_connect_server_peer"));
 		}
-		else
-		{
-			utils::SetDisplayResolution(ui::EnvironmentParam::RESOLUTION_HD_FULL);
-			m_lastAttempt = true;
-			LoadJob *job = new LoadJob(this);
-			common::SharedPtr<job::JobItem> itemParam(job);
-			utils::GetJobQueue()->Enqueue(itemParam);
-		}
+		//else
+		//{
+		//	utils::SetDisplayResolution(ui::EnvironmentParam::RESOLUTION_HD_FULL);
+		//	m_lastAttempt = true;
+		//	LoadJob *job = new LoadJob(this);
+		//	common::SharedPtr<job::JobItem> itemParam(job);
+		//	utils::GetJobQueue()->Enqueue(itemParam);
+		//}
 		break;
 	}
 }
 
 void menu::PlayerYoutube::OnSettingsEvent(int32_t type)
 {
+	SCE_DBG_LOG_INFO("[OnSettingsEvent] Event: %d", type);
+
 	if (type == Settings::SettingsEvent_Close)
 	{
 		menu::GetMenuAt(menu::GetMenuCount() - 2)->EnableInput();
+	}
+	else if (type == Settings::SettingsEvent_ValueChange)
+	{
+		
 	}
 }
 
@@ -715,12 +788,11 @@ menu::PlayerYoutube::PlayerYoutube(const char *id, bool isFavourite) :
 {
 	m_player = NULL;
 	m_videoId = id;
-	m_isHls = false;
-	m_isHighHls = false;
+	m_isLive = false;
 	m_isFav = isFavourite;
 	m_companelRoot = NULL;
-	m_hlsCommentThread = NULL;
-	m_lastAttempt = false;
+	m_liveCommentThread = NULL;
+	m_option = NULL;
 
 	m_root->AddEventCallback(OptionMenu::OptionMenuEvent,
 	[](int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
@@ -769,11 +841,20 @@ menu::PlayerYoutube::PlayerYoutube(const char *id, bool isFavourite) :
 	m_stat0 = static_cast<ui::Text *>(m_root->FindChild(text_video_stat_0));
 	m_stat1 = static_cast<ui::Text *>(m_root->FindChild(text_video_stat_1));
 	m_stat2 = static_cast<ui::Text *>(m_root->FindChild(text_video_stat_2));
+
 	m_expandButton = static_cast<ui::Button *>(m_root->FindChild(button_youtube_expand));
 	m_expandButton->AddEventCallback(ui::Button::CB_BTN_DECIDE,
 	[](int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
 	{
 		reinterpret_cast<menu::PlayerYoutube *>(userdata)->OnExpandButton();
+	}, this);
+
+	m_videoSettingsButton = static_cast<ui::Button *>(m_root->FindChild(button_youtube_settings));
+	m_videoSettingsButton->Hide();
+	m_videoSettingsButton->AddEventCallback(ui::Button::CB_BTN_DECIDE,
+		[](int32_t type, ui::Handler *self, ui::Event *e, void *userdata)
+	{
+		reinterpret_cast<menu::PlayerYoutube *>(userdata)->OnVideoSettingsButton();
 	}, this);
 
 	m_favButton = static_cast<ui::Button *>(m_root->FindChild(button_youtube_fav));
@@ -812,15 +893,20 @@ menu::PlayerYoutube::PlayerYoutube(const char *id, bool isFavourite) :
 
 menu::PlayerYoutube::~PlayerYoutube()
 {
-	if (m_hlsCommentThread)
+	if (m_liveCommentThread)
 	{
-		m_hlsCommentThread->Cancel();
-		m_hlsCommentThread->Join();
-		delete m_hlsCommentThread;
+		m_liveCommentThread->Cancel();
+		m_liveCommentThread->Join();
+		delete m_liveCommentThread;
 	}
 
 	if (m_companelRoot)
 	{
 		m_companelRoot->SetName((uint32_t)0);
+	}
+
+	if (m_option)
+	{
+		delete m_option;
 	}
 }

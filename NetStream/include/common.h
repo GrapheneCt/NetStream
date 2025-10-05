@@ -9,7 +9,7 @@
 
 #include "menus/menu_settings.h"
 
-#define USER_AGENT "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
+#define USER_AGENT "Mozilla/5.0 (PlayStation Vita 3.74) AppleWebKit/537.73 (KHTML, like Gecko) Silk/3.2"
 
 #define NP_TUS_FAV_LOG_SLOT		(2)
 #define NP_TUS_HIST_LOG_SLOT	(1)

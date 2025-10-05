@@ -43,6 +43,7 @@ key:deb2242c(1) id:text_video_stat_1
 key:9e5efcb0(1) id:text_video_stat_2
 key:fe64fd07(1) id:button_youtube_fav
 key:5935ac0d(1) id:button_youtube_expand
+key:fd489044(1) id:button_youtube_settings
 key:a4e3ca2a(1) id:plane_youtube_live_now
 key:62c325b5(1) id:plane_youtube_companel_base
 key:9795d2cc(1) id:plane_youtube_companel_frame
@@ -57,6 +58,11 @@ key:f185100a(0) id:page_player_simple
 key:79d84d3d(1) id:plane_video_page_player_simple
 key:0a2f2cd9(1) id:landscape
 key:4dbf9bdc(1) id:full_hd
+key:f011e6a6(1) id:text_video_page_player_subs_edge_0
+key:5dcd2072(1) id:text_video_page_player_subs_edge_1
+key:c0000861(1) id:text_video_page_player_subs_edge_2
+key:8061d9eb(1) id:text_video_page_player_subs_edge_3
+key:0dc433eb(1) id:text_video_page_player_subs_main
 key:b6f59ab8(1) id:busyindicator_video_page_player_simple
 key:9b2f5135(1) id:text_video_page_player_simple_acc_left
 key:e77b3c6f(1) id:text_video_page_player_simple_acc_right
@@ -115,12 +121,14 @@ key:d461b912(0) id:style_text_youtube_video_stat
 key:a9e17ed6(0) id:style_text_youtube_video_stat_right_align
 key:38fa4408(0) id:style_text_youtube_companel
 key:578c3485(0) id:style_button_yt_expand
+key:4c5eda08(0) id:style_button_yt_settings
 key:3465f513(0) id:style_button_yt_fav
 key:bbff71eb(0) id:style_plane_youtube_loader
 key:9ec395e5(0) id:style_button_yt_companel
 key:386ff929(0) id:style_list_view_companel
 key:fc80bbc0(0) id:style_scroll_view_companel
 key:41c21f50(0) id:style_button_yt_comment
+key:b111e15d(0) id:style_button_yt_quality_select
 key:ed36b1c7(1) id:template_option_menu_base
 key:655c6a32(1) id:button_option_menu_close
 key:4446ff86(1) id:plane_option_menu_base
@@ -177,6 +185,9 @@ key:f935cf50(1) id:list_view_youtube_companel
 key:8824b2e2(1) id:template_scroll_view_youtube_companel
 key:2af8c40c(1) id:scroll_view_youtube_companel
 key:0d53901a(1) id:text_youtube_companel
+key:4c0e8661(1) id:template_list_item_youtube_quality_select
+key:482b1df9(0) id:list_item_youtube_quality_select
+key:398a71ea(1) id:button_yt_quality_select_item
 key:9439135e(1) id:template_list_item_youtube_comment
 key:82a72645(0) id:list_item_youtube_comment
 key:160347a5(1) id:button_yt_companel_comment_item
@@ -193,6 +204,7 @@ key:e662c1b8(0) id:tex_button_play,src:texture\tex_button_play.zlib,type:texture
 key:1c7a4609(0) id:tex_button_big_repeat,src:texture\tex_button_big_repeat.zlib,type:texture/gim
 key:9c71909e(0) id:tex_button_arrow_left,src:texture\tex_button_arrow_left.zlib,type:texture/gim
 key:d9857177(0) id:tex_button_arrow_right,src:texture\tex_button_arrow_right.zlib,type:texture/gim
+key:75dcaa15(0) id:tex_button_settings,src:texture\tex_button_settings.zlib,type:texture/gim
 key:a935e111(0) id:tex_common_bg,src:texture\tex_common_bg.png,type:texture/png
 key:a84eb1aa(0) id:tex_fpmenu_icon_youtube,src:texture\tex_fpmenu_icon_youtube.png,type:texture/png
 key:9a91af5d(0) id:tex_fpmenu_icon_http,src:texture\tex_fpmenu_icon_http.png,type:texture/png

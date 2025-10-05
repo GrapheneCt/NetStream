@@ -40,22 +40,26 @@ namespace menu {
 
 		First();
 
-		~First();
+		~First() override;
 
 		ui::ListItem* CreateListItem(ui::listview::ItemFactory::CreateParam& param);
 
 		void OnListButton(ui::Widget *self);
 
-		MenuType GetMenuType()
+		MenuType GetMenuType() override
 		{
 			return MenuType_First;
 		}
 
-		const uint32_t *GetSupportedSettingsItems(int32_t *count)
+		const uint32_t *GetSupportedSettingsItems(int32_t *count) override
 		{
 			*count = 0;
 			return nullptr;
 		}
+
+	private:
+
+		bool m_showHvdb;
 	};
 }
 

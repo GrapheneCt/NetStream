@@ -112,6 +112,9 @@
       <image_button style="style_button_yt_expand" id="button_youtube_expand">
         <layout_hint size="102, 50" anchor="2, 2" align="2, 2" pos="-467, -362" />
       </image_button>
+      <image_button style="style_button_yt_settings" id="button_youtube_settings">
+        <layout_hint size="102, 50" anchor="2, 2" align="2, 2" pos="-589, -362" />
+      </image_button>
       <plane texture="_common_texture_transparent" id="plane_youtube_live_now">
         <layout_hint anchor="1, 2" align="1, 2" size="70, 53" pos="138, -350" />
       </plane>
@@ -149,6 +152,21 @@
           <resolution id="landscape" size="960, 544" />
           <resolution id="full_hd" size="1920, 1088" />
         </layout_hint>
+        <text id="text_video_page_player_subs_edge_0">
+          <layout_hint adjust="2, 2" />
+        </text>
+        <text id="text_video_page_player_subs_edge_1">
+          <layout_hint adjust="2, 2" />
+        </text>
+        <text id="text_video_page_player_subs_edge_2">
+          <layout_hint adjust="2, 2" />
+        </text>
+        <text id="text_video_page_player_subs_edge_3">
+          <layout_hint adjust="2, 2" />
+        </text>
+        <text id="text_video_page_player_subs_main">
+          <layout_hint adjust="2, 2" />
+        </text>
         <busyindicator style="style_busyindicator_big" texture="_common_texture_busy" id="busyindicator_video_page_player_simple" >
           <layout_hint>
             <resolution id="landscape" size="75, 75" />
@@ -377,6 +395,11 @@
       <planeobj texture0="_common_texture_button" id="plane_obj2" />
       <planeobj texture0="_common_texture_button_glow" blend="2" id="plane_obj3" />
     </style_image_button>
+    <style_image_button sound="_common_sound_image_button" image_obj="plane_obj1" image_back_obj="plane_obj2" glow_obj="plane_obj3" id="style_button_yt_settings">
+      <planeobj scale_mode_y="1" scale_mode_x="1" scale_value="1, 1" texture0="tex_button_settings" id="plane_obj1" />
+      <planeobj texture0="_common_texture_button" id="plane_obj2" />
+      <planeobj texture0="_common_texture_button_glow" blend="2" id="plane_obj3" />
+    </style_image_button>
     <style_image_button sound="_common_sound_image_button" image_obj="plane_obj1" image_back_obj="plane_obj2" glow_obj="plane_obj3" id="style_button_yt_fav">
       <planeobj scale_mode_y="1" scale_mode_x="1" scale_value="0.8, 0.8" texture0="tex_yt_icon_favourite_for_player" id="plane_obj1" />
       <planeobj texture0="_common_texture_button" id="plane_obj2" />
@@ -394,6 +417,11 @@
       <planeobj texture0="_common_texture_copy_paste_menu_button_middle" id="plane_obj1" />
       <planeobj texture0="_common_texture_copy_paste_menu_button_middle_glow" blend="2" id="plane_obj2" />
       <textobj font_size="20" ellipsis="1" word_wrap="1" max_line_count="2" id="text_obj1" />
+    </style_button>
+    <style_button sound="_common_sound_button_enter" label_obj="text_obj1" bg_obj="plane_obj1" glow_obj="plane_obj2" id="style_button_yt_quality_select">
+      <planeobj texture0="_common_texture_list_70px" id="plane_obj1" />
+      <planeobj texture0="_common_texture_list_glow_70px" blend="2" id="plane_obj2" />
+      <textobj align_y="1" align_x="1" shadow="1" font_size="28f" bold="1" id="text_obj1" />
     </style_button>
 
   </styletable>
@@ -597,6 +625,15 @@
         </text>
       </scroll_view>
     </template>
+    <template fast_open="1" id="template_list_item_youtube_quality_select">
+      <list_item style="style_list_view_item_generic" id="list_item_youtube_quality_select">
+        <layout_hint size="580, 70" />
+        <button style="style_button_yt_quality_select" id="button_yt_quality_select_item">
+          <layout_hint adjust="1, 1" />
+          <focus_hint focus_shape="3" />
+        </button>
+      </list_item>
+    </template>
     <template fast_open="1" id="template_list_item_youtube_comment">
       <list_item style="style_list_view_item_generic" id="list_item_youtube_comment">
         <layout_hint size="414, 70" />
@@ -653,6 +690,7 @@
     <texture origsize="33248" src="texture\tex_button_big_repeat.zlib" type="texture/gim" id="tex_button_big_repeat" compress="on" />
     <texture origsize="5328" src="texture\tex_button_arrow_left.zlib" type="texture/gim" id="tex_button_arrow_left" compress="on" />
     <texture origsize="5328" src="texture\tex_button_arrow_right.zlib" type="texture/gim" id="tex_button_arrow_right" compress="on" />
+    <texture origsize="5072" src="texture\tex_button_settings.zlib" type="texture/gim" id="tex_button_settings" compress="on" />
     <texture src="texture\tex_common_bg.png" type="texture/png" id="tex_common_bg" />
     <texture src="texture\tex_fpmenu_icon_youtube.png" type="texture/png" id="tex_fpmenu_icon_youtube" />
     <texture src="texture\tex_fpmenu_icon_http.png" type="texture/png" id="tex_fpmenu_icon_http" />

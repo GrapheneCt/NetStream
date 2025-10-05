@@ -4,8 +4,8 @@
 #include "common.h"
 #include "utils.h"
 #include "dialog.h"
-#include "player_beav.h"
-#include "generic_server_browser.h"
+#include "players/player_beav.h"
+#include "browsers/generic_server_browser.h"
 #include "option_menu.h"
 #include "menus/menu_server.h"
 #include "menus/menu_settings.h"
@@ -176,9 +176,9 @@ void menu::GenericServerMenu::GoTo(const string& ref)
 	string currentPath;
 	wstring text16;
 
-	thread::RMutex::main_thread_mutex.Lock();
+	thread::RMutex::MainThreadMutex()->Lock();
 	m_loaderIndicator->Start();
-	thread::RMutex::main_thread_mutex.Unlock();
+	thread::RMutex::MainThreadMutex()->Unlock();
 
 	BrowserPage *workPage = m_pageList.back();
 
@@ -192,9 +192,9 @@ void menu::GenericServerMenu::GoTo(const string& ref)
 	}
 	if (ret != SCE_OK)
 	{
-		thread::RMutex::main_thread_mutex.Lock();
+		thread::RMutex::MainThreadMutex()->Lock();
 		m_loaderIndicator->Stop();
-		thread::RMutex::main_thread_mutex.Unlock();
+		thread::RMutex::MainThreadMutex()->Unlock();
 		workPage->m_isLoaded = true;
 		dialog::OpenError(g_appPlugin, ret, Framework::Instance()->GetCommonString("msg_error_connect_server_peer"));
 		return;
@@ -203,10 +203,10 @@ void menu::GenericServerMenu::GoTo(const string& ref)
 	{
 		ui::Widget *backButton = m_root->FindChild(button_back_page_server_generic);
 		ui::Widget *settingsButton = m_root->FindChild(button_settings_page_server_generic);
-		thread::RMutex::main_thread_mutex.Lock();
+		thread::RMutex::MainThreadMutex()->Lock();
 		backButton->Show(common::transition::Type_Reset);
 		settingsButton->Show(common::transition::Type_Reset);
-		thread::RMutex::main_thread_mutex.Unlock();
+		thread::RMutex::MainThreadMutex()->Unlock();
 		m_firstBoot = false;
 	}
 
@@ -217,11 +217,11 @@ void menu::GenericServerMenu::GoTo(const string& ref)
 	}
 	common::Utf8ToUtf16(currentPath, &text16);
 
-	thread::RMutex::main_thread_mutex.Lock();
+	thread::RMutex::MainThreadMutex()->Lock();
 	m_loaderIndicator->Stop();
 	workPage->m_list->InsertCell(0, 0, workPage->m_itemList->size());
 	m_topText->SetString(text16);
-	thread::RMutex::main_thread_mutex.Unlock();
+	thread::RMutex::MainThreadMutex()->Unlock();
 
 	workPage->m_isLoaded = true;
 }

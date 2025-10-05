@@ -4,7 +4,8 @@
 #include <kernel.h>
 #include <paf.h>
 
-#include "player_generic.h"
+#include "players/player_generic.h"
+#include "subs/subs_generic.h"
 #include "menu_generic.h"
 #include "menu_youtube.h"
 
@@ -61,9 +62,9 @@ namespace menu {
 
 		typedef void(*PlayerSimpleCallback)(PlayerSimple *player, void *pUserArg);
 
-		PlayerSimple(const char *url, const char *coverUrl = NULL);
+		PlayerSimple(const char *url, GenericPlayer::Option *opt = NULL, GenericSubtitles::Option *sopt = NULL);
 
-		~PlayerSimple();
+		~PlayerSimple() override;
 
 		GenericPlayer *GetPlayer();
 
@@ -75,12 +76,12 @@ namespace menu {
 
 		void SetSettingsOverride(SettingsOverride override);
 
-		MenuType GetMenuType()
+		MenuType GetMenuType() override
 		{
 			return MenuType_PlayerSimple;
 		}
 
-		const uint32_t *GetSupportedSettingsItems(int32_t *count)
+		const uint32_t *GetSupportedSettingsItems(int32_t *count) override
 		{
 			switch (m_settingsOverride)
 			{
@@ -116,7 +117,9 @@ namespace menu {
 		ui::Widget *m_statPlane;
 		ui::Widget *m_backButton;
 		ui::Widget *m_wholeRepeatButton;
-		ui::Text *elapsedTimeText;
+		ui::Text *m_elapsedTimeText;
+		ui::Text *m_subsMainText;
+		ui::Text *m_subsEdgeText[4];
 		ui::ProgressBarTouch *m_progressBar;
 		ui::Widget *m_progressPlane;
 		ui::Widget *m_playButton;
@@ -134,7 +137,12 @@ namespace menu {
 		SettingsOverride m_settingsOverride;
 		SceUID m_pwCbId;
 		common::SharedPtr<inputdevice::InputListener> m_padListener;
+		GenericSubtitles::SystemSettings m_subSettings;
+		math::v2 m_subsBaseCharSize;
+		vector<uint32_t> m_subIndices;
+		vector<uint32_t> m_oldSubIndices;
 		GenericPlayer *m_player;
+		GenericSubtitles *m_subtitles;
 
 		const uint32_t k_settingsIdListYoutubeOverride[4] = {
 			youtube_search_setting,

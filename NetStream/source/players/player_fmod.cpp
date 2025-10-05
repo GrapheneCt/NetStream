@@ -9,12 +9,15 @@
 #include "common.h"
 #include "utils.h"
 #include "event.h"
-#include "player_fmod.h"
+#include "players/player_fmod.h"
+
+#undef SCE_DBG_LOG_COMPONENT
+#define SCE_DBG_LOG_COMPONENT "[FMOD]"
 
 using namespace paf;
 
-static FMOD::System *s_system;
-static FMOD::ChannelGroup *s_chg;
+FMOD::System *FMODPlayer::s_system = NULL;
+FMOD::ChannelGroup *FMODPlayer::s_chg = NULL;
 
 static const char *k_supportedExtensions[] = {
 	".it",
@@ -48,7 +51,7 @@ FMOD_RESULT FMODPlayer::HybridInterface::Open(const char *name, unsigned int *fi
 	else
 	{
 		common::SharedPtr<CurlFile> *rfile = new common::SharedPtr<CurlFile>;
-		*rfile = CurlFile::Open(name, SCE_O_RDONLY, 0, &ret);
+		*rfile = CurlFile::Open(name, SCE_O_RDONLY, 0, &ret, NULL, utils::GetGlobalProxy());
 		file = reinterpret_cast<common::SharedPtr<File> *>(rfile);
 	}
 
@@ -99,27 +102,27 @@ FMOD_RESULT FMODPlayer::HybridInterface::Seek(void *handle, unsigned int pos, vo
 	return FMOD_ERR_FILE_BAD;
 }
 
-void FMODPlayer::BootJob::Run()
+void FMODPlayer::OnBootJob()
 {
 	FMOD_RESULT ret = FMOD_OK;
-	m_parent->m_snd = NULL;
-	m_parent->m_ch = NULL;
+	m_snd = NULL;
+	m_ch = NULL;
 
-	ret = s_system->createSound(m_parent->m_path.c_str(), FMOD_UNIQUE | FMOD_CREATESTREAM, NULL, &m_parent->m_snd);
+	ret = s_system->createSound(m_path.c_str(), FMOD_UNIQUE | FMOD_CREATESTREAM, NULL, &m_snd);
 	if (ret != FMOD_OK)
 	{
-		m_parent->SetInitState(InitState_InitFail);
+		SetInitState(InitState_InitFail);
 		return;
 	}
 
 	FMOD_TAG tg;
 	tg.data = NULL;
 
-	if (m_parent->m_snd->getTag("PIC", -1, &tg) != FMOD_OK)
+	if (m_snd->getTag("PIC", -1, &tg) != FMOD_OK)
 	{
-		if (m_parent->m_snd->getTag("APIC", -1, &tg) != FMOD_OK)
+		if (m_snd->getTag("APIC", -1, &tg) != FMOD_OK)
 		{
-			m_parent->m_snd->getTag("METADATA_BLOCK_PICTURE", -1, &tg);
+			m_snd->getTag("METADATA_BLOCK_PICTURE", -1, &tg);
 		}
 	}
 
@@ -140,20 +143,21 @@ void FMODPlayer::BootJob::Run()
 
 		if (tex.get())
 		{
-			thread::RMutex::main_thread_mutex.Lock();
-			m_parent->m_target->SetTexture(tex);
-			graph::PlaneObj *po = static_cast<graph::PlaneObj *>(m_parent->m_target->GetDrawObj(ui::Plane::OBJ_PLANE));
+			thread::RMutex::MainThreadMutex()->Lock();
+			m_target->SetTexture(tex);
+			graph::PlaneObj *po = static_cast<graph::PlaneObj *>(m_target->GetDrawObj(ui::Plane::OBJ_PLANE));
 			po->SetScaleMode(graph::PlaneObj::SCALE_ASPECT_SIZE, graph::PlaneObj::SCALE_ASPECT_SIZE);
-			thread::RMutex::main_thread_mutex.Unlock();
+			thread::RMutex::MainThreadMutex()->Unlock();
 		}
 	}
-	else if (!m_parent->m_coverPath.empty())
+	else if (!m_opt.coverUrl.empty())
 	{
 		int32_t res = -1;
 		CurlFile::OpenArg oarg;
-		oarg.ParseUrl(m_parent->m_coverPath.c_str());
+		oarg.ParseUrl(m_opt.coverUrl.c_str());
 		oarg.SetOption(3000, CurlFile::OpenArg::OptionType_ConnectTimeOut);
 		oarg.SetOption(5000, CurlFile::OpenArg::OptionType_RecvTimeOut);
+		oarg.SetProxy(utils::GetGlobalProxy());
 
 		CurlFile *file = new CurlFile();
 		res = file->Open(&oarg);
@@ -164,11 +168,11 @@ void FMODPlayer::BootJob::Run()
 
 			if (tex.get())
 			{
-				thread::RMutex::main_thread_mutex.Lock();
-				m_parent->m_target->SetTexture(tex);
-				graph::PlaneObj *po = static_cast<graph::PlaneObj *>(m_parent->m_target->GetDrawObj(ui::Plane::OBJ_PLANE));
+				thread::RMutex::MainThreadMutex()->Lock();
+				m_target->SetTexture(tex);
+				graph::PlaneObj *po = static_cast<graph::PlaneObj *>(m_target->GetDrawObj(ui::Plane::OBJ_PLANE));
 				po->SetScaleMode(graph::PlaneObj::SCALE_ASPECT_SIZE, graph::PlaneObj::SCALE_ASPECT_SIZE);
-				thread::RMutex::main_thread_mutex.Unlock();
+				thread::RMutex::MainThreadMutex()->Unlock();
 			}
 		}
 		else
@@ -177,33 +181,26 @@ void FMODPlayer::BootJob::Run()
 		}
 	}
 
-	ret = s_system->playSound(m_parent->m_snd, s_chg, false, &m_parent->m_ch);
+	ret = s_system->playSound(m_snd, s_chg, false, &m_ch);
 	if (ret != FMOD_OK)
 	{
-		m_parent->m_snd->release();
-		m_parent->m_snd = NULL;
-		m_parent->SetInitState(InitState_InitFail);
+		m_snd->release();
+		m_snd = NULL;
+		SetInitState(InitState_InitFail);
 		return;
 	}
 
-	m_parent->SetInitState(InitState_InitOk);
+	SetInitState(InitState_InitOk);
 }
 
-FMODPlayer::FMODPlayer(ui::Widget *targetPlane, const char *url, const char *coverUrl)
+FMODPlayer::FMODPlayer(ui::Widget *targetPlane, const char *url, Option *opt)
 {
-	SCE_DBG_LOG_INFO("[FMOD] Open url: %s\n", url);
+	SCE_DBG_LOG_INFO("[FMODPlayer] Open url: %s", url);
 	m_target = targetPlane;
-	if (!sce_paf_strncmp(url, "mp4://", 6))
+	m_path = url;
+	if (opt)
 	{
-		m_path = url + 6;
-	}
-	else
-	{
-		m_path = url;
-	}
-	if (coverUrl)
-	{
-		m_coverPath = coverUrl;
+		m_opt = *opt;
 	}
 	s_system->attachChannelGroupToPort(FMOD_PSVITA_PORT_TYPE_VOICE, 0, s_chg);
 	common::MainThreadCallList::Register(UpdateTask, this);
@@ -250,7 +247,7 @@ GenericPlayer::InitState FMODPlayer::GetInitState()
 void FMODPlayer::SetInitState(GenericPlayer::InitState state)
 {
 	m_initState = state;
-	SCE_DBG_LOG_INFO("[FMOD] State changed to: %d\n", state);
+	SCE_DBG_LOG_INFO("[SetInitState] State changed to: %d", state);
 	event::BroadcastGlobalEvent(g_appPlugin, GenericPlayerChangeState, m_initState);
 }
 
@@ -270,7 +267,7 @@ uint32_t FMODPlayer::GetCurrentTimeMs()
 
 bool FMODPlayer::JumpToTimeMs(uint32_t time)
 {
-	SCE_DBG_LOG_INFO("[FMOD] JumpToTime | seconds: %u\n", time / 1000);
+	SCE_DBG_LOG_INFO("[JumpToTimeMs] Jump to seconds: %u\n", time / 1000);
 	uint32_t total = GetTotalTimeMs();
 	if (time >= total)
 	{
@@ -305,9 +302,9 @@ void FMODPlayer::SetPowerSaving(bool enable)
 	m_powerSaving = enable;
 }
 
-void FMODPlayer::LimitFPS(bool enable)
+uint32_t FMODPlayer::GetAudioRepresentationNum()
 {
-	m_limitFps = enable;
+	return 1;
 }
 
 void FMODPlayer::SwitchPlaybackState()

@@ -87,7 +87,7 @@ void twutils::Log::Add(const char *data)
 	m_ini->flush();
 }
 
-void twutils::Log::AddAsyncJob::Run()
+int32_t twutils::Log::AddAsyncJob::Run()
 {
 	char *sptr;
 
@@ -102,13 +102,15 @@ void twutils::Log::AddAsyncJob::Run()
 
 	m_parent->m_ini->add(m_data.c_str(), "");
 	m_parent->m_ini->flush();
+
+	return SCE_PAF_OK;
 }
 
 void twutils::Log::AddAsync(const char *data)
 {
 	AddAsyncJob *job = new AddAsyncJob(this, data);
 	common::SharedPtr<job::JobItem> itemParam(job);
-	job::JobQueue::default_queue->Enqueue(itemParam);
+	job::JobQueue::DefaultQueue()->Enqueue(itemParam);
 }
 
 void twutils::Log::Remove(const char *data)

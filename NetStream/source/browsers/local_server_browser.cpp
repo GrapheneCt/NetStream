@@ -4,9 +4,14 @@
 #include <psp2_compat/curl/curl.h>
 
 #include "common.h"
-#include "player_beav.h"
-#include "player_fmod.h"
-#include "local_server_browser.h"
+#include "utils.h"
+#include "players/player_av.h"
+#include "players/player_beav.h"
+#include "players/player_fmod.h"
+#include "browsers/local_server_browser.h"
+
+#undef SCE_DBG_LOG_COMPONENT
+#define SCE_DBG_LOG_COMPONENT "[LocalBrowser]"
 
 using namespace paf;
 
@@ -50,14 +55,13 @@ string LocalServerBrowser::GetBEAVUrl(string const& in)
 	string fullPath = m_path + in;
 	string ret;
 
-	if (!sce_paf_strncmp(in.c_str(), "http", 4) || !sce_paf_strncmp(in.c_str(), "ftp", 3) || !sce_paf_strncmp(in.c_str(), "smb", 3))
+	if (!utils::IsLocalPath(in.c_str()))
 	{
 		ret = in;
 	}
 	else
 	{
-		ret = "mp4://";
-		ret += fullPath;
+		ret = fullPath;
 	}
 
 	return ret;
@@ -170,7 +174,7 @@ vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, i
 
 	SetPath(ref);
 
-	SCE_DBG_LOG_INFO("[LOCAL] Attempt to open %s\n", m_path.c_str());
+	SCE_DBG_LOG_INFO("[GoTo] Attempt to open %s\n", m_path.c_str());
 
 	if (ref)
 	{
@@ -259,10 +263,14 @@ vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, i
 			{
 				while (dir.Read(&dentry) >= 0)
 				{
-					GenericPlayer::SupportType supportType = BEAVPlayer::IsSupported(dentry.name.c_str());
+					GenericPlayer::SupportType supportType = AVPlayer::IsSupported(dentry.name.c_str());
 					if (supportType == GenericPlayer::SupportType_NotSupported)
 					{
-						supportType = FMODPlayer::IsSupported(dentry.name.c_str());
+						supportType = BEAVPlayer::IsSupported(dentry.name.c_str());
+						if (supportType == GenericPlayer::SupportType_NotSupported)
+						{
+							supportType = FMODPlayer::IsSupported(dentry.name.c_str());
+						}
 					}
 
 					if (supportType != GenericPlayer::SupportType_NotSupported)

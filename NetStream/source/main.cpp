@@ -18,9 +18,9 @@
 #include "tw_utils.h"
 #include "hvdb_utils.h"
 #include "np_utils.h"
-#include "player_beav.h"
-#include "player_fmod.h"
-#include "invidious.h"
+#include "players/player_beav.h"
+#include "players/player_av.h"
+#include "players/player_fmod.h"
 #include "menus/menu_generic.h"
 #include "menus/menu_first.h"
 
@@ -28,7 +28,14 @@
 
 extern "C"
 {
-	int curl_global_memmanager_set_np(void*(*)(unsigned int), void(*)(void *), void*(*)(void *, unsigned int));
+	int sceUserMainThreadPriority = SCE_KERNEL_INDIVIDUAL_QUEUE_HIGHEST_PRIORITY + 20;
+	int sceUserMainThreadCpuAffinityMask = SCE_KERNEL_CPU_MASK_USER_0;
+
+	typedef void*(*curl_allocate_np)(unsigned int);
+	typedef void(*curl_free_np)(void *);
+	typedef void*(*curl_reallocate_np)(void *, unsigned int);
+
+	int curl_global_memmanager_set_np(curl_allocate_np, curl_free_np, curl_reallocate_np);
 }
 
 using namespace paf;
@@ -47,7 +54,7 @@ int32_t menu::main::OnNpDialogComplete(void *data)
 
 		menu::main::NetcheckJob *ncJob = new menu::main::NetcheckJob(menu::main::NetcheckJob::Type_NpOnly);
 		common::SharedPtr<job::JobItem> itemParam(ncJob);
-		job::JobQueue::default_queue->Enqueue(itemParam);
+		job::JobQueue::DefaultQueue()->Enqueue(itemParam);
 	}
 	else
 	{
@@ -57,13 +64,12 @@ int32_t menu::main::OnNpDialogComplete(void *data)
 	return 0;
 }
 
-void menu::main::NetcheckJob::Run()
+int32_t menu::main::NetcheckJob::Run()
 {
 	int32_t ret = SCE_OK;
 	int32_t sync = 0;
 	SceUID shellPid = SCE_UID_INVALID_UID;
 	char titleid[12];
-	int sarg[2];
 	SceNetInitParam param;
 
 	if (m_type == Type_NpOnly)
@@ -79,7 +85,7 @@ void menu::main::NetcheckJob::Run()
 			dialog::OpenError(g_appPlugin, ret, g_appPlugin->GetString(msg_error_psn_connection));
 		}
 
-		return;
+		return SCE_PAF_OK;
 	}
 
 	param.memory = sce_paf_malloc(SCE_KERNEL_32KiB);
@@ -121,12 +127,13 @@ void menu::main::NetcheckJob::Run()
 	}
 
 	sceAppMgrAppParamGetString(SCE_KERNEL_PROCESS_ID_SELF, 12, titleid, 12);
-	if (sceAppMgrGetIdByName(&shellPid, "NPXS19999") == SCE_OK &&
-		_vshKernelSearchModuleByName("taihen", sarg) > 0)
+	if (sceAppMgrGetIdByName(&shellPid, "NPXS19999") == SCE_OK && utils::IsTaihenLoaded())
 	{
 		string pluginPath = common::FormatString("ux0:app/%s/module/download_enabler_netstream.suprx", titleid);
 		taiLoadStartModuleForPid(shellPid, pluginPath.c_str(), 0, NULL, 0);
 	}
+
+	return SCE_PAF_OK;
 }
 
 void pluginLoadCB(Plugin *plugin)
@@ -145,7 +152,7 @@ void pluginLoadCB(Plugin *plugin)
 
 	menu::main::NetcheckJob *ncJob = new menu::main::NetcheckJob(menu::main::NetcheckJob::Type_Initial);
 	common::SharedPtr<job::JobItem> itemParam(ncJob);
-	job::JobQueue::default_queue->Enqueue(itemParam);
+	job::JobQueue::DefaultQueue()->Enqueue(itemParam);
 
 	menu::InitMenuSystem();
 
@@ -203,13 +210,14 @@ int main()
 	new Module("vs0:sys/external/libfios2.suprx");
 	new Module("vs0:sys/external/libc.suprx");
 	new Module("app0:module/libcurl.suprx");
-	new Module("app0:module/libInvidious.suprx");
+	new Module("app0:module/libFourthTube.suprx");
 	new Module("app0:module/libLootkit.suprx");
 	new Module("app0:module/libhvdb.suprx");
 
 	curl_global_memmanager_set_np(sce_paf_malloc, sce_paf_free, sce_paf_realloc);
 
 	utils::Init();
+	//utils::SetGlobalProxy("socks5://192.168.3.101:12334");
 
 	// Plugin init
 	Plugin::InitParam pluginParam;
@@ -223,6 +231,7 @@ int main()
 
 	Plugin::LoadAsync(pluginParam);
 
+	AVPlayer::PreInit();
 	BEAVPlayer::PreInit();
 	FMODPlayer::PreInit();
 

@@ -6,11 +6,6 @@
 
 using namespace paf;
 
-extern "C"
-{
-	SceUID _vshKernelSearchModuleByName(const char *, int *);
-}
-
 namespace menu {
 	namespace main {
 		class NetcheckJob : public job::JobItem
@@ -30,9 +25,9 @@ namespace menu {
 
 			~NetcheckJob() {}
 
-			void Run();
+			int32_t Run();
 
-			void Finish() {}
+			void Finish(int32_t result) {}
 
 		private:
 

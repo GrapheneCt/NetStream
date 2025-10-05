@@ -13,6 +13,7 @@
 #include "hvdb.h"
 #include <paf_file_ext.h>
 #include "option_menu.h"
+#include "players/player_fmod.h"
 #include "menus/menu_generic.h"
 #include "menus/menu_hvdb.h"
 #include "menus/menu_settings.h"
@@ -71,12 +72,14 @@ void menu::HVDB::OnListButton(ui::Widget *wdg)
 		AudioItem *workItem = &m_entryResults.at(idhash);
 		TrackParseJob *job = new TrackParseJob(this, workItem);
 		common::SharedPtr<job::JobItem> itemParam(job);
-		job::JobQueue::default_queue->Enqueue(itemParam);
+		job::JobQueue::DefaultQueue()->Enqueue(itemParam);
 	}
 	else
 	{
 		TrackItem *workItem = &m_trackResults.at(idhash);
-		m_player = new menu::PlayerSimple(workItem->url.c_str(), workItem->audioItem->cover.c_str());
+		FMODPlayer::Option opt;
+		opt.coverUrl = workItem->audioItem->cover.c_str();
+		m_player = new menu::PlayerSimple(workItem->url.c_str(), &opt);
 	}
 }
 
@@ -94,7 +97,7 @@ void menu::HVDB::OnAddEntryButton()
 	EntryAddJob *job = new EntryAddJob(this);
 	common::Utf16ToUtf8(request, &m_addEntryId);
 	common::SharedPtr<job::JobItem> itemParam(job);
-	job::JobQueue::default_queue->Enqueue(itemParam);
+	job::JobQueue::DefaultQueue()->Enqueue(itemParam);
 	dialog::Close();
 }
 
@@ -161,7 +164,7 @@ void menu::HVDB::OnDialogEvent(int32_t type)
 		m_list->DeleteSegment(0, 1);
 		LogClearJob *job = new LogClearJob(this);
 		common::SharedPtr<job::JobItem> itemParam(job);
-		job::JobQueue::default_queue->Enqueue(itemParam);
+		job::JobQueue::DefaultQueue()->Enqueue(itemParam);
 	}
 }
 
@@ -293,9 +296,9 @@ void menu::HVDB::ParseTrack(AudioItem *audioItem)
 	int32_t ret = 0;
 	HvdbItemTrack *hvdbItem;
 
-	thread::RMutex::main_thread_mutex.Lock();
+	thread::RMutex::MainThreadMutex()->Lock();
 	m_loaderIndicator->Start();
-	thread::RMutex::main_thread_mutex.Unlock();
+	thread::RMutex::MainThreadMutex()->Unlock();
 
 	ret = hvdbParseTrack(audioItem->id.c_str(), &hvdbItem);
 	if (ret > 0)
@@ -312,19 +315,19 @@ void menu::HVDB::ParseTrack(AudioItem *audioItem)
 
 		hvdbCleanupTrack(hvdbItem);
 
-		thread::RMutex::main_thread_mutex.Lock();
+		thread::RMutex::MainThreadMutex()->Lock();
 		m_loaderIndicator->Stop();
 		m_trackList->InsertCell(0, 0, m_trackResults.size());
 		m_backButton->Show(common::transition::Type_Reset);
-		thread::RMutex::main_thread_mutex.Unlock();
+		thread::RMutex::MainThreadMutex()->Unlock();
 	}
 	else
 	{
-		thread::RMutex::main_thread_mutex.Lock();
+		thread::RMutex::MainThreadMutex()->Lock();
 		m_loaderIndicator->Stop();
 		dialog::OpenError(g_appPlugin, ret, g_appPlugin->GetString(msg_hvdb_error_id_not_exist));
 		m_backButton->Show(common::transition::Type_Reset);
-		thread::RMutex::main_thread_mutex.Unlock();
+		thread::RMutex::MainThreadMutex()->Unlock();
 	}
 }
 
@@ -334,9 +337,9 @@ void menu::HVDB::AddEntry()
 	int32_t ret = 0;
 	HvdbItemAudio *hvdbItem;
 
-	thread::RMutex::main_thread_mutex.Lock();
+	thread::RMutex::MainThreadMutex()->Lock();
 	m_loaderIndicator->Start();
-	thread::RMutex::main_thread_mutex.Unlock();
+	thread::RMutex::MainThreadMutex()->Unlock();
 
 	if (m_addEntryId.empty())
 	{
@@ -379,13 +382,13 @@ void menu::HVDB::AddEntry()
 			}
 		}
 
-		thread::RMutex::main_thread_mutex.Lock();
+		thread::RMutex::MainThreadMutex()->Lock();
 		m_loaderIndicator->Stop();
 		if (!m_interrupted)
 		{
 			m_list->InsertCell(0, 0, m_entryResults.size());
 		}
-		thread::RMutex::main_thread_mutex.Unlock();
+		thread::RMutex::MainThreadMutex()->Unlock();
 	}
 	else
 	{
@@ -409,27 +412,29 @@ void menu::HVDB::AddEntry()
 
 			hvdbutils::GetEntryLog()->Add(m_addEntryId.c_str());
 
-			thread::RMutex::main_thread_mutex.Lock();
+			thread::RMutex::MainThreadMutex()->Lock();
 			m_loaderIndicator->Stop();
 			m_list->InsertCell(0, m_entryResults.size(), 1);
-			thread::RMutex::main_thread_mutex.Unlock();
+			thread::RMutex::MainThreadMutex()->Unlock();
 		}
 		else
 		{
-			thread::RMutex::main_thread_mutex.Lock();
+			thread::RMutex::MainThreadMutex()->Lock();
 			m_loaderIndicator->Stop();
 			dialog::OpenError(g_appPlugin, ret, g_appPlugin->GetString(msg_hvdb_error_id_not_exist));
-			thread::RMutex::main_thread_mutex.Unlock();
+			thread::RMutex::MainThreadMutex()->Unlock();
 		}
 	}
 }
 
-void menu::HVDB::LogClearJob::Run()
+int32_t menu::HVDB::LogClearJob::Run()
 {
 	dialog::OpenPleaseWait(g_appPlugin, NULL, Framework::Instance()->GetCommonString("msg_wait"));
 	m_parent->ClearEntryResults();
 	hvdbutils::EntryLog::Clean();
 	dialog::Close();
+
+	return SCE_PAF_OK;
 }
 
 menu::HVDB::HVDB() :
@@ -494,13 +499,13 @@ menu::HVDB::HVDB() :
 
 	EntryAddJob *job = new EntryAddJob(this);
 	common::SharedPtr<job::JobItem> itemParam(job);
-	job::JobQueue::default_queue->Enqueue(itemParam);
+	job::JobQueue::DefaultQueue()->Enqueue(itemParam);
 }
 
 menu::HVDB::~HVDB()
 {
 	m_interrupted = true;
-	job::JobQueue::default_queue->WaitEmpty();
+	job::JobQueue::DefaultQueue()->WaitEmpty();
 	m_texPool->DestroyAsync();
 }
 

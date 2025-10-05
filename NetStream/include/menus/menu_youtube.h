@@ -6,7 +6,7 @@
 
 #include "dialog.h"
 #include "tex_pool.h"
-#include "invidious.h"
+#include "ftube.h"
 #include "menu_generic.h"
 
 using namespace paf;
@@ -81,7 +81,7 @@ namespace menu {
 
 				}
 
-				InvItemType type;
+				FTItemType type;
 				wstring name;
 				wstring time;
 				wstring stat;
@@ -122,12 +122,14 @@ namespace menu {
 
 				~SearchJob() {}
 
-				void Run()
+				int32_t Run()
 				{
 					m_parent->Search();
+
+					return SCE_PAF_OK;
 				}
 
-				void Finish() {}
+				void Finish(int32_t result) {}
 
 			private:
 
@@ -158,6 +160,7 @@ namespace menu {
 			ui::TextBox *m_searchBox;
 			ui::Widget *m_searchButton;
 			string m_request;
+			map<uint32_t, string> m_continuations;
 		};
 
 		class HistorySubmenu : public Submenu
@@ -175,12 +178,14 @@ namespace menu {
 
 				~HistoryJob() {}
 
-				void Run()
+				int32_t Run()
 				{
 					m_parent->Parse();
+
+					return SCE_PAF_OK;
 				}
 
-				void Finish() {}
+				void Finish(int32_t result) {}
 
 			private:
 
@@ -220,12 +225,14 @@ namespace menu {
 
 				~FavouriteJob() {}
 
-				void Run()
+				int32_t Run()
 				{
 					m_parent->Parse();
+
+					return SCE_PAF_OK;
 				}
 
-				void Finish() {}
+				void Finish(int32_t result) {}
 
 			private:
 
@@ -275,9 +282,9 @@ namespace menu {
 
 			~LogClearJob() {}
 
-			void Run();
+			int32_t Run();
 
-			void Finish() {}
+			void Finish(int32_t result) {}
 
 		private:
 
@@ -302,9 +309,9 @@ namespace menu {
 
 			~CloudJob() {}
 
-			void Run();
+			int32_t Run();
 
-			void Finish() {}
+			void Finish(int32_t result) {}
 
 		private:
 
@@ -314,16 +321,16 @@ namespace menu {
 
 		YouTube();
 
-		~YouTube();
+		~YouTube()  override;
 
 		void SwitchSubmenu(Submenu::SubmenuType type);
 
-		MenuType GetMenuType()
+		MenuType GetMenuType() override
 		{
 			return MenuType_Youtube;
 		}
 
-		const uint32_t *GetSupportedSettingsItems(int32_t *count)
+		const uint32_t *GetSupportedSettingsItems(int32_t *count) override
 		{
 			*count = sizeof(k_settingsIdList) / sizeof(char*);
 			return k_settingsIdList;

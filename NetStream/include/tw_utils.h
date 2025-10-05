@@ -24,9 +24,9 @@ namespace twutils
 
 			~AddAsyncJob() {}
 
-			void Run();
+			int32_t Run();
 
-			void Finish() {}
+			void Finish(int32_t result) {}
 
 		private:
 
@@ -85,14 +85,6 @@ namespace twutils
 		FavLog();
 
 		static void Clean();
-	};
-
-	class InvDownloadData
-	{
-	public:
-
-		void *buf;
-		uint32_t pos;
 	};
 
 	void Init();

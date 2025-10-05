@@ -17,13 +17,16 @@
 #include "utils.h"
 #include "event.h"
 
+#undef SCE_DBG_LOG_COMPONENT
+#define SCE_DBG_LOG_COMPONENT "[Settings]"
+
 #define WIDE2(x) L##x
 #define WIDE(x) WIDE2(x)
 
 using namespace paf;
 using namespace sce;
 
-const int32_t k_settingsVersion = 8;
+const int32_t k_settingsVersion = 20;
 
 static sce::AppSettings *s_appSet = NULL;
 static menu::Settings *s_instance = NULL;
@@ -66,16 +69,33 @@ void menu::Settings::Init()
 		s_appSet->SetInt("settings_version", k_settingsVersion);
 	}
 
-	wstring *verinfo = new wstring();
+	string verinfo8;
+	wstring *verinfo16 = new wstring();
+
+	curl_version_info_data *curlInfo = curl_version_info(CURLVERSION_NOW);
 
 #ifdef _DEBUG
-	*verinfo = L"DEBUG ";
+	verinfo8 = "DEBUG ";
 #else
-	*verinfo = L"RELEASE ";
+	verinfo8 = "RELEASE ";
 #endif
-	*verinfo += WIDE(__DATE__);
-	*verinfo += L" v 3.20";
-	s_verinfo = verinfo->c_str();
+	verinfo8 += __DATE__;
+	verinfo8 += " v 3.30";
+	verinfo8 += "\n\n-- libcurl --\n\n";
+	verinfo8 += "Version: ";
+	verinfo8 += curlInfo->version;
+	verinfo8 += "\nGlobal proxy: ";
+	if (utils::GetGlobalProxy())
+	{
+		verinfo8 += utils::GetGlobalProxy();
+	}
+	else
+	{
+		verinfo8 += "not set";
+	}
+
+	common::Utf8ToUtf16(verinfo8, verinfo16);
+	s_verinfo = verinfo16->c_str();
 }
 
 menu::Settings::~Settings()
@@ -94,7 +114,7 @@ menu::Settings::Settings()
 {
 	if (s_instance)
 	{
-		SCE_DBG_LOG_ERROR("[MENU] Attempt to create second singleton instance\n");
+		SCE_DBG_LOG_ERROR("[Settings] Attempt to create second singleton instance\n");
 		return;
 	}
 

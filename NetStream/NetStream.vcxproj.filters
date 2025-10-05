@@ -18,6 +18,24 @@
     <Filter Include="Source Files\resource">
       <UniqueIdentifier>{784adb2a-2159-4d72-ba10-3c360fe3bb22}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\players">
+      <UniqueIdentifier>{fbf463f0-23d6-426a-920e-d57c6fc940e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\players">
+      <UniqueIdentifier>{ebaf1957-7ba0-40ce-a4b3-c3fbf14b8060}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\browsers">
+      <UniqueIdentifier>{c1271002-95d8-4ece-9b10-de876141361f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\browsers">
+      <UniqueIdentifier>{0601fe77-e2f9-480e-8377-27578763de4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\subs">
+      <UniqueIdentifier>{02e6370e-4def-44f0-b9b3-f761cfa3fc9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\subs">
+      <UniqueIdentifier>{92115278-5319-4fda-b0eb-0787c9ec7d91}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\debug.cpp">
@@ -44,9 +62,6 @@
     <ClCompile Include="source\menus\menu_first.cpp">
       <Filter>Source Files\menus</Filter>
     </ClCompile>
-    <ClCompile Include="source\http_server_browser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\menus\menu_settings.cpp">
       <Filter>Source Files\menus</Filter>
     </ClCompile>
@@ -62,13 +77,7 @@
     <ClCompile Include="source\downloader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\local_server_browser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\option_menu.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\ftp_server_browser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\menus\menu_server.cpp">
@@ -86,12 +95,6 @@
     <ClCompile Include="source\event.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\player_beav.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\player_fmod.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\np_utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -100,6 +103,30 @@
     </ClCompile>
     <ClCompile Include="source\hvdb_utils.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\players\player_av.cpp">
+      <Filter>Source Files\players</Filter>
+    </ClCompile>
+    <ClCompile Include="source\players\player_beav.cpp">
+      <Filter>Source Files\players</Filter>
+    </ClCompile>
+    <ClCompile Include="source\players\player_fmod.cpp">
+      <Filter>Source Files\players</Filter>
+    </ClCompile>
+    <ClCompile Include="source\browsers\ftp_server_browser.cpp">
+      <Filter>Source Files\browsers</Filter>
+    </ClCompile>
+    <ClCompile Include="source\browsers\http_server_browser.cpp">
+      <Filter>Source Files\browsers</Filter>
+    </ClCompile>
+    <ClCompile Include="source\browsers\local_server_browser.cpp">
+      <Filter>Source Files\browsers</Filter>
+    </ClCompile>
+    <ClCompile Include="source\subs\subs_generic.cpp">
+      <Filter>Source Files\subs</Filter>
+    </ClCompile>
+    <ClCompile Include="source\subs\subs_srt.cpp">
+      <Filter>Source Files\subs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -136,9 +163,6 @@
     <ClInclude Include="include\menus\menu_http.h">
       <Filter>Header Files\menus</Filter>
     </ClInclude>
-    <ClInclude Include="include\http_server_browser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\menus\menu_player_simple.h">
       <Filter>Header Files\menus</Filter>
     </ClInclude>
@@ -148,19 +172,10 @@
     <ClInclude Include="include\downloader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\local_server_browser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\menus\menu_local.h">
       <Filter>Header Files\menus</Filter>
     </ClInclude>
-    <ClInclude Include="include\generic_server_browser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\option_menu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ftp_server_browser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\menus\menu_ftp.h">
@@ -181,15 +196,6 @@
     <ClInclude Include="include\event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\player_generic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\player_beav.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\player_fmod.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\np_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -198,6 +204,36 @@
     </ClInclude>
     <ClInclude Include="include\hvdb_utils.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\players\player_av.h">
+      <Filter>Header Files\players</Filter>
+    </ClInclude>
+    <ClInclude Include="include\players\player_beav.h">
+      <Filter>Header Files\players</Filter>
+    </ClInclude>
+    <ClInclude Include="include\players\player_fmod.h">
+      <Filter>Header Files\players</Filter>
+    </ClInclude>
+    <ClInclude Include="include\players\player_generic.h">
+      <Filter>Header Files\players</Filter>
+    </ClInclude>
+    <ClInclude Include="include\browsers\ftp_server_browser.h">
+      <Filter>Header Files\browsers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\browsers\generic_server_browser.h">
+      <Filter>Header Files\browsers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\browsers\http_server_browser.h">
+      <Filter>Header Files\browsers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\browsers\local_server_browser.h">
+      <Filter>Header Files\browsers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\subs\subs_generic.h">
+      <Filter>Header Files\subs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\subs\subs_srt.h">
+      <Filter>Header Files\subs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

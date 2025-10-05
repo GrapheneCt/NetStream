@@ -10,15 +10,6 @@ extern "C" {
 		int unused[2];
 	} SceSysmoduleOpt;
 
-	typedef struct ScePafInit {
-		size_t global_heap_size;
-		int a2;
-		int a3;
-		int cdlg_mode;
-		int heap_opt_param1;
-		int heap_opt_param2;
-	} ScePafInit;
-
 	int sceAppMgrGrowMemory3(unsigned int a1, int a2);
 
 	void __cxa_set_dso_handle_main(void *dso)
@@ -100,7 +91,18 @@ extern "C" {
 
 void *user_new(std::size_t size)
 {
-	return sce_paf_malloc(size);
+	void *ret = sce_paf_malloc(size);
+	/*
+		SceAvPlayer bugfix: yucca::DashManifestParser::FinishParse() tries to use uninitialized pointers in MediaLookUpMmap member
+		This bug is not visible with SceLibc because it always memsets heap with 0's and yucca probably checks: if(ptr){...}
+	*/
+	/*
+	if (size == 112)
+	{
+		sce_paf_memset(ret, 0, size);
+	}
+	*/
+	return ret;
 }
 
 void *user_new(std::size_t size, const std::nothrow_t& x)
@@ -146,11 +148,9 @@ __attribute__((constructor(101))) void preloadPaf()
 	SceSysmoduleOpt sysmodule_opt;
 
 	init_param.global_heap_size = SCE_KERNEL_128MiB;
-	init_param.a2 = 0x0000EA60;
-	init_param.a3 = 0x00040000;
 	init_param.cdlg_mode = 0;
-	init_param.heap_opt_param1 = 0;
-	init_param.heap_opt_param2 = 0;
+	init_param.global_heap_alignment = 0;
+	init_param.global_heap_disable_assert_on_alloc_failure = 0;
 
 	sysmodule_opt.flags = 0;
 	sysmodule_opt.result = &load_res;

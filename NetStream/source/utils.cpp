@@ -1,4 +1,4 @@
-#include <kernel.h>
+﻿#include <kernel.h>
 #include <apputil.h> 
 #include <power.h> 
 #include <libdbg.h>
@@ -10,10 +10,35 @@
 #include <paf_file_ext.h>
 #include "common.h"
 
+#undef SCE_DBG_LOG_COMPONENT
+#define SCE_DBG_LOG_COMPONENT "[utils]"
+
 static SceUID s_lock = SCE_UID_INVALID_UID;
 static job::JobQueue *s_utilsJobQueue = NULL;
 static CurlFile::Share *s_curlShare = NULL;
 static utils::PowerTick s_powerTickMode = utils::PowerTick_None;
+static string s_globalProxy;
+static CURLSH *s_reqShare = NULL;
+
+extern "C"
+{
+	SceUID _vshKernelSearchModuleByName(const char *, int *);
+}
+
+static size_t CurlDownloadCore(char *buffer, size_t size, size_t nitems, void *userdata)
+{
+	utils::CurlDownloadContext *obj = static_cast<utils::CurlDownloadContext *>(userdata);
+	size_t toCopy = size * nitems;
+
+	if (toCopy != 0)
+	{
+		obj->m_buf = sce_paf_realloc(obj->m_buf, obj->m_pos + toCopy);
+		sce_paf_memcpy(static_cast<char *>(obj->m_buf) + obj->m_pos, buffer, toCopy);
+		obj->m_pos += toCopy;
+	}
+
+	return toCopy;
+}
 
 static void PowerTickTask(void *pUserData)
 {
@@ -113,10 +138,10 @@ void utils::Init()
 	s_lock = sceKernelCreateEventFlag("utils::Lock", SCE_KERNEL_ATTR_MULTI, 0, NULL);
 
 	job::JobQueue::Option queueOpt;
-	queueOpt.workerNum = 1;
-	queueOpt.workerOpt = NULL;
-	queueOpt.workerPriority = SCE_KERNEL_HIGHEST_PRIORITY_USER + 30;
-	queueOpt.workerStackSize = SCE_KERNEL_256KiB;
+	queueOpt.num_thread = 1;
+	queueOpt.worker_opt = NULL;
+	queueOpt.priority = SCE_KERNEL_COMMON_QUEUE_HIGHEST_PRIORITY;
+	queueOpt.stack_size = SCE_KERNEL_256KiB;
 
 	s_utilsJobQueue = new job::JobQueue("utils::JobQueue", &queueOpt);
 
@@ -165,12 +190,18 @@ string utils::SafememRead(uint32_t offset)
 	return ret;
 }
 
+bool utils::IsTaihenLoaded()
+{
+	int sarg[2];
+	return (_vshKernelSearchModuleByName("taihen", sarg) > 0);
+}
+
 utils::TimeoutID utils::SetTimeout(TimeoutFunc func, float timeoutMs, void *userdata1, void *userdata2)
 {
 	Timer *t = new Timer(timeoutMs);
 	TimeoutListener *listener = new TimeoutListener(t, func);
 	TimerListenerList::ListenerParam lparam(listener, true, userdata1, userdata2);
-	TimerListenerList::s_default_list->Register(lparam);
+	TimerListenerList::DefaultList()->Register(lparam);
 	return listener;
 }
 
@@ -178,7 +209,292 @@ void utils::ClearTimeout(utils::TimeoutID id)
 {
 	if (id)
 	{
-		TimerListenerList::s_default_list->Unregister(id);
+		TimerListenerList::DefaultList()->Unregister(id);
 		delete id;
 	}
+}
+
+void utils::SetGlobalProxy(const char *proxy)
+{
+	s_globalProxy = proxy;
+}
+
+const char *utils::GetGlobalProxy()
+{
+	if (s_globalProxy.empty())
+	{
+		return NULL;
+	}
+
+	return s_globalProxy.c_str();
+}
+
+bool utils::DoGETRequest(const char *url, void **ppRespBuf, size_t *pRespBufSize, const char **ppHeaders, uint32_t headerNum,
+	int32_t *pRespCode, void*(*liballoc)(size_t), void(*libdealloc)(void *), void*(*librealloc)(void *, size_t))
+{
+	CURL *curl = curl_easy_init();
+	curl_easy_setopt(curl, CURLOPT_SHARE, s_reqShare);
+	curl_easy_setopt(curl, CURLOPT_BUFFERSIZE, SCE_KERNEL_64KiB);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlDownloadCore);
+	curl_easy_setopt(curl, CURLOPT_USERAGENT, USER_AGENT);
+	curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+	curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
+	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+	curl_easy_setopt(curl, CURLOPT_URL, url);
+	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L);
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 15L);
+	if (utils::GetGlobalProxy())
+	{
+		curl_easy_setopt(curl, CURLOPT_PROXY, utils::GetGlobalProxy());
+	}
+
+	curl_slist *headers = NULL;
+	if (headerNum)
+	{
+		for (int i = 0; i < headerNum; i++)
+		{
+			headers = curl_slist_append(headers, ppHeaders[i]);
+		}
+
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+	}
+
+	utils::CurlDownloadContext ctx;
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ctx);
+
+	long responseCode = 0;
+	CURLcode ret = curl_easy_perform(curl);
+	curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
+	curl_slist_free_all(headers);
+	if (pRespCode)
+	{
+		*pRespCode = responseCode;
+	}
+	if (ret != CURLE_OK || responseCode != 200)
+	{
+		SCE_DBG_LOG_ERROR("[DoGETRequest] Error: %d, resp: %d", ret, responseCode);
+		if (ctx.m_buf)
+		{
+			sce_paf_free(ctx.m_buf);
+		}
+		curl_easy_cleanup(curl);
+		return false;
+	}
+
+	curl_easy_cleanup(curl);
+
+	*ppRespBuf = ctx.m_buf;
+	*pRespBufSize = ctx.m_pos;
+
+	return true;
+}
+
+bool utils::DoPOSTRequest(const char *url, void *pBuf, size_t bufSize, const char **ppHeaders, uint32_t headerNum, void **ppRespBuf,
+	size_t *pRespBufSize, int32_t *pRespCode, void*(*liballoc)(size_t), void(*libdealloc)(void *), void*(*librealloc)(void *, size_t))
+{
+	CURL *curl = curl_easy_init();
+	curl_easy_setopt(curl, CURLOPT_SHARE, s_reqShare);
+	curl_easy_setopt(curl, CURLOPT_BUFFERSIZE, SCE_KERNEL_64KiB);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlDownloadCore);
+	curl_easy_setopt(curl, CURLOPT_USERAGENT, USER_AGENT);
+	curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+	curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
+	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+	curl_easy_setopt(curl, CURLOPT_URL, url);
+	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, pBuf);
+	curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)bufSize);
+	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L);
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 15L);
+	if (utils::GetGlobalProxy())
+	{
+		curl_easy_setopt(curl, CURLOPT_PROXY, utils::GetGlobalProxy());
+	}
+
+	curl_slist *headers = NULL;
+	if (headerNum)
+	{
+		for (int i = 0; i < headerNum; i++)
+		{
+			headers = curl_slist_append(headers, ppHeaders[i]);
+		}
+
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+	}
+
+	utils::CurlDownloadContext ctx;
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ctx);
+
+	long responseCode = 0;
+	CURLcode ret = curl_easy_perform(curl);
+	curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
+	curl_slist_free_all(headers);
+	if (pRespCode)
+	{
+		*pRespCode = responseCode;
+	}
+	if (ret != CURLE_OK || responseCode != 200)
+	{
+		SCE_DBG_LOG_ERROR("[DoPOSTRequest] Error: %d, resp: %d", ret, responseCode);
+		if (ctx.m_buf)
+		{
+			sce_paf_free(ctx.m_buf);
+		}
+		curl_easy_cleanup(curl);
+		return false;
+	}
+
+	curl_easy_cleanup(curl);
+
+	*ppRespBuf = ctx.m_buf;
+	*pRespBufSize = ctx.m_pos;
+
+	return true;
+}
+
+void utils::SetRequestShare(CURLSH *share)
+{
+	s_reqShare = share;
+}
+
+void utils::ResolutionToQualityString(wstring& res, uint32_t width, uint32_t height, bool selected)
+{
+	bool detected = true;
+
+	if (selected)
+	{
+		res = L"→ ";
+	}
+
+	if (!IsVideoSupported(width, height))
+	{
+		res += L"(Unsupported) ";
+	}
+
+	switch (height)
+	{
+	case 144:
+		res += L"144p";
+		break;
+	case 240:
+		res += L"240p";
+		break;
+	case 360:
+		res += L"360p";
+		break;
+	case 480:
+		res += L"480p";
+		break;
+	case 720:
+		res += L"720p";
+		break;
+	case 1080:
+		res += L"1080p";
+		break;
+	default:
+		detected = false;
+		break;
+	}
+
+	if (!detected)
+	{
+		switch (width)
+		{
+		case 144:
+			res += L"144p";
+			break;
+		case 240:
+			res += L"240p";
+			break;
+		case 360:
+			res += L"360p";
+			break;
+		case 480:
+			res += L"480p";
+			break;
+		case 720:
+			res += L"720p";
+			break;
+		case 1080:
+			res += L"1080p";
+			break;
+		default:
+			wchar_t tmp[128];
+			sce_paf_swprintf(tmp, 64, L"%ux%u", width, height);
+			res += tmp;
+			break;
+		}
+	}
+
+	if (selected)
+	{
+		res += L" ←";
+	}
+}
+
+void utils::AudioParamsToQualityString(wstring& res, uint32_t ch, uint32_t srate, bool selected)
+{
+	if (selected)
+	{
+		res = L"→ ";
+	}
+
+	if (!IsAudioSupported(ch, srate))
+	{
+		res += L"(Unsupported) ";
+	}
+
+	switch (ch)
+	{
+	case 1:
+		res += L"Mono, ";
+		break;
+	case 2:
+		res += L"Stereo, ";
+		break;
+	}
+
+	wchar_t tmp[64];
+	sce_paf_swprintf(tmp, 64, L"%.3f KHz", srate / 1000.0f);
+	res += tmp;
+
+	if (selected)
+	{
+		res += L" ←";
+	}
+}
+
+bool utils::IsVideoSupported(uint32_t width, uint32_t height)
+{
+	if (width > 1280 || height > 720)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool utils::IsAudioSupported(uint32_t ch, uint32_t srate)
+{
+	if (ch > 2 || srate > 48000)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool utils::IsLocalPath(const char *path)
+{
+	if (!sce_paf_strncmp(path, "http", 4) || !sce_paf_strncmp(path, "ftp", 3) || !sce_paf_strncmp(path, "smb", 3))
+	{
+		return false;
+	}
+
+	return true;
 }
