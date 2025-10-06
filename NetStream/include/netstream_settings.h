@@ -48,6 +48,7 @@
 #define list_youtube_search_feature (0x1f3fe3e7)
 #define list_youtube_search_feature_00 (0xef4ef491)
 #define list_youtube_search_feature_01 (0x4a955857)
+#define text_field_youtube_search_proxy (0x76a42f88)
 #define youtube_comment_setting (0x83fbebce)
 #define list_youtube_comment_sort (0xec9209f7)
 #define llist_youtube_comment_sort_00 (0x4993c0b5)
