@@ -216,7 +216,14 @@ void utils::ClearTimeout(utils::TimeoutID id)
 
 void utils::SetGlobalProxy(const char *proxy)
 {
-	s_globalProxy = proxy;
+	if (!proxy)
+	{
+		s_globalProxy.clear();
+	}
+	else
+	{
+		s_globalProxy = proxy;
+	}
 }
 
 const char *utils::GetGlobalProxy()

@@ -53,6 +53,7 @@
         <list_item id="list_youtube_search_feature_00" title="msg_option_search_feature_0" value="0" />
         <list_item id="list_youtube_search_feature_01" title="msg_option_search_feature_1" value="1" />
       </list>
+      <text_field id="text_field_youtube_search_proxy" title="msg_youtube_search_proxy" max_length="255" min_length="0" keyboard_type="url" key="yt_search_proxy" default_value=""/>
     </setting_list>
     <setting_list id="youtube_comment_setting" title="msg_settings_comment" icon="tex_spanner">
       <list id="list_youtube_comment_sort" title="msg_youtube_comment_sort" key="yt_comment_sort" default_value="0">

@@ -217,7 +217,6 @@ int main()
 	curl_global_memmanager_set_np(sce_paf_malloc, sce_paf_free, sce_paf_realloc);
 
 	utils::Init();
-	//utils::SetGlobalProxy("socks5://192.168.3.101:12334");
 
 	// Plugin init
 	Plugin::InitParam pluginParam;

@@ -58,6 +58,7 @@
   <string src="日期" id="msg_youtube_search_date" />
   <string src="Duration" id="msg_youtube_search_dur" />
   <string src="Feature" id="msg_youtube_search_feature" />
+  <string src="Proxy Server" id="msg_youtube_search_proxy" />
   <string src="种类" id="msg_youtube_comment_sort" />
 
   <string src="US" id="msg_option_search_region_0" />

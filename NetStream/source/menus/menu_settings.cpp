@@ -26,7 +26,7 @@
 using namespace paf;
 using namespace sce;
 
-const int32_t k_settingsVersion = 20;
+const int32_t k_settingsVersion = 21;
 
 static sce::AppSettings *s_appSet = NULL;
 static menu::Settings *s_instance = NULL;
@@ -80,7 +80,7 @@ void menu::Settings::Init()
 	verinfo8 = "RELEASE ";
 #endif
 	verinfo8 += __DATE__;
-	verinfo8 += " v 3.30";
+	verinfo8 += " v 3.31";
 	verinfo8 += "\n\n-- libcurl --\n\n";
 	verinfo8 += "Version: ";
 	verinfo8 += curlInfo->version;

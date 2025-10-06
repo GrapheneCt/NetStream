@@ -1066,9 +1066,18 @@ menu::YouTube::YouTube() :
 	m_histBt->AddEventCallback(ui::Button::CB_BTN_DECIDE, submenuButtonCb, this);
 	m_favBt->AddEventCallback(ui::Button::CB_BTN_DECIDE, submenuButtonCb, this);
 
+	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
 	FTRegion region;
-	menu::Settings::GetAppSetInstance()->GetInt("yt_search_region", (int32_t *)&region, 0);
+	settings->GetInt("yt_search_region", (int32_t *)&region, 0);
 	ftSetRegion(region);
+
+	char proxy[256];
+	proxy[0] = 0;
+	settings->GetString("yt_search_proxy", proxy, sizeof(proxy) - 1, "");
+	if (proxy[0] != 0)
+	{
+		utils::SetGlobalProxy(proxy);
+	}
 
 	m_texPool = new TexPool(g_appPlugin);
 	m_texPool->SetShare(utils::GetShare());
@@ -1080,6 +1089,7 @@ menu::YouTube::~YouTube()
 {
 	delete m_currentSubmenu;
 	m_texPool->DestroyAsync();
+	utils::SetGlobalProxy(NULL);
 	utils::SetRequestShare(NULL);
 }
 
