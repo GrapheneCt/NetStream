@@ -42,15 +42,15 @@ static int ExportFilePatched(uint32_t *data)
 		bgdl_path = paf::common::FormatString("ux0:bgdl/t/%08x/d0.pdb", num);
 
 		int ret = 0;
-		paf::common::SharedPtr<paf::LocalFile> fd = paf::LocalFile::Open(bgdl_path.c_str(), SCE_O_RDONLY, 0, &ret);
+		paf::common::SharedPtr<paf::LocalFile> fd = paf::LocalFile::Open(bgdl_path.c_str(), paf::File::RDONLY, 0, &ret);
 		if (ret != SCE_PAF_OK)
 		{
 			return ret;
 		}
 
-		fd->Seek(0xD6, SCE_SEEK_SET);
+		fd->Seek(0xD6, paf::File::SET);
 		fd->Read(&url_length, sizeof(uint16_t));
-		fd->Seek(0xF7 + url_length, SCE_SEEK_SET);
+		fd->Seek(0xF7 + url_length, paf::File::SET);
 		fd->Read(file_name, sizeof(file_name));
 		fd->Close();
 

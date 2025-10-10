@@ -555,6 +555,7 @@ menu::PlayerSimple::PlayerSimple(const char *url, GenericPlayer::Option *opt, Ge
 		else if (BEAVPlayer::IsSupported(url) == GenericPlayer::SupportType_Supported)
 		{
 			m_player = new BEAVPlayer(m_videoPlane, url, NULL);
+			m_subSettings.enable = false; // BEAV is currently used only for livestreams, no subs here
 		}
 		else if (AVPlayer::IsSupported(url) == GenericPlayer::SupportType_Supported)
 		{
@@ -570,6 +571,7 @@ menu::PlayerSimple::PlayerSimple(const char *url, GenericPlayer::Option *opt, Ge
 			break;
 		case GenericPlayer::PlayerType_BEAV:
 			m_player = new BEAVPlayer(m_videoPlane, url, static_cast<BEAVPlayer::Option *>(opt));
+			m_subSettings.enable = false; // BEAV is currently used only for livestreams, no subs here
 			break;
 		case GenericPlayer::PlayerType_AV:
 			m_player = new AVPlayer(m_videoPlane, url, static_cast<AVPlayer::Option *>(opt));

@@ -45,13 +45,13 @@ FMOD_RESULT FMODPlayer::HybridInterface::Open(const char *name, unsigned int *fi
 	{
 
 		common::SharedPtr<LocalFile> *lfile = new common::SharedPtr<LocalFile>;
-		*lfile = LocalFile::Open(name, SCE_O_RDONLY, 0, &ret);
+		*lfile = LocalFile::Open(name, File::RDONLY, 0, &ret);
 		file = reinterpret_cast<common::SharedPtr<File> *>(lfile);
 	}
 	else
 	{
 		common::SharedPtr<CurlFile> *rfile = new common::SharedPtr<CurlFile>;
-		*rfile = CurlFile::Open(name, SCE_O_RDONLY, 0, &ret, NULL, utils::GetGlobalProxy());
+		*rfile = CurlFile::Open(name, File::RDONLY, 0, &ret, NULL, utils::GetGlobalProxy());
 		file = reinterpret_cast<common::SharedPtr<File> *>(rfile);
 	}
 
@@ -94,7 +94,7 @@ FMOD_RESULT FMODPlayer::HybridInterface::Seek(void *handle, unsigned int pos, vo
 {
 	off_t seekres = 0;
 	common::SharedPtr<File> *file = reinterpret_cast<common::SharedPtr<File> *>(handle);
-	seekres = file->get()->Seek(pos, SCE_SEEK_SET);
+	seekres = file->get()->Seek(pos, File::SET);
 	if (seekres == pos)
 	{
 		return FMOD_OK;

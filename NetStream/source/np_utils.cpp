@@ -125,7 +125,7 @@ int32_t nputils::TUS::UploadFile(uint32_t slot, const char *path)
 	}
 	request = ret;
 
-	common::SharedPtr<LocalFile> file = LocalFile::Open(path, SCE_O_RDONLY, 0, &ret);
+	common::SharedPtr<LocalFile> file = LocalFile::Open(path, File::RDONLY, 0, &ret);
 	if (ret < 0)
 	{
 		sceNpTusDeleteRequest(request);
@@ -170,7 +170,7 @@ int32_t nputils::TUS::DownloadFile(uint32_t slot, const char *path)
 	}
 	request = ret;
 
-	common::SharedPtr<LocalFile> file = LocalFile::Open(path, SCE_O_WRONLY | SCE_O_CREAT, 0666, &ret);
+	common::SharedPtr<LocalFile> file = LocalFile::Open(path, File::WRONLY | File::CREAT, File::RWU, &ret);
 	if (ret < 0)
 	{
 		sceNpTusDeleteRequest(request);

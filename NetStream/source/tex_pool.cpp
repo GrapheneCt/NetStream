@@ -322,7 +322,7 @@ bool TexPool::AddLocal(IDParam const& id, const char *path)
 		return false;
 	}
 	int32_t res = -1;
-	common::SharedPtr<LocalFile> lfile = LocalFile::Open(path, SCE_O_RDONLY, 0, &res);
+	common::SharedPtr<LocalFile> lfile = LocalFile::Open(path, File::RDONLY, 0, &res);
 	if (res != SCE_PAF_OK)
 	{
 		Remove(id);

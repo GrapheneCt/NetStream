@@ -80,7 +80,7 @@ void menu::Settings::Init()
 	verinfo8 = "RELEASE ";
 #endif
 	verinfo8 += __DATE__;
-	verinfo8 += " v 3.32";
+	verinfo8 += " v 3.33";
 	verinfo8 += "\n\n-- libcurl --\n\n";
 	verinfo8 += "Version: ";
 	verinfo8 += curlInfo->version;

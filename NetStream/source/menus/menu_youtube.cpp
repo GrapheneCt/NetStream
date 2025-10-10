@@ -466,7 +466,7 @@ void menu::YouTube::HistorySubmenu::Parse()
 		ytutils::GetHistLog()->GetNext(entryData + (i * SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE));
 	}
 
-	for (int32_t i = totalNum; i > -1; i--)
+	for (int32_t i = totalNum - 1; i >= 0; i--)
 	{
 		if (m_interrupted)
 		{
@@ -474,7 +474,7 @@ void menu::YouTube::HistorySubmenu::Parse()
 		}
 
 		ret = ftParseVideo(&ftCtx, entryData + (i * SCE_INI_FILE_PROCESSOR_KEY_BUFFER_SIZE), FT_VIDEO_VOD_QUALITY_NONE, FT_AUDIO_VOD_QUALITY_NONE, &ftItem);
-		if (ret == true)
+		if (ret == SCE_OK)
 		{
 			if (ftItem->videoItem->id)
 			{

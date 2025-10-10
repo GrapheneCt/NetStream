@@ -46,6 +46,8 @@ namespace menu {
 
 		void OnListButton(ui::Widget *self);
 
+		void SetOfflineMode();
+
 		MenuType GetMenuType() override
 		{
 			return MenuType_First;
@@ -60,6 +62,7 @@ namespace menu {
 	private:
 
 		bool m_showHvdb;
+		ui::ListView *m_rootList;
 	};
 }
 

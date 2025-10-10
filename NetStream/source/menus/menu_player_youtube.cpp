@@ -113,7 +113,7 @@ void menu::PlayerYoutube::Load()
 				common::SharedPtr<LocalFile> lmanifest;
 				int32_t res = -1;
 
-				lmanifest = LocalFile::Open("savedata0:lmanifest.mpd", SCE_O_WRONLY | SCE_O_CREAT | SCE_O_TRUNC, 0666, &res);
+				lmanifest = LocalFile::Open("savedata0:lmanifest.mpd", File::WRONLY | File::CREAT | File::TRUNC, File::RWU, &res);
 				if (res == SCE_OK)
 				{
 					lmanifest->Write(ftItem->videoItem->dashManifest, sce_paf_strlen(ftItem->videoItem->dashManifest));

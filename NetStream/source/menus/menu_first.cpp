@@ -30,18 +30,18 @@ menu::First::First() : GenericMenu("page_first", MenuOpenParam(true), MenuCloseP
 	wstring title = g_appPlugin->GetString(msg_title_menu_first);
 	topText->SetString(title);
 
-	auto listView = static_cast<ui::ListView *>(m_root->FindChild(list_view_generic));
-	listView->SetItemFactory(new ListViewFactory(this));
-	listView->InsertSegment(0, 1);
-	listView->SetCellSizeDefault(0, { 960.0f, 80.0f });
-	listView->SetSegmentLayoutType(0, ui::ListView::LAYOUT_TYPE_LIST);
+	m_rootList = static_cast<ui::ListView *>(m_root->FindChild(list_view_generic));
+	m_rootList->SetItemFactory(new ListViewFactory(this));
+	m_rootList->InsertSegment(0, 1);
+	m_rootList->SetCellSizeDefault(0, { 960.0f, 80.0f });
+	m_rootList->SetSegmentLayoutType(0, ui::ListView::LAYOUT_TYPE_LIST);
 	if (m_showHvdb)
 	{
-		listView->InsertCell(0, 0, 5);
+		m_rootList->InsertCell(0, 0, 5);
 	}
 	else
 	{
-		listView->InsertCell(0, 0, 4);
+		m_rootList->InsertCell(0, 0, 4);
 	}
 }
 
@@ -143,4 +143,14 @@ void menu::First::OnListButton(ui::Widget *self)
 		}
 		break;
 	}
+}
+
+void menu::First::SetOfflineMode()
+{
+	if (!m_rootList)
+	{
+		return;
+	}
+
+	m_rootList->DeleteCell(0, 0, m_rootList->GetCellNum(0) - 1);
 }

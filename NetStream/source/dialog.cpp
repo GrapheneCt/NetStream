@@ -257,3 +257,11 @@ void dialog::WaitEnd()
 		thread::Sleep(100);
 	}
 }
+
+bool dialog::IsActive()
+{
+	if (s_currentDialog == CURRENT_DIALOG_NONE)
+		return false;
+
+	return true;
+}

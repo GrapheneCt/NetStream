@@ -60,6 +60,8 @@ namespace dialog
 	void Close();
 
 	void WaitEnd();
+
+	bool IsActive();
 };
 
 #endif

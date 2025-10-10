@@ -31,6 +31,8 @@ namespace menu {
 
 		private:
 
+			void OnDialogUserCancelEvent(int32_t type);
+
 			Type m_type;
 		};
 

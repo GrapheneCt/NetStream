@@ -69,6 +69,7 @@ int32_t menu::main::NetcheckJob::Run()
 	int32_t ret = SCE_OK;
 	int32_t sync = 0;
 	SceUID shellPid = SCE_UID_INVALID_UID;
+	bool dialogAborted = false;
 	char titleid[12];
 	SceNetInitParam param;
 
@@ -91,9 +92,16 @@ int32_t menu::main::NetcheckJob::Run()
 	param.memory = sce_paf_malloc(SCE_KERNEL_32KiB);
 	param.size = SCE_KERNEL_32KiB;
 	param.flags = 0;
+
 	ret = sceNetInit(&param);
 	while (ret != SCE_OK)
 	{
+		if (!dialog::IsActive() || dialogAborted)
+		{
+			dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_ECANCELED, Framework::Instance()->GetCommonString("msg_error_network_connection"));
+			dialogAborted = true;
+			break;
+		}
 		ret = sceNetInit(&param);
 		thread::Sleep(100);
 	}
@@ -101,6 +109,12 @@ int32_t menu::main::NetcheckJob::Run()
 	ret = sceNetCtlInit();
 	while (ret != SCE_OK)
 	{
+		if (!dialog::IsActive() || dialogAborted)
+		{
+			dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_ECANCELED, Framework::Instance()->GetCommonString("msg_error_network_connection"));
+			dialogAborted = true;
+			break;
+		}
 		ret = sceNetCtlInit();
 		thread::Sleep(100);
 	}
@@ -108,20 +122,29 @@ int32_t menu::main::NetcheckJob::Run()
 	sceNetCtlInetGetState(&ret);
 	while (ret != SCE_NET_CTL_STATE_IPOBTAINED)
 	{
+		if (!dialog::IsActive() || dialogAborted)
+		{
+			dialog::OpenError(g_appPlugin, SCE_ERROR_ERRNO_ECANCELED, Framework::Instance()->GetCommonString("msg_error_network_connection"));
+			dialogAborted = true;
+			break;
+		}
 		sceNetCtlInetGetState(&ret);
 		thread::Sleep(100);
 	}
 
 	menu::Settings::Init();
 
-	ytutils::Init(NP_TUS_HIST_LOG_SLOT, NP_TUS_FAV_LOG_SLOT);
-	hvdbutils::Init();
+	if (!dialogAborted)
+	{
+		ytutils::Init(NP_TUS_HIST_LOG_SLOT, NP_TUS_FAV_LOG_SLOT);
+		hvdbutils::Init();
 
-	dialog::Close();
+		dialog::Close();
+	}
 
 	sce::AppSettings *settings = menu::Settings::GetAppSetInstance();
 	settings->GetInt("cloud_sync", static_cast<int32_t *>(&sync), 0);
-	if (sync)
+	if (sync && !dialogAborted)
 	{
 		nputils::PreInit(OnNpDialogComplete);
 	}
@@ -131,6 +154,14 @@ int32_t menu::main::NetcheckJob::Run()
 	{
 		string pluginPath = common::FormatString("ux0:app/%s/module/download_enabler_netstream.suprx", titleid);
 		taiLoadStartModuleForPid(shellPid, pluginPath.c_str(), 0, NULL, 0);
+	}
+
+	if (dialogAborted)
+	{
+		menu::First *fmenu = static_cast<menu::First *>(menu::GetTopMenu());
+		thread::RMutex::MainThreadMutex()->Lock();
+		fmenu->SetOfflineMode();
+		thread::RMutex::MainThreadMutex()->Unlock();
 	}
 
 	return SCE_PAF_OK;
@@ -148,7 +179,7 @@ void pluginLoadCB(Plugin *plugin)
 
 	Framework *fw = Framework::Instance();
 
-	dialog::OpenPleaseWait(g_appPlugin, NULL, fw->GetCommonString("msg_wait"));
+	dialog::OpenPleaseWait(g_appPlugin, NULL, fw->GetCommonString("msg_connecting_wait"), true);
 
 	menu::main::NetcheckJob *ncJob = new menu::main::NetcheckJob(menu::main::NetcheckJob::Type_Initial);
 	common::SharedPtr<job::JobItem> itemParam(ncJob);

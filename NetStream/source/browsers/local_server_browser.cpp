@@ -187,7 +187,7 @@ vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, i
 			char *begin = NULL;
 			char *end = NULL;
 
-			fres = LocalFile::Open(GetPath().c_str(), SCE_O_RDONLY, 0, &res);
+			fres = LocalFile::Open(GetPath().c_str(), File::RDONLY, 0, &res);
 			if (res < 0)
 			{
 				*result = res;
