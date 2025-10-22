@@ -38,8 +38,8 @@
   <string src="Puerto" id="msg_ftp_port" />
   <string src="Usuario" id="msg_ftp_user" />
   <string src="Contraseña" id="msg_ftp_password" />
-  <string src="Utilizar NLST" id="msg_ftp_nlst" />
-  <string src="Si activas esta opción, NetStream enviará el comando NLST al servidor FTP en lugar del comando LIST. Esta opción agiliza el funcionamiento, pero algunos servidores FTP podrían no admitirla." id="msg_ftp_nlst_hint" />
+  <string src="Usar NLST" id="msg_ftp_nlst" />
+  <string src="Si activas esta opción, NetStream enviará el comando NLST al servidor FTP en lugar del comando LIST. Esto agiliza el funcionamiento, pero algunos servidores FTP podrían no admitirla." id="msg_ftp_nlst_hint" />
 
   <string src="Prefijo para listas de reproducción .m3u8 relativas" id="msg_local_playlist_prefix" />
   <string src="Ordenar por nombre" id="msg_local_sort_name" />
@@ -49,16 +49,16 @@
   <string src="Carpetas primero" id="msg_option_local_sort_type_0" />
   <string src="Archivos primero" id="msg_option_local_sort_type_1" />
 
-  <string src="VOD Video Quality" id="msg_youtube_quality_vod_video" />
-  <string src="VOD Audio Quality" id="msg_youtube_quality_vod_audio" />
-  <string src="Default Live Quality" id="msg_youtube_quality_live" />
+  <string src="Video del VOD" id="msg_youtube_quality_vod_video" />
+  <string src="Audio del VOD" id="msg_youtube_quality_vod_audio" />
+  <string src="Predeterminada del En vivo" id="msg_youtube_quality_live" />
 
   <string src="Región" id="msg_youtube_search_region" />
   <string src="Ordenar por" id="msg_youtube_search_sort" />
   <string src="Fecha de carga" id="msg_youtube_search_date" />
-  <string src="Duration" id="msg_youtube_search_dur" />
-  <string src="Feature" id="msg_youtube_search_feature" />
-  <string src="Proxy Server" id="msg_youtube_search_proxy" />
+  <string src="Duración" id="msg_youtube_search_dur" />
+  <string src="Característica" id="msg_youtube_search_feature" />
+  <string src="Servidor proxy" id="msg_youtube_search_proxy" />
   <string src="Ordenar por" id="msg_youtube_comment_sort" />
 
   <string src="US" id="msg_option_search_region_0" />
@@ -75,13 +75,13 @@
   <string src="Año" id="msg_option_search_date_4" />
   <string src="Cualquiera" id="msg_option_search_date_5" />
 
-  <string src="Short" id="msg_option_search_dur_0" />
-  <string src="Medium" id="msg_option_search_dur_1" />
-  <string src="Long" id="msg_option_search_dur_2" />
-  <string src="Any" id="msg_option_search_dur_3" />
+  <string src="Corta" id="msg_option_search_dur_0" />
+  <string src="Media" id="msg_option_search_dur_1" />
+  <string src="Larga" id="msg_option_search_dur_2" />
+  <string src="Cualquiera" id="msg_option_search_dur_3" />
 
-  <string src="Live" id="msg_option_search_feature_0" />
-  <string src="None" id="msg_option_search_feature_1" />
+  <string src="En vivo" id="msg_option_search_feature_0" />
+  <string src="Ninguna" id="msg_option_search_feature_1" />
 
   <string src="Mejores" id="msg_option_comment_sort_0" />
   <string src="Recientes" id="msg_option_comment_sort_1" />
@@ -99,31 +99,31 @@
   <string src="480p" id="msg_option_youtube_quality_live_3" />
   <string src="720p" id="msg_option_youtube_quality_live_4" />
 
-  <string src="Use Cloud Sync" id="msg_toggle_cloud_sync" />
+  <string src="Usar sincronización en la nube" id="msg_toggle_cloud_sync" />
   <string src="Sincronizar datos automáticamente" id="msg_toggle_cloud_sync_auto" />
-  <string src="Cloud sync option allows you to sync various data such as YouTube history and favourites, with cloud storage. This feature uses cloud storage provided by PlayStation™Network. Please restart this application after enabling this feature." id="msg_cloud_sync_hint" />
+  <string src="La opción de sincronización en la nube te permite sincronizar varios datos, como el historial y los favoritos de Youtube, haciendo uso del almacenamiento en la nube proporcionado por PlayStation™Network. Reinicia esta aplicación luego de activar esta función." id="msg_cloud_sync_hint" />
 
   <string src="Inicio minimizado" id="msg_toggle_youtube_min" />
 
-  <string src="All entries will be deleted. Do you want to continue?" id="msg_settings_hvdb_clean_all_entry_confirm" />
-  <string src="Clear All Entries" id="msg_settings_hvdb_clean_all_entry" />
-  <string src="Add Entry" id="msg_settings_hvdb_add_entry" />
+  <string src="Se borrarán todas las entradas. ¿Quieres continuar?" id="msg_settings_hvdb_clean_all_entry_confirm" />
+  <string src="Borrar entradas" id="msg_settings_hvdb_clean_all_entry" />
+  <string src="Añadir entrada" id="msg_settings_hvdb_add_entry" />
 
   <string src="Upload To Cloud" id="msg_settings_youtube_cloud_upload" />
   <string src="Get From Cloud" id="msg_settings_youtube_cloud_download" />
   <string src="Borrar historial" id="msg_settings_youtube_clean_history" />
   <string src="Borrar favoritos" id="msg_settings_youtube_clean_fav" />
-  <string src="Se borrará todo de historial. ¿Continuar?" id="msg_settings_youtube_clean_history_confirm" />
-  <string src="Se borrarán todos los favoritos. ¿Continuar?" id="msg_settings_youtube_clean_fav_confirm" />
+  <string src="Se borrará todo el historial. ¿Quieres continuar?" id="msg_settings_youtube_clean_history_confirm" />
+  <string src="Se borrarán todos los favoritos. ¿Quieres continuar?" id="msg_settings_youtube_clean_fav_confirm" />
   <string src="Descargar" id="msg_settings_youtube_download" />
   <string src="Descargar audio" id="msg_settings_youtube_download_audio" />
   <string src="La descarga se ha añadido a la cola." id="msg_settings_youtube_download_begin" />
 
-  <string src="Select Quality" id="msg_quality_select_dialog_title" />
+  <string src="Seleccionar Calidad" id="msg_quality_select_dialog_title" />
 
-  <string src="Please enter DLsite ID of the work." id="msg_hvdb_add_entry" />
-  <string src="ID not found in the database." id="msg_hvdb_error_id_not_exist" />
+  <string src="Ingresa la ID de DLsite del trabajo." id="msg_hvdb_add_entry" />
+  <string src="ID no encontrado en la base de datos." id="msg_hvdb_error_id_not_exist" />
 
-  <string src="PlayStation™Network error has occured. Cloud data sync will not be available. If you enabled cloud sync option, please restart this application before using it." id="msg_error_psn_connection" />
+  <string src="Ha ocurrido un error en PlayStation™Network. La sincronización de datos en la nube no estará disponible. Si has activado la opción de sincronización en la nube, reinicia esta aplicación antes de usarla." id="msg_error_psn_connection" />
 
 </stringset>
