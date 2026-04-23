@@ -14,6 +14,39 @@
       <text_field id="ftp_password" title="msg_ftp_password" max_length="255" min_length="0" keyboard_type="alphabet" key="ftp_password" default_value=""/>
       <toggle_switch id="ftp_nlst" title="msg_ftp_nlst" hint="msg_ftp_nlst_hint" key="ftp_nlst" default_value="0" />
     </setting_list>
+    <setting_list id="hvdb_account_setting" title="msg_settings_account" style="edit" icon="tex_spanner">
+      <text_field id="hvdb_host" title="msg_hvdb_host" max_length="255" min_length="0" keyboard_type="url" key="hvdb_host" default_value=""/>
+      <text_field id="hvdb_user" title="msg_hvdb_user" max_length="255" min_length="0" keyboard_type="alphabet" key="hvdb_user" default_value=""/>
+      <text_field id="hvdb_password" title="msg_hvdb_password" max_length="255" min_length="0" keyboard_type="alphabet" key="hvdb_password" default_value=""/>
+    </setting_list>
+    <setting_list id="hvdb_search_setting" title="msg_settings_search" icon="tex_spanner">
+      <list id="list_hvdb_search_sort" title="msg_hvdb_search_sort" key="hvdb_search_sort" default_value="0">
+        <list_item id="list_hvdb_search_sort_00" title="msg_option_hvdb_search_sort_0" value="0" />
+        <list_item id="list_hvdb_search_sort_01" title="msg_option_hvdb_search_sort_1" value="1" />
+      </list>
+      <list id="list_hvdb_search_sort_type" title="msg_hvdb_search_sort_type" key="hvdb_search_sort_type" default_value="1">
+        <list_item id="list_hvdb_search_sort_type_00" title="msg_option_hvdb_search_sort_type_0" value="0" />
+        <list_item id="list_hvdb_search_sort_type_01" title="msg_option_hvdb_search_sort_type_1" value="1" />
+        <list_item id="list_hvdb_search_sort_type_02" title="msg_option_hvdb_search_sort_type_2" value="2" />
+        <list_item id="list_hvdb_search_sort_type_03" title="msg_option_hvdb_search_sort_type_3" value="3" />
+        <list_item id="list_hvdb_search_sort_type_04" title="msg_option_hvdb_search_sort_type_4" value="4" />
+        <list_item id="list_hvdb_search_sort_type_05" title="msg_option_hvdb_search_sort_type_5" value="5" />
+        <list_item id="list_hvdb_search_sort_type_06" title="msg_option_hvdb_search_sort_type_6" value="6" />
+        <list_item id="list_hvdb_search_sort_type_07" title="msg_option_hvdb_search_sort_type_7" value="7" />
+        <list_item id="list_hvdb_search_sort_type_08" title="msg_option_hvdb_search_sort_type_8" value="8" />
+      </list>
+      <list id="list_hvdb_search_filter" title="msg_hvdb_search_filter" key="hvdb_search_filter" default_value="5">
+        <list_item id="list_hvdb_search_filter_00" title="msg_option_hvdb_search_filter_0" value="0" />
+        <list_item id="list_hvdb_search_filter_01" title="msg_option_hvdb_search_filter_1" value="1" />
+        <list_item id="list_hvdb_search_filter_02" title="msg_option_hvdb_search_filter_2" value="2" />
+        <list_item id="list_hvdb_search_filter_03" title="msg_option_hvdb_search_filter_3" value="3" />
+        <list_item id="list_hvdb_search_filter_04" title="msg_option_hvdb_search_filter_4" value="4" />
+        <list_item id="list_hvdb_search_filter_05" title="msg_option_hvdb_search_filter_5" value="5" />
+      </list>
+    </setting_list>
+    <setting_list id="hvdb_player_setting" title="msg_settings_player" icon="tex_spanner">
+      <toggle_switch id="toggle_hvdb_banner" title="msg_toggle_hvdb_banner" key="hvdb_show_banner" default_value="1" />
+    </setting_list>
     <setting_list id="local_setting" title="msg_settings_local" icon="tex_spanner">
       <text_field id="local_playlist_prefix" title="msg_local_playlist_prefix" max_length="255" min_length="0" keyboard_type="url" key="local_playlist_prefix" default_value=""/>
       <list id="list_local_sort_name" title="msg_local_sort_name" key="local_sort_name" default_value="0">
@@ -78,7 +111,7 @@
         <list_item id="list_youtube_quality_live_04" title="msg_option_youtube_quality_live_4" value="4" />
       </list>
     </setting_list>
-    <setting_list id="youtube_player_setting" title="msg_settings_youtube_player" icon="tex_spanner">
+    <setting_list id="youtube_player_setting" title="msg_settings_player" icon="tex_spanner">
       <toggle_switch id="toggle_youtube_min" title="msg_toggle_youtube_min" key="yt_min" default_value="1" />
     </setting_list>
     <setting_list id="cloud_sync_setting" title="msg_settings_cloud_sync" icon="tex_spanner">

@@ -22,7 +22,8 @@ public:
 			Type_Folder
 		};
 
-		paf::string ref;
+		string ref;
+		string displayName;
 		uint32_t type;
 	};
 
@@ -46,7 +47,7 @@ public:
 
 	virtual string GetPath() = 0;
 
-	virtual string GetBEAVUrl(string const& in) = 0;
+	virtual void GetInfoForPlayer(string const& in, string& url, GenericPlayer::Option **opt) = 0;
 
 	virtual vector<GenericServerBrowser::Entry *> *GoTo(const char *ref, int32_t *result) = 0;
 };

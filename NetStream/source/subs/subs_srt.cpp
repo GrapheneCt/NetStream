@@ -100,7 +100,6 @@ const NamedColor s_namedColors[] = {
 
 SRTSubtitles::SRTSubtitles(const char *videoPath, Option *opt)
 {
-	int32_t ret;
 	m_path = common::StripFilename(videoPath, "PF");
 	m_path += ".srt";
 }
@@ -139,7 +138,6 @@ void SRTSubtitles::ParseSrt(common::SharedPtr<File> file)
 {
 	SrtMemFile memfile(file);
 
-	uint32_t idx = 0;
 	char buf[SCE_KERNEL_1KiB]; // line buffer
 	char *sbuf = new char[SCE_KERNEL_2KiB]; // string buffer
 	if (!sbuf)

@@ -128,6 +128,9 @@
     <ClCompile Include="source\subs\subs_srt.cpp">
       <Filter>Source Files\subs</Filter>
     </ClCompile>
+    <ClCompile Include="source\browsers\hvdb_tracks_browser.cpp">
+      <Filter>Source Files\browsers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\common.h">
@@ -234,6 +237,12 @@
     </ClInclude>
     <ClInclude Include="include\subs\subs_srt.h">
       <Filter>Header Files\subs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\menus\menu_hvdb_tracks.h">
+      <Filter>Header Files\menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\browsers\hvdb_tracks_browser.h">
+      <Filter>Header Files\browsers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -712,7 +712,14 @@ AVPlayer::AVPlayer(ui::Widget *targetPlane, const char *url, Option *opt)
 	m_path += url;
 	if (opt)
 	{
-		m_opt = *opt;
+		if (opt->playerType == GenericPlayer::PlayerType_AV)
+		{
+			m_opt = *opt;
+		}
+		else
+		{
+			opt->CommonCopy(m_opt);
+		}
 	}
 }
 
@@ -1129,4 +1136,16 @@ GenericPlayer::SupportType AVPlayer::IsSupported(const char *path)
 	}
 
 	return SupportType_NotSupported;
+}
+
+const char *AVPlayer::GetVersion()
+{
+	static char sversion[64];
+	uint32_t resLen = 0;
+
+	sversion[0] = ' ';
+	sversion[1] = 0;
+	sceAvPlayerGetVersionInfo(sversion, sizeof(sversion), &resLen);
+
+	return sversion;
 }

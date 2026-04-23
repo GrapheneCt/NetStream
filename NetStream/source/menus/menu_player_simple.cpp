@@ -546,7 +546,7 @@ menu::PlayerSimple::PlayerSimple(const char *url, GenericPlayer::Option *opt, Ge
 		reinterpret_cast<menu::PlayerSimple *>(userdata)->OnGenericPlayerStateChange(e->GetValue(0));
 	}, this);
 
-	if (!opt || opt->playerType == GenericPlayer::PlayerType_Auto)
+	if (!opt)
 	{
 		if (FMODPlayer::IsSupported(url) == GenericPlayer::SupportType_Supported)
 		{
@@ -560,6 +560,22 @@ menu::PlayerSimple::PlayerSimple(const char *url, GenericPlayer::Option *opt, Ge
 		else if (AVPlayer::IsSupported(url) == GenericPlayer::SupportType_Supported)
 		{
 			m_player = new AVPlayer(m_videoPlane, url, NULL);
+		}
+	}
+	else if (opt->playerType == GenericPlayer::PlayerType_Auto)
+	{
+		if (FMODPlayer::IsSupported(url) == GenericPlayer::SupportType_Supported)
+		{
+			m_player = new FMODPlayer(m_videoPlane, url, static_cast<FMODPlayer::Option *>(opt));
+		}
+		else if (BEAVPlayer::IsSupported(url) == GenericPlayer::SupportType_Supported)
+		{
+			m_player = new BEAVPlayer(m_videoPlane, url, static_cast<BEAVPlayer::Option *>(opt));
+			m_subSettings.enable = false; // BEAV is currently used only for livestreams, no subs here
+		}
+		else if (AVPlayer::IsSupported(url) == GenericPlayer::SupportType_Supported)
+		{
+			m_player = new AVPlayer(m_videoPlane, url, static_cast<AVPlayer::Option *>(opt));
 		}
 	}
 	else

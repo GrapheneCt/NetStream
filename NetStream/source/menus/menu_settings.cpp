@@ -14,6 +14,9 @@
 #include "common.h"
 #include "menus/menu_settings.h"
 #include "menus/menu_generic.h"
+#include "players/player_fmod.h"
+#include "players/player_av.h"
+#include "players/player_beav.h"
 #include "utils.h"
 #include "event.h"
 
@@ -26,7 +29,7 @@
 using namespace paf;
 using namespace sce;
 
-const int32_t k_settingsVersion = 21;
+const int32_t k_settingsVersion = 23;
 
 static sce::AppSettings *s_appSet = NULL;
 static menu::Settings *s_instance = NULL;
@@ -80,20 +83,18 @@ void menu::Settings::Init()
 	verinfo8 = "RELEASE ";
 #endif
 	verinfo8 += __DATE__;
-	verinfo8 += " v 3.33";
-	verinfo8 += "\n\n-- libcurl --\n\n";
-	verinfo8 += "Version: ";
+	verinfo8 += " v 3.35";
+	verinfo8 += "\n\nComponents:\n\n";
+	verinfo8 += "libcurl: ";
 	verinfo8 += curlInfo->version;
-	verinfo8 += "\nGlobal proxy: ";
-	if (utils::GetGlobalProxy())
-	{
-		verinfo8 += utils::GetGlobalProxy();
-	}
-	else
-	{
-		verinfo8 += "not set";
-	}
-
+	/*
+	verinfo8 += "\nAVPlayer: ";
+	verinfo8 += AVPlayer::GetVersion();
+	verinfo8 += "\nBEAVPlayer: ";
+	verinfo8 += BEAVPlayer::GetVersion();
+	verinfo8 += "\nFMOD: ";
+	verinfo8 += FMODPlayer::GetVersion();
+	*/
 	common::Utf8ToUtf16(verinfo8, verinfo16);
 	s_verinfo = verinfo16->c_str();
 }

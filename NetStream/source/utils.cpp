@@ -4,11 +4,15 @@
 #include <libdbg.h>
 #include <paf.h>
 #include <stdlib.h>
+#include <paf_file_ext.h>
 
 #include "utils.h"
 #include "yt_utils.h"
-#include <paf_file_ext.h>
 #include "common.h"
+#include "menus/menu_player_simple.h"
+#include "players/player_av.h"
+#include "players/player_beav.h"
+#include "players/player_fmod.h"
 
 #undef SCE_DBG_LOG_COMPONENT
 #define SCE_DBG_LOG_COMPONENT "[utils]"
@@ -504,4 +508,26 @@ bool utils::IsLocalPath(const char *path)
 	}
 
 	return true;
+}
+
+menu::GenericMenu *utils::CreatePlayer(string const& url)
+{
+	string ext = common::StripFilename(url, "E");
+	// TODO: implement
+	return NULL;
+}
+
+GenericPlayer::SupportType utils::GetContentSupportType(const char *path)
+{
+	GenericPlayer::SupportType supportType = AVPlayer::IsSupported(path);
+	if (supportType == GenericPlayer::SupportType_NotSupported)
+	{
+		supportType = BEAVPlayer::IsSupported(path);
+		if (supportType == GenericPlayer::SupportType_NotSupported)
+		{
+			supportType = FMODPlayer::IsSupported(path);
+		}
+	}
+
+	return supportType;
 }

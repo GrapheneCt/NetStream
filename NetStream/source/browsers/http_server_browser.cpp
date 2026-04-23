@@ -106,18 +106,16 @@ string HttpServerBrowser::GetPath()
 	return ret;
 }
 
-string HttpServerBrowser::GetBEAVUrl(string const& in)
+void HttpServerBrowser::GetInfoForPlayer(string const& in, string& url, GenericPlayer::Option **opt)
 {
-	string ret;
 	CURLU *turl = curl_url_dup(m_url);
 	curl_url_set(turl, CURLUPART_URL, in.c_str(), 0);
 	char *result;
 	curl_url_get(turl, CURLUPART_URL, &result, 0);
-	ret = result;
+	url = result;
 	curl_free(result);
 	curl_url_cleanup(turl);
-
-	return ret;
+	*opt = NULL;
 }
 
 void HttpServerBrowser::SetPath(const char *ref)
@@ -175,15 +173,7 @@ vector<HttpServerBrowser::Entry *> *HttpServerBrowser::GoTo(const char *ref, int
 			refEnd = sce_paf_strstr(href, "\">");
 			*refEnd = 0;
 
-			GenericPlayer::SupportType supportType = AVPlayer::IsSupported(href);
-			if (supportType == GenericPlayer::SupportType_NotSupported)
-			{
-				supportType = BEAVPlayer::IsSupported(href);
-				if (supportType == GenericPlayer::SupportType_NotSupported)
-				{
-					supportType = FMODPlayer::IsSupported(href);
-				}
-			}
+			GenericPlayer::SupportType supportType = utils::GetContentSupportType(href);
 
 			if (supportType != GenericPlayer::SupportType_NotSupported)
 			{

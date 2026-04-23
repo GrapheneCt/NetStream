@@ -42,6 +42,11 @@ public:
 			defaultRes = Resolution_480p;
 		}
 
+		void Copy(Option &dst)
+		{
+			dst = *this;
+		}
+
 		Resolution defaultRes;
 	};
 
@@ -141,6 +146,8 @@ public:
 	static void PreInit();
 
 	static SupportType IsSupported(const char *path);
+
+	static const char *GetVersion();
 
 private:
 

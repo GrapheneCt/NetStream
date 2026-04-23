@@ -120,7 +120,13 @@ public:
 			playerType = PlayerType_Auto;
 		}
 
+		void CommonCopy(Option& dst)
+		{
+			dst = *this;
+		}
+
 		PlayerType playerType;	// This Player type. Must be set to the appropriate player type
+		string auxStreamUrl;	// Aux stream url. Depends on the player type
 	};
 
 	/**

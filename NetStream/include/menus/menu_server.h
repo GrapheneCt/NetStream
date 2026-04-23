@@ -125,7 +125,7 @@ namespace menu {
 		ui::BusyIndicator *m_loaderIndicator;
 		ui::Text *m_topText;
 		vector<BrowserPage *> m_pageList;
-		menu::PlayerSimple *m_player;
+		menu::GenericMenu *m_player;
 		bool m_firstBoot;
 		bool m_playerFailed;
 	};

@@ -12,22 +12,11 @@ using namespace paf;
 
 namespace hvdbutils
 {
-	class EntryLog : public ytutils::Log
-	{
-	public:
-
-		EntryLog();
-
-		static void Clean();
-	};
-
 	void Init();
 
 	void Term();
 
 	void Flush();
-
-	EntryLog *GetEntryLog();
 
 	int32_t EnqueueDownload(const char *url, const char *name);
 

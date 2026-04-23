@@ -109,7 +109,8 @@ private:
 
 		char *Fgets(char *s, int32_t n)
 		{
-			int32_t i, c;
+			int32_t i = 0;
+			int32_t c = 0;
 			if (n <= 0) return s;
 			for (i = 0; i < n - 1; i++)
 			{

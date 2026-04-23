@@ -8,7 +8,6 @@
 #include "tex_pool.h"
 #include "hvdb.h"
 #include "menu_generic.h"
-#include "menus/menu_player_simple.h"
 
 using namespace paf;
 
@@ -17,181 +16,152 @@ namespace menu {
 	{
 	public:
 
-		class AudioItem;
-
-		class EntryAddJob : public job::JobItem
+		class Submenu
 		{
 		public:
 
-			EntryAddJob(HVDB *parent) : job::JobItem("HVDB::EntryAddJob", NULL), m_parent(parent)
+			enum SubmenuType
 			{
+				SubmenuType_Favourites = 0x947652c2
+			};
 
-			}
+			Submenu(HVDB *parentObj);
 
-			~EntryAddJob() {}
+			virtual ~Submenu();
 
-			int32_t Run()
+			virtual void ReleaseCurrentPage();
+
+			virtual void GoToNextPage() = 0;
+
+			virtual void GoToPrevPage() = 0;
+
+			virtual void GoToBasePageForSync() = 0;
+
+			virtual SubmenuType GetType() = 0;
+
+			ui::ListItem* CreateListItem(ui::listview::ItemFactory::CreateParam& param);
+
+			class ListViewCb : public ui::listview::ItemFactory
 			{
-				m_parent->AddEntry();
+			public:
 
-				return SCE_PAF_OK;
-			}
+				ListViewCb(Submenu *parent) : m_parent(parent)
+				{
 
-			void Finish(int32_t result) {}
+				}
+
+				~ListViewCb()
+				{
+
+				}
+
+				ui::ListItem *Create(CreateParam& param)
+				{
+					return m_parent->CreateListItem(param);
+				}
+
+				void Start(StartParam& param)
+				{
+					param.list_item->Show(common::transition::Type_Popup1);
+				}
+
+			private:
+
+				Submenu *m_parent;
+			};
+
+			class Item
+			{
+			public:
+
+				Item()
+				{
+
+				}
+
+				wstring name;
+				wstring stat;
+				string workId;
+				string bannerUrl;
+				IDParam texId;
+				TexPool *texPool;
+			};
+
+		protected:
+
+			HVDB *m_baseParent;
+			ui::Widget *m_submenuRoot;
+			ui::ListView *m_list;
+			bool m_interrupted;
+			bool m_allJobsComplete;
+			vector<Item> m_results;
+			uint32_t m_currentPage;
 
 		private:
 
-			HVDB *m_parent;
+			static void OnTexPoolAdd(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+
+			void OnListButton(ui::Widget *wdg);
 		};
 
-		class TrackParseJob : public job::JobItem
+		class FavouriteSubmenu : public Submenu
 		{
 		public:
 
-			TrackParseJob(HVDB *parent, AudioItem *item) : job::JobItem("HVDB::TrackParseJob", NULL), m_parent(parent), m_audioItem(item)
+			class FavouriteJob : public job::JobItem
 			{
+			public:
 
-			}
+				FavouriteJob(FavouriteSubmenu *parent) : job::JobItem("HVDB::FavouriteJob", NULL), m_parent(parent)
+				{
 
-			~TrackParseJob() {}
+				}
 
-			int32_t Run()
+				~FavouriteJob() {}
+
+				int32_t Run()
+				{
+					m_parent->ParseFavourite();
+
+					return SCE_PAF_OK;
+				}
+
+				void Finish(int32_t result) {}
+
+			private:
+
+				FavouriteSubmenu *m_parent;
+			};
+
+			FavouriteSubmenu(HVDB *parentObj);
+
+			~FavouriteSubmenu();
+
+			void ParseFavourite();
+
+			void GoToNextPage();
+
+			void GoToPrevPage();
+
+			void GoToBasePageForSync();
+
+			SubmenuType GetType()
 			{
-				m_parent->ParseTrack(m_audioItem);
-
-				return SCE_PAF_OK;
-			}
-
-			void Finish(int32_t result) {}
-
-		private:
-
-			HVDB *m_parent;
-			AudioItem *m_audioItem;
-		};
-
-		class LogClearJob : public job::JobItem
-		{
-		public:
-
-			LogClearJob(HVDB *parent) : job::JobItem("HVDB::LogClearJob", NULL), m_parent(parent)
-			{
-
-			}
-
-			~LogClearJob() {}
-
-			int32_t Run();
-
-			void Finish(int32_t result) {}
-
-		private:
-
-			HVDB *m_parent;
-		};
-
-		class ListViewCb : public ui::listview::ItemFactory
-		{
-		public:
-
-			ListViewCb(HVDB *parent) : m_parent(parent)
-			{
-
-			}
-
-			~ListViewCb()
-			{
-
-			}
-
-			ui::ListItem *Create(CreateParam& param)
-			{
-				return m_parent->CreateListItem(param);
-			}
-
-			void Start(StartParam& param)
-			{
-				param.list_item->Show(common::transition::Type_Popup1);
+				return SubmenuType_Favourites;
 			}
 
 		private:
 
-			HVDB *m_parent;
-		};
-
-		class ListViewTrackCb : public ui::listview::ItemFactory
-		{
-		public:
-
-			ListViewTrackCb(HVDB *parent) : m_parent(parent)
-			{
-
-			}
-
-			~ListViewTrackCb()
-			{
-
-			}
-
-			ui::ListItem *Create(CreateParam& param)
-			{
-				return m_parent->CreateTrackListItem(param);
-			}
-
-			void Start(StartParam& param)
-			{
-				param.list_item->Show(common::transition::Type_Popup1);
-			}
-
-		private:
-
-			HVDB *m_parent;
-		};
-
-		class AudioItem
-		{
-		public:
-
-			AudioItem()
-			{
-
-			}
-
-			wstring name;
-			wstring subtitle;
-			string id;
-			string cover;
-			IDParam texId;
-			TexPool *texPool;
-		};
-
-		class TrackItem
-		{
-		public:
-
-			TrackItem()
-			{
-
-			}
-
-			wstring name;
-			string url;
-			AudioItem *audioItem;
+			HVDBPaginationInfo m_pgi;
 		};
 
 		HVDB();
 
-		~HVDB() override;
+		~HVDB()  override;
 
-		void ClearEntryResults();
+		void SwitchSubmenu(Submenu::SubmenuType type);
 
-		void AddEntry();
-
-		void ParseTrack(AudioItem *audioItem);
-
-		ui::ListItem* CreateListItem(ui::listview::ItemFactory::CreateParam& param);
-
-		ui::ListItem* CreateTrackListItem(ui::listview::ItemFactory::CreateParam& param);
+		void Refresh();
 
 		MenuType GetMenuType() override
 		{
@@ -200,39 +170,30 @@ namespace menu {
 
 		const uint32_t *GetSupportedSettingsItems(int32_t *count) override
 		{
-			*count = 0;
+			*count = sizeof(k_settingsIdList) / sizeof(char*);
 			return k_settingsIdList;
 		}
 
 	private:
 
 		void OnBackButton();
-		void OnListButton(ui::Widget *wdg);
-		void OnDeleteButton(ui::Widget *wdg);
-		void OnAddEntryButton();
+		void OnSubmenuButton(ui::Widget *wdg);
 		void OnSettingsButton();
 		void OnOptionMenuEvent(int32_t type, int32_t subtype);
-		void OnDialogEvent(int32_t type);
-		void OnPlayerEvent(int32_t type);
 
-		static void OnTexPoolAdd(int32_t type, ui::Handler *self, ui::Event *e, void *userdata);
+		bool AuthMe();
 
 		ui::Widget *m_browserRoot;
 		ui::BusyIndicator *m_loaderIndicator;
 		ui::Text *m_topText;
-		ui::TextBox *m_addEntryTextBox;
-		ui::ListView *m_list;
-		ui::ListView *m_trackList;
-		ui::Button *m_backButton;
-		menu::PlayerSimple *m_player;
-		string m_addEntryId;
+		Submenu *m_currentSubmenu;
 		int32_t m_dialogIdx;
-		bool m_interrupted;
 		TexPool *m_texPool;
-		vector<AudioItem> m_entryResults;
-		vector<TrackItem> m_trackResults;
 
-		const uint32_t k_settingsIdList[0] = {
+		const uint32_t k_settingsIdList[3] = {
+			hvdb_account_setting,
+			hvdb_search_setting,
+			hvdb_player_setting
 		};
 	};
 

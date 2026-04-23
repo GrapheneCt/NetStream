@@ -22,8 +22,6 @@ public:
 		{
 			playerType = PlayerType_FMOD;
 		}
-
-		string coverUrl;
 	};
 
 	class BootJob : public job::JobItem
@@ -79,6 +77,8 @@ public:
 	static void PreInit();
 
 	static SupportType IsSupported(const char *path);
+
+	static const char *GetVersion();
 
 private:
 

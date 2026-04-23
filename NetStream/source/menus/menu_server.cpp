@@ -42,7 +42,10 @@ void menu::GenericServerMenu::OnBackButton()
 
 void menu::GenericServerMenu::OnPlayerCreateTimeout(GenericServerBrowser::Entry *entry)
 {
-	m_player = new menu::PlayerSimple(m_browser->GetBEAVUrl(entry->ref).c_str());
+	string url;
+	GenericPlayer::Option *opt = NULL;
+	m_browser->GetInfoForPlayer(entry->ref, url, &opt);
+	m_player = new menu::PlayerSimple(url.c_str(), opt);
 }
 
 void menu::GenericServerMenu::OnListButton(ui::Widget *wdg)
@@ -67,7 +70,7 @@ void menu::GenericServerMenu::OnListButton(ui::Widget *wdg)
 		}
 		else
 		{
-			m_player = new menu::PlayerSimple(m_browser->GetBEAVUrl(entry->ref).c_str());
+			OnPlayerCreateTimeout(entry);
 		}
 	}
 }
@@ -114,7 +117,14 @@ ui::ListItem *menu::GenericServerMenu::CreateListItem(ui::listview::ItemFactory:
 	ui::Widget *button = item->FindChild(image_button_list_item);
 	button->SetName(param.cell_index);
 
-	common::Utf8ToUtf16(entry->ref, &text16);
+	if (entry->displayName.empty())
+	{
+		common::Utf8ToUtf16(entry->ref, &text16);
+	}
+	else
+	{
+		common::Utf8ToUtf16(entry->displayName, &text16);
+	}
 	button->SetString(text16);
 	button->AddEventCallback(ui::Button::CB_BTN_DECIDE,
 	[](int32_t type, ui::Handler *self, ui::Event *e, void *userdata)

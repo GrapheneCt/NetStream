@@ -39,20 +39,15 @@ static const char *k_supportedExtensions[] = {
 FMOD_RESULT FMODPlayer::HybridInterface::Open(const char *name, unsigned int *filesize, void **handle, void *userdata)
 {
 	int32_t ret = 0;
-	common::SharedPtr<File> *file = NULL;
+	common::SharedPtr<File> *file = new common::SharedPtr<File>;
 
 	if (LocalFile::Exists(name))
 	{
-
-		common::SharedPtr<LocalFile> *lfile = new common::SharedPtr<LocalFile>;
-		*lfile = LocalFile::Open(name, File::RDONLY, 0, &ret);
-		file = reinterpret_cast<common::SharedPtr<File> *>(lfile);
+		*file = LocalFile::Open(name, File::RDONLY, 0, &ret);
 	}
 	else
 	{
-		common::SharedPtr<CurlFile> *rfile = new common::SharedPtr<CurlFile>;
-		*rfile = CurlFile::Open(name, File::RDONLY, 0, &ret, NULL, utils::GetGlobalProxy());
-		file = reinterpret_cast<common::SharedPtr<File> *>(rfile);
+		*file = CurlFile::Open(name, File::RDONLY, 0, &ret, NULL, utils::GetGlobalProxy());
 	}
 
 	if (ret == SCE_PAF_OK)
@@ -78,6 +73,7 @@ FMOD_RESULT FMODPlayer::HybridInterface::Read(void *handle, void *buffer, unsign
 	int32_t readres = 0;
 	common::SharedPtr<File> *file = reinterpret_cast<common::SharedPtr<File> *>(handle);
 	readres = file->get()->Read(buffer, sizebytes);
+	sceClibPrintf("read req: %u, actual: %d\n", sizebytes, readres);
 	if (readres >= 0)
 	{
 		*bytesread = readres;
@@ -87,6 +83,7 @@ FMOD_RESULT FMODPlayer::HybridInterface::Read(void *handle, void *buffer, unsign
 		}
 		return FMOD_ERR_FILE_EOF;
 	}
+	*bytesread = 0;
 	return FMOD_ERR_FILE_BAD;
 }
 
@@ -95,6 +92,7 @@ FMOD_RESULT FMODPlayer::HybridInterface::Seek(void *handle, unsigned int pos, vo
 	off_t seekres = 0;
 	common::SharedPtr<File> *file = reinterpret_cast<common::SharedPtr<File> *>(handle);
 	seekres = file->get()->Seek(pos, File::SET);
+	sceClibPrintf("seek req: %u, actual: %lld\n", pos, seekres);
 	if (seekres == pos)
 	{
 		return FMOD_OK;
@@ -150,11 +148,11 @@ void FMODPlayer::OnBootJob()
 			thread::RMutex::MainThreadMutex()->Unlock();
 		}
 	}
-	else if (!m_opt.coverUrl.empty())
+	else if (!m_opt.auxStreamUrl.empty())
 	{
 		int32_t res = -1;
 		CurlFile::OpenArg oarg;
-		oarg.ParseUrl(m_opt.coverUrl.c_str());
+		oarg.ParseUrl(m_opt.auxStreamUrl.c_str());
 		oarg.SetOption(3000, CurlFile::OpenArg::OptionType_ConnectTimeOut);
 		oarg.SetOption(5000, CurlFile::OpenArg::OptionType_RecvTimeOut);
 		oarg.SetProxy(utils::GetGlobalProxy());
@@ -200,7 +198,14 @@ FMODPlayer::FMODPlayer(ui::Widget *targetPlane, const char *url, Option *opt)
 	m_path = url;
 	if (opt)
 	{
-		m_opt = *opt;
+		if (opt->playerType == GenericPlayer::PlayerType_FMOD)
+		{
+			m_opt = *opt;
+		}
+		else
+		{
+			opt->CommonCopy(m_opt);
+		}
 	}
 	s_system->attachChannelGroupToPort(FMOD_PSVITA_PORT_TYPE_VOICE, 0, s_chg);
 	common::MainThreadCallList::Register(UpdateTask, this);
@@ -374,4 +379,22 @@ GenericPlayer::SupportType FMODPlayer::IsSupported(const char *path)
 	}
 
 	return SupportType_NotSupported;
+}
+
+const char *FMODPlayer::GetVersion()
+{
+	static char sversion[16];
+	unsigned int version = 0;
+
+	if (s_system)
+	{
+		s_system->getVersion(&version);
+	}
+
+	unsigned int major = (version & 0xFFFF0000) >> 16;
+	unsigned int minor = (version & 0x0000FF00) >> 8;
+	unsigned int dev = (version & 0x000000FF);
+	sce_paf_snprintf(sversion, sizeof(sversion), "%u.%u.%u", major, minor, dev);
+
+	return sversion;
 }

@@ -3,7 +3,7 @@
 
   <string src="NetStream" id="msg_title_menu_first" />
   <string src="YouTube" id="msg_fpmenu_item_0" />
-  <string src="HVDB" id="msg_fpmenu_item_1" />
+  <string src="Kikoeru" id="msg_fpmenu_item_1" />
   <string src="HTTPサーバー" id="msg_fpmenu_item_2" />
   <string src="FTPサーバー" id="msg_fpmenu_item_3" />
   <string src="ローカルストレージ" id="msg_fpmenu_item_4" />
@@ -21,11 +21,12 @@
   <string src="設定" id="msg_settings" />
   <string src="HTTPサーバー" id="msg_settings_http" />
   <string src="FTPサーバー" id="msg_settings_ftp" />
+  <string src="Account" id="msg_settings_account" />
   <string src="ローカルストレージ" id="msg_settings_local" />
   <string src="検索" id="msg_settings_search" />
   <string src="コメント" id="msg_settings_comment" />
   <string src="画質" id="msg_settings_quality" />
-  <string src="プレイヤー" id="msg_settings_youtube_player" />
+  <string src="プレイヤー" id="msg_settings_player" />
   <string src="Cloud Sync" id="msg_settings_cloud_sync" />
   <string src="ビルド情報" id="msg_settings_verinfo" />
   
@@ -40,6 +41,10 @@
   <string src="パスワード" id="msg_ftp_password" />
   <string src="NLSTを使用する" id="msg_ftp_nlst" />
   <string src="このオプションを有効にすると、NetStreamはLISTコマンドの代わりにNLSTコマンドをFTPサーバーに送信するようになります。このオプションは動作を高速化しますが、一部のFTPサーバーではサポートされていない場合があります。" id="msg_ftp_nlst_hint" />
+
+  <string src="Host Address" id="msg_hvdb_host" />
+  <string src="User" id="msg_hvdb_user" />
+  <string src="Password" id="msg_hvdb_password" />
 
   <string src="相対的な.m3u8プレイリストのプレフィックス" id="msg_local_playlist_prefix" />
   <string src="名前順の並べ替え" id="msg_local_sort_name" />
@@ -99,15 +104,39 @@
   <string src="480p" id="msg_option_youtube_quality_live_3" />
   <string src="720p" id="msg_option_youtube_quality_live_4" />
 
+  <string src="Sort Order" id="msg_hvdb_search_sort" />
+  <string src="Sort Type" id="msg_hvdb_search_sort_type" />
+  <string src="Progress Filter" id="msg_hvdb_search_filter" />
+
+  <string src="Ascending" id="msg_option_hvdb_search_sort_0" />
+  <string src="Descending" id="msg_option_hvdb_search_sort_1" />
+
+  <string src="Create Date" id="msg_option_hvdb_search_sort_type_0" />
+  <string src="Release Date" id="msg_option_hvdb_search_sort_type_1" />
+  <string src="Purchase Count" id="msg_option_hvdb_search_sort_type_2" />
+  <string src="Price" id="msg_option_hvdb_search_sort_type_3" />
+  <string src="Rating" id="msg_option_hvdb_search_sort_type_4" />
+  <string src="Review Count" id="msg_option_hvdb_search_sort_type_5" />
+  <string src="ID" id="msg_option_hvdb_search_sort_type_6" />
+  <string src="NSFW" id="msg_option_hvdb_search_sort_type_7" />
+  <string src="Update Date" id="msg_option_hvdb_search_sort_type_8" />
+
+  <string src="Marked" id="msg_option_hvdb_search_filter_0" />
+  <string src="Listening" id="msg_option_hvdb_search_filter_1" />
+  <string src="Listened" id="msg_option_hvdb_search_filter_2" />
+  <string src="Replay" id="msg_option_hvdb_search_filter_3" />
+  <string src="Postponed" id="msg_option_hvdb_search_filter_4" />
+  <string src="Any" id="msg_option_hvdb_search_filter_5" />
+
+  <string src="Show Work Banner" id="msg_toggle_hvdb_banner" />
+
   <string src="Use Cloud Sync" id="msg_toggle_cloud_sync" />
   <string src="Sync Data Automatically" id="msg_toggle_cloud_sync_auto" />
   <string src="Cloud sync option allows you to sync various data such as YouTube history and favourites, with cloud storage. This feature uses cloud storage provided by PlayStation™Network. Please restart this application after enabling this feature." id="msg_cloud_sync_hint" />
 
   <string src="最小化して開始する" id="msg_toggle_youtube_min" />
 
-  <string src="All entries will be deleted. Do you want to continue?" id="msg_settings_hvdb_clean_all_entry_confirm" />
-  <string src="Clear All Entries" id="msg_settings_hvdb_clean_all_entry" />
-  <string src="Add Entry" id="msg_settings_hvdb_add_entry" />
+  <string src="Refresh" id="msg_settings_hvdb_refresh" />
 
   <string src="Upload To Cloud" id="msg_settings_youtube_cloud_upload" />
   <string src="Get From Cloud" id="msg_settings_youtube_cloud_download" />
@@ -120,9 +149,6 @@
   <string src="ダウンロードがキューに追加されました。" id="msg_settings_youtube_download_begin" />
 
   <string src="Select Quality" id="msg_quality_select_dialog_title" />
-  
-  <string src="Please enter DLsite ID of the work." id="msg_hvdb_add_entry" />
-  <string src="ID not found in the database." id="msg_hvdb_error_id_not_exist" />
 
   <string src="PlayStation™Network error has occured. Cloud data sync will not be available. If you enabled cloud sync option, please restart this application before using it." id="msg_error_psn_connection" />
 

@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="source\browsers\ftp_server_browser.cpp" />
     <ClCompile Include="source\browsers\http_server_browser.cpp" />
+    <ClCompile Include="source\browsers\hvdb_tracks_browser.cpp" />
     <ClCompile Include="source\browsers\local_server_browser.cpp" />
     <ClCompile Include="source\hvdb_utils.cpp" />
     <ClCompile Include="source\menus\menu_hvdb.cpp" />
@@ -46,9 +47,11 @@
     <ClInclude Include="include\browsers\ftp_server_browser.h" />
     <ClInclude Include="include\browsers\generic_server_browser.h" />
     <ClInclude Include="include\browsers\http_server_browser.h" />
+    <ClInclude Include="include\browsers\hvdb_tracks_browser.h" />
     <ClInclude Include="include\browsers\local_server_browser.h" />
     <ClInclude Include="include\hvdb_utils.h" />
     <ClInclude Include="include\menus\menu_hvdb.h" />
+    <ClInclude Include="include\menus\menu_hvdb_tracks.h" />
     <ClInclude Include="include\np_utils.h" />
     <ClInclude Include="include\common.h" />
     <ClInclude Include="include\debug.h" />

@@ -5,7 +5,8 @@
 #include <paf.h>
 #include <paf_file_ext.h>
 
-#include "ftube.h"
+#include "menus/menu_generic.h"
+#include "players/player_generic.h"
 
 using namespace paf;
 
@@ -121,6 +122,10 @@ namespace utils
 	bool IsAudioSupported(uint32_t ch, uint32_t srate);
 
 	bool IsLocalPath(const char *path);
+
+	menu::GenericMenu *CreatePlayer(string const& url);
+
+	GenericPlayer::SupportType GetContentSupportType(const char *path);
 };
 
 

@@ -538,7 +538,14 @@ BEAVPlayer::BEAVPlayer(ui::Widget *targetPlane, const char *url, Option *opt)
 	m_path = url;
 	if (opt)
 	{
-		m_opt = *opt;
+		if (opt->playerType == GenericPlayer::PlayerType_BEAV)
+		{
+			m_opt = *opt;
+		}
+		else
+		{
+			opt->CommonCopy(m_opt);
+		}
 	}
 }
 
@@ -894,4 +901,9 @@ GenericPlayer::SupportType BEAVPlayer::IsSupported(const char *path)
 	}
 
 	return SupportType_NotSupported;
+}
+
+const char *BEAVPlayer::GetVersion()
+{
+	return "3.60";
 }

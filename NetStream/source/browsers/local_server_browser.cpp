@@ -50,21 +50,19 @@ string LocalServerBrowser::GetPath()
 	return m_path;
 }
 
-string LocalServerBrowser::GetBEAVUrl(string const& in)
+void LocalServerBrowser::GetInfoForPlayer(string const& in, string& url, GenericPlayer::Option **opt)
 {
 	string fullPath = m_path + in;
-	string ret;
 
 	if (!utils::IsLocalPath(in.c_str()))
 	{
-		ret = in;
+		url = in;
 	}
 	else
 	{
-		ret = fullPath;
+		url = fullPath;
 	}
-
-	return ret;
+	*opt = NULL;
 }
 
 void LocalServerBrowser::SetPath(const char *ref)
@@ -263,15 +261,7 @@ vector<LocalServerBrowser::Entry *> *LocalServerBrowser::GoTo(const char *ref, i
 			{
 				while (dir.Read(&dentry) >= 0)
 				{
-					GenericPlayer::SupportType supportType = AVPlayer::IsSupported(dentry.name.c_str());
-					if (supportType == GenericPlayer::SupportType_NotSupported)
-					{
-						supportType = BEAVPlayer::IsSupported(dentry.name.c_str());
-						if (supportType == GenericPlayer::SupportType_NotSupported)
-						{
-							supportType = FMODPlayer::IsSupported(dentry.name.c_str());
-						}
-					}
+					GenericPlayer::SupportType supportType = utils::GetContentSupportType(dentry.name.c_str());
 
 					if (supportType != GenericPlayer::SupportType_NotSupported)
 					{

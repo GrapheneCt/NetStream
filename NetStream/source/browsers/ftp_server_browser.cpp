@@ -107,18 +107,17 @@ string FtpServerBrowser::GetPath()
 	return ret;
 }
 
-string FtpServerBrowser::GetBEAVUrl(string const& in)
+void FtpServerBrowser::GetInfoForPlayer(string const& in, string& url, GenericPlayer::Option **opt)
 {
-	string ret = "http://";
+	url = "http://";
 	CURLU *turl = curl_url_dup(m_url);
 	curl_url_set(turl, CURLUPART_URL, in.c_str(), 0);
 	char *result;
 	curl_url_get(turl, CURLUPART_URL, &result, 0);
-	ret += result;
+	url += result;
 	curl_free(result);
 	curl_url_cleanup(turl);
-
-	return ret;
+	*opt = NULL;
 }
 
 void FtpServerBrowser::SetPath(const char *ref)
@@ -180,11 +179,7 @@ vector<FtpServerBrowser::Entry *> *FtpServerBrowser::GoTo(const char *ref, int32
 				}
 			}
 
-			GenericPlayer::SupportType supportType = AVPlayer::IsSupported(tok);
-			if (supportType == GenericPlayer::SupportType_NotSupported)
-			{
-				supportType = BEAVPlayer::IsSupported(tok);
-			}
+			GenericPlayer::SupportType supportType = utils::GetContentSupportType(tok);
 
 			if (supportType != BEAVPlayer::SupportType_NotSupported)
 			{

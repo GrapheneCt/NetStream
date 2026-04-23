@@ -297,14 +297,20 @@ void menu::YouTube::SearchSubmenu::Search()
 				utils::ConvertSecondsToString(text8, ftItem->videoItem->lengthSec, false);
 			}
 			common::Utf8ToUtf16(text8, &item.time);
-			text8 = "by ";
-			text8 += ftItem->videoItem->author;
-			text8 += "\n";
-			/* TODO fix live text8 += ftItem->videoItem->published;
-			if (ftItem->videoItem->isLive || ftItem->videoItem->lengthSec == 0)
+			if (ftItem->videoItem->author)
 			{
-				text8 = " watching";
-			}*/
+				text8 = "by ";
+				text8 += ftItem->videoItem->author;
+			}
+			if (ftItem->videoItem->published)
+			{
+				text8 += "\n";
+				text8 += ftItem->videoItem->published;
+				if (ftItem->videoItem->isLive || ftItem->videoItem->lengthSec == 0)
+				{
+					text8 += " watching";
+				}
+			}
 			common::Utf8ToUtf16(text8, &item.stat);
 			break;
 		}

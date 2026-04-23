@@ -27,7 +27,7 @@ public:
 
 	string GetPath();
 
-	string GetBEAVUrl(string const& in);
+	void GetInfoForPlayer(string const& in, string& url, GenericPlayer::Option **opt);
 
 	vector<FtpServerBrowser::Entry *> *GoTo(const char *ref, int32_t *result);
 

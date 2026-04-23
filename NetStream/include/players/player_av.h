@@ -20,6 +20,10 @@ public:
 	{
 	public:
 
+		Option()
+		{
+			playerType = PlayerType_AV;
+		}
 	};
 
 	class BootJob : public job::JobItem
@@ -79,6 +83,8 @@ public:
 	static void PreInit();
 
 	static SupportType IsSupported(const char *path);
+
+	static const char *GetVersion();
 
 private:
 

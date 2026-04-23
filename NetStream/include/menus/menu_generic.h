@@ -17,7 +17,8 @@ namespace menu {
 		MenuType_Youtube,		// YouTube menu
 		MenuType_Hvdb,			// HVDB menu
 		MenuType_PlayerSimple,	// Simple Player menu (simple fullscreen player)
-		MenuType_PlayerYouTube,	// YouTube Player menu (description/comments etc.)
+		MenuType_PlayerYouTube,	// YouTube Player menu (description/comments etc.),
+		MenuType_HvdbTracks		// HVDB tracks browser menu
 	};
 
 	/**
